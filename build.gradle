@@ -1,0 +1,101 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group = 'app.tozzi'
+version = '0.0.1'
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JPA
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+    // Spring
+    implementation 'org.springframework.data:spring-data-jpa:3.2.2'
+    implementation 'org.springframework:spring-beans:6.1.3'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testImplementation 'org.projectlombok:lombok:1.18.30'
+
+    // Test
+    testImplementation platform('org.junit:junit-bom:5.10.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            group = 'app.tozzi'
+            artifactId = 'jpa-search-helper'
+            version = "0.0.1"
+            from components.java
+            pom {
+                name = 'JPA Search Helper'
+                description = 'Helper library for complex JPA queries'
+
+                licenses {
+                    license {
+                        name = 'Mozilla Public License 2.0'
+                        url = 'https://www.mozilla.org/en-US/MPL/2.0/'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'biagio.tozzi'
+                        name = 'Biagio Placido Tozzi'
+                        email = 'biagio.tozzi@gmail.com'
+                        url = 'https://www.tozzi.app'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com:biagioT/jpa-search-helper.git'
+                    developerConnection = 'scm:git:ssh://github.com:biagioT/jpa-search-helper.git'
+                    url = 'https://github.com/biagioT/jpa-search-helper'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = "$username"
+                password = "$password"
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
+}
+
+javadoc {
+    options.addBooleanOption('html5', true)
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    from sourceSets.main.allSource
+}
