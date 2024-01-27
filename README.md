@@ -5,7 +5,7 @@ Library for building complex queries using JPA in Spring.
 
 Do you want your controller to be able to receive a request like this and perform an advanced and complex search?
 ```
-curl --request GET --url 'http://www.myexampledomain.com/persons?birthDate_gte=19910101&country=IT&firstName_eq=Biagio&lastName_iEndsWith=ZZI&company_in=COMP1,COMP2&birthDate_sort=ASC&_offset=0&_limit10'`
+curl --request GET --url 'http://www.myexampledomain.com/persons?birthDate_gte=19910101&country=IT&firstName_eq=Biagio&lastName_iEndsWith=ZZI&company_in=COMP1,COMP2&notes_is=not_empty&birthDate_sort=ASC&_offset=0&_limit10'`
 ```
 
 Read this readme!
@@ -209,6 +209,9 @@ public class Person {
 
     @Searchable
     private String country;
+    
+    @Searchable
+    private String notes;
 
     @Searchable(entityFieldKey = "companyEntity.name")
     private String company;
@@ -237,6 +240,9 @@ public class PersonEntity {
 
     @Column(name = "COUNTRY")
     private String country;
+    
+    @Column(name = "NOTES")
+    private String notes;
         
     @OneToOne
     private Company companyEntity;
@@ -265,6 +271,7 @@ filters.put("country", "IT");
 filters.put("firstName_eq", "Biagio");
 filters.put("lastName_iEndsWith", "ZZI");
 filters.put("company_in", "Comp1,Comp2");
+filters.put("notes_is", "not_empty");
 
 // Without pagination
 List<PersonEntity> fullSearch = personRepository.findAll(filters, Person.class);
@@ -317,7 +324,7 @@ public class PersonManager {
 ```
 Curl:
 ```
-curl --request GET --url 'http://www.myexampledomain.com/persons?birthDate_gte=19910101&country=IT&firstName_eq=Biagio&lastName_iEndsWith=ZZI&company_in=COMP1,COMP2&birthDate_sort=ASC&_offset=0&_limit10'`
+curl --request GET --url 'http://www.myexampledomain.com/persons?birthDate_gte=19910101&country=IT&firstName_eq=Biagio&lastName_iEndsWith=ZZI&company_in=COMP1,COMP2&notes_is=not_empty&birthDate_sort=ASC&_offset=0&_limit10'`
 ```
 
 ### Join Fetch
