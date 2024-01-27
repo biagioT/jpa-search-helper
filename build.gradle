@@ -46,6 +46,7 @@ publishing {
             pom {
                 name = 'JPA Search Helper'
                 description = 'Helper library for complex JPA queries'
+                url = 'https://www.tozzi.app'
 
                 licenses {
                     license {
@@ -66,7 +67,7 @@ publishing {
                 scm {
                     connection = 'scm:git:git://github.com:biagioT/jpa-search-helper.git'
                     developerConnection = 'scm:git:ssh://github.com:biagioT/jpa-search-helper.git'
-                    url = 'https://github.com/biagioT/jpa-search-helper.git'
+                    url = 'https://github.com/biagioT/jpa-search-helper/tree/main'
                 }
             }
         }
