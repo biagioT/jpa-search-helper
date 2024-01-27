@@ -82,5 +82,30 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
         return findAll(specification, pageRequest);
     }
 
+    /**
+     * Count
+     *
+     * @param filters
+     * @param type
+     * @return
+     */
+    default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
+        Specification<E> specification = JPASearchCore.specification(filters, type, true, true);
+        return count(specification);
+    }
+
+    /**
+     * Count
+     *
+     * @param filters
+     * @param type
+     * @param entityFieldMap
+     * @return
+     */
+    default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
+        Specification<E> specification = JPASearchCore.specification(filters, type, true, true, entityFieldMap);
+        return count(specification);
+    }
+
 }
 
