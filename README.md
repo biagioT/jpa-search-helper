@@ -4,8 +4,16 @@
 Library for building complex queries using JPA in Spring.
 
 Do you want your controller to be able to receive a request like this and perform an advanced and complex search?
-```
-curl --request GET --url 'http://www.myexampledomain.com/persons?birthDate_gte=19910101&country=IT&firstName_eq=Biagio&lastName_iEndsWith=ZZI&company_in=COMP1,COMP2&notes_is=not_empty&birthDate_sort=ASC&_offset=0&_limit10'`
+
+```bash
+curl - request GET \
+ - url 'https://www.myexampledomain.com/persons?
+firstName=Biagio
+&lastName_startsWith=Toz
+&birthDate_gte=19910101
+&country_in=IT,FR,DE
+&company.name_in=Microsoft,Apple
+&company.employees_between=500,5000'
 ```
 
 Read this readme!
@@ -66,107 +74,37 @@ implementation 'app.tozzi:jpa-search-helper:0.0.2'
 ### Usage
 
 #### Searchable annotation
-Annotate your DTO class with `@Searchable`, or alternatively you can apply the annotation directly on your entity class.
-Example:
+Start by applying the `@Searchable` annotation to the fields in your DTO, or alternatively your JPA entity, that you want to make available for search.
 
 ```java
 @Data
-public final class ExampleBean {
-
-    @Searchable(minSize = 5, maxSize = 10)
-    private int primitiveInteger;
-
-    @Searchable(minDigits = 2, maxDigits = 4)
-    private Integer wrapperInteger;
-
-    private String string;
-
-    @Searchable(regexPattern = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
-    private String email;
-
-    @Searchable(targetType = SearchType.INTEGER)
-    private String integerString;
-
-    @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
-    private String dateString;
-
-    @Searchable(datePattern = "yyyyMMdd")
-    private Date date1;
-
-    @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
-    private Date date2;
-
-    @Searchable(entityFieldKey = "entity.long-one")
-    private long primitiveLong;
-
-    @Searchable(entityFieldKey = "entity.long-two")
-    private Long wrapperLong;
-
-    @Searchable(decimalFormat = "#.#")
-    private float primitiveFloat;
+public class Person {
 
     @Searchable
-    private Float wrapperFloat;
-
-    @Searchable(decimalFormat = "#.#")
-    private double primitiveDouble;
-
-    @Searchable(decimalFormat = "#.#")
-    private Double wrapperDouble;
+    private String firstName;
 
     @Searchable
-    private BigDecimal bigDecimal;
+    private String lastName;
 
-    @Searchable(datePattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime localDateTime;
-
-    @Searchable(datePattern = "yyyy-MM-dd")
-    private LocalDate localDate;
-
-    @Searchable(datePattern = "HHmmssXXX")
-    private LocalTime localTime;
-
-    @Searchable(datePattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
-    private OffsetDateTime offsetDateTime;
-
-    @Searchable(datePattern = "HHmmssXXX")
-    private OffsetTime offsetTime;
+    @Searchable(entityFieldKey = "dateOfBirth")
+    private Date birthDate;
 
     @Searchable
-    private boolean primitiveBoolean;
-
-    @Searchable
-    private Boolean wrapperBoolean;
-
-    private ExampleNestedBean nestedBean;
+    private String country;
+    
+    private Company company;
 
     @Data
-    public static class ExampleNestedBean {
-
-        @Searchable
-        private String string;
-
-        @Searchable
-        private String string2;
-
-        @Searchable
-        private String string3;
-
-        @Searchable
-        private String string4;
-
-        @Searchable
-        private String string5;
-
-        @Searchable
-        private String string6;
-
-        @Searchable
-        private String string7;
+    public static class Company {
         
+        @Searchable(entityFieldKey=companyEntity.name)
+        private String name;
+              
+        @Searchable(entityFieldKey=companyEntity.employeesCount)
+        private int employees;
+    }
 }
 ```
-
 
 The annotation allows you to specify:
 
@@ -191,35 +129,7 @@ Exceptions:
 - If a field does not exist or is not searchable you will receive an `InvalidFieldException`.
 - If the value of a field does not meet the requirements you will receive an `InvalidValueException`.
 
-##### Example
-DTO Bean:
-
-```java
-@Data
-public class Person {
-
-    @Searchable
-    private String firstName;
-
-    @Searchable
-    private String lastName;
-
-    @Searchable(entityFieldKey = "dateOfBirth")
-    private Date birthDate;
-
-    @Searchable
-    private String country;
-    
-    @Searchable
-    private String notes;
-
-    @Searchable(entityFieldKey = "companyEntity.name")
-    private String company;
-
-}
-```
-
-Entity bean:
+Continuing the example, our entity classes:
 
 ```java
 @Entity
@@ -240,19 +150,30 @@ public class PersonEntity {
 
     @Column(name = "COUNTRY")
     private String country;
-    
-    @Column(name = "NOTES")
-    private String notes;
         
     @OneToOne
-    private Company companyEntity;
+    private CompanyEntity companyEntity;
+
+}
+
+@Entity
+@Data
+public class CompanyEntity {
+
+    @Id
+    private Long id;
+
+    @Column(name = "NAME")
+    private String name;
+
+    @Column(name = "COUNT")
+    private Integer employeesCount;
 
 }
 ```
 
 #### JPASearchRepository
 Your Spring JPA repository must extend JPASearchRepository<?>.
-Example:
 
 ```java
 @Repository
@@ -265,13 +186,13 @@ In your service/manager bean define a map <filter_key, value>:
 ```java
 // ...
 
-Map<String, String> filters = new HashMap<>();  
-filters.put("birthDate_gte", "19910101");  
-filters.put("country", "IT");
+Map<String, String> filters = new HashMap<>();
 filters.put("firstName_eq", "Biagio");
-filters.put("lastName_iEndsWith", "ZZI");
-filters.put("company_in", "Comp1,Comp2");
-filters.put("notes_is", "not_empty");
+filters.put("lastName_startsWith", "Toz");
+filters.put("birthDate_gte", "19910101"); 
+filters.put("country_in", "IT,FR,DE");
+filters.put("company.name_in", "Microsoft,Apple");
+filters.put("company.employees_between", "500,5000");
 
 // Without pagination
 List<PersonEntity> fullSearch = personRepository.findAll(filters, Person.class);
@@ -281,7 +202,7 @@ filters.put("_limit", "10");
 filters.put("_offset", "0");
 
 // With pagination
-Page<PersonEntity> orderedAndPaginatedSearch = personRepository.findAllWithPaginationAndSorting(filters, Person.class);
+Page<PersonEntity> sortedAndPaginatedSearch = personRepository.findAllWithPaginationAndSorting(filters, Person.class);
 
 // ...
 ```
@@ -304,7 +225,7 @@ public class MyController {
 }
 ```
 
-Manager:
+Service/Manager bean:
 ```java
 @Service 
 public class PersonManager { 	
@@ -323,8 +244,15 @@ public class PersonManager {
 }
 ```
 Curl:
-```
-curl --request GET --url 'http://www.myexampledomain.com/persons?birthDate_gte=19910101&country=IT&firstName_eq=Biagio&lastName_iEndsWith=ZZI&company_in=COMP1,COMP2&notes_is=not_empty&birthDate_sort=ASC&_offset=0&_limit10'`
+```bash
+curl - request GET \
+ - url 'https://www.myexampledomain.com/persons?
+firstName=Biagio
+&lastName_startsWith=Toz
+&birthDate_gte=19910101
+&country_in=IT,FR,DE
+&company.name_in=Microsoft,Apple
+&company.employees_between=500,5000'
 ```
 
 ### Join Fetch
@@ -332,7 +260,7 @@ It is possible to force joins with fetch to allow Hibernate to execute a single 
 ```java
 // ...
 
-Map<String, JoinFetch> fetches = Map.of("company", JoinFetch.LEFT);
+Map<String, JoinFetch> fetches = Map.of("companyEntity", JoinFetch.LEFT);
 personRepository.findAll(filters, Person.class, fetches);
 
 // ...
