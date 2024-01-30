@@ -1,7 +1,7 @@
 # JPA Search Helper
 
 ### Description
-Library for building complex queries using JPA in Spring.
+Library for building advanced and dynamic queries using JPA in Spring.
 
 Do you want your controller to be able to receive a request like this and perform an advanced and complex search?
 
