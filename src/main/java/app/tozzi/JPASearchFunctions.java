@@ -8,16 +8,16 @@ import java.util.function.Function;
 
 public class JPASearchFunctions {
 
-    public static final Function<FieldRootBuilderBean<?>, Predicate> EQ = s -> s.criteriaBuilder.equal(getPath(s.root, s.field), s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> EQ_IGNORECASE = s -> s.criteriaBuilder.equal(s.criteriaBuilder.upper(getPath(s.root, s.field)), toUpperCase(s.value));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> STARTSWITH = s -> s.criteriaBuilder.like(s.criteriaBuilder.trim(getPath(s.root, s.field)), s.value + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> STARTSWITH_IGNORECASE = s -> s.criteriaBuilder.like(s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field))), toUpperCase(s.value) + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> ENDSWITH = s -> s.criteriaBuilder.like(s.criteriaBuilder.trim(getPath(s.root, s.field)), "%" + s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> ENDSWITH_IGNORECASE = s -> s.criteriaBuilder.like(s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field))), "%" + toUpperCase(s.value));
+    public static final Function<FieldRootBuilderBean<?>, Predicate> EQ = s -> s.criteriaBuilder.equal(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field), s.value);
+    public static final Function<FieldRootBuilderBean<?>, Predicate> EQ_IGNORECASE = s -> s.criteriaBuilder.equal(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field))) : s.criteriaBuilder.upper(getPath(s.root, s.field)), toUpperCase(s.value));
+    public static final Function<FieldRootBuilderBean<?>, Predicate> STARTSWITH = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field), s.value + "%");
+    public static final Function<FieldRootBuilderBean<?>, Predicate> STARTSWITH_IGNORECASE = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field))) : s.criteriaBuilder.upper(getPath(s.root, s.field)), toUpperCase(s.value) + "%");
+    public static final Function<FieldRootBuilderBean<?>, Predicate> ENDSWITH = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field), "%" + s.value);
+    public static final Function<FieldRootBuilderBean<?>, Predicate> ENDSWITH_IGNORECASE = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field))) : s.criteriaBuilder.upper(getPath(s.root, s.field)), "%" + toUpperCase(s.value));
     public static final Function<FieldRootBuilderBean<?>, Predicate> CONTAINS = s -> s.criteriaBuilder.like(getPath(s.root, s.field), "%" + s.value + "%");
     public static final Function<FieldRootBuilderBean<?>, Predicate> CONTAINS_IGNORECASE = s -> s.criteriaBuilder.like(s.criteriaBuilder.upper(getPath(s.root, s.field)), "%" + toUpperCase(s.value) + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NOTEQ = s -> s.criteriaBuilder.notEqual(getPath(s.root, s.field), s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NOTEQ_IGNORECASE = s -> s.criteriaBuilder.notEqual(s.criteriaBuilder.upper(getPath(s.root, s.field)), toUpperCase(s.value));
+    public static final Function<FieldRootBuilderBean<?>, Predicate> NOTEQ = s -> s.criteriaBuilder.notEqual(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field), s.value);
+    public static final Function<FieldRootBuilderBean<?>, Predicate> NOTEQ_IGNORECASE = s -> s.criteriaBuilder.notEqual(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field))) : s.criteriaBuilder.upper(getPath(s.root, s.field)), toUpperCase(s.value));
     public static final Function<FieldRootBuilderBean<?>, Predicate> GT = s -> s.criteriaBuilder.greaterThan(getPath(s.root, s.field), (Comparable) s.value);
     public static final Function<FieldRootBuilderBean<?>, Predicate> GTE = s -> s.criteriaBuilder.greaterThanOrEqualTo(getPath(s.root, s.field), (Comparable) s.value);
     public static final Function<FieldRootBuilderBean<?>, Predicate> LT = s -> s.criteriaBuilder.lessThan(getPath(s.root, s.field), (Comparable) s.value);

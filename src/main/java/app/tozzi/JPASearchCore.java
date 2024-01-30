@@ -136,7 +136,7 @@ public class JPASearchCore {
                 .filter(e -> PaginationFilter.keys().stream().noneMatch(p -> e.getKey().endsWith(p)))
                 .map(e -> filterManagement(e.getKey(), e.getValue(), clazz, throwsIfNotExists, throwsIfNotSearchable, entityFieldMap))
                 .filter(Objects::nonNull)
-                .map(f -> f.searchFilter.getFunction().apply(new FieldRootBuilderBean<>(f.fieldKey, root, criteriaBuilder, f.value)))
+                .map(f -> f.searchFilter.getFunction().apply(new FieldRootBuilderBean<>(f.fieldKey, root, criteriaBuilder, f.value, f.trim)))
                 .toList();
     }
 
@@ -154,7 +154,7 @@ public class JPASearchCore {
 
         SearchFilter searchFilter = SearchFilter.load(descriptor.suffix, value, SearchFilter.EQ);
         if (searchFilter.hasFixedValue()) {
-            return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value);
+            return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value, descriptor.searchable.trim());
         }
 
         preValidations(descriptor.searchable, descriptor.path, value);
@@ -162,7 +162,7 @@ public class JPASearchCore {
         Object targetValue = searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat());
         searchableValidations(targetValue, descriptor.searchable, descriptor.path, value, searchType);
         filterValidations(searchFilter, descriptor.path, targetValue, searchType);
-        return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, targetValue);
+        return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, targetValue, descriptor.searchable.trim());
     }
 
     private static DescriptorBean loadDescriptor(String key, Class<?> clazz, boolean throwsIfNotExists, boolean throwsIfNotSearchable, boolean checkSortable, boolean throwsIfNotSortable, Map<String, String> entityFieldMap) {
@@ -274,6 +274,7 @@ public class JPASearchCore {
         private String originalKey;
         private SearchFilter searchFilter;
         private Object value;
+        private boolean trim;
     }
 
     @Data

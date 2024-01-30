@@ -14,5 +14,6 @@ public class FieldRootBuilderBean<T> {
     public Root<T> root;
     public CriteriaBuilder criteriaBuilder;
     public Object value;
+    public boolean trim;
 
 }

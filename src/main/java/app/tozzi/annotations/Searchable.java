@@ -31,4 +31,6 @@ public @interface Searchable {
 
     boolean sortable() default true;
 
+    boolean trim() default false;
+
 }
