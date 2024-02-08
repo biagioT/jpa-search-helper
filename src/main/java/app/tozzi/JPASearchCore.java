@@ -15,10 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.beans.PropertyDescriptor;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -49,8 +46,58 @@ public class JPASearchCore {
         return specification(filters, clazz, fetchMap, throwsIfNotExists, throwsIfNotSearchable, null);
     }
 
-    public static PageRequest loadSortAndPagination(Map<String, String> filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExists, boolean throwsIfNotSearchable, Map<String, String> entityFieldMap) {
+    public static <R, T> Specification<R> specification(Map<String, String> filters,
+                                                        Class<T> clazz,
+                                                        Map<String, JoinType> fetchMap,
+                                                        boolean throwsIfNotExists,
+                                                        boolean throwsIfNotSearchable, Map<String, String> entityFieldMap) {
 
+        return (root, query, criteriaBuilder) -> {
+            fetchManagement(fetchMap, root);
+            return criteriaBuilder.and(andPredicates(filters, root, criteriaBuilder, clazz, throwsIfNotExists, throwsIfNotSearchable, entityFieldMap).toArray(Predicate[]::new));
+        };
+    }
+
+    private static void fetchManagement(Map<String, JoinType> fetchMap, Root<?> root) {
+
+        if (fetchMap != null) {
+            fetchMap.forEach((k, v) -> {
+                if (k.contains(".")) {
+                    Fetch<?, ?> fetch = null;
+                    for (String f : k.split("\\.")) {
+                        if (fetch == null) {
+                            fetch = root.fetch(f, v);
+
+                        } else {
+                            fetch.fetch(f, v);
+                        }
+                    }
+
+                } else {
+                    root.fetch(k, v);
+                }
+            });
+        }
+    }
+
+    public static Sort loadSort(Map<String, String> filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExists, boolean throwsIfNotSearchable, Map<String, String> entityFieldMap) {
+
+        return filters.entrySet().stream().filter(e -> e.getKey().endsWith(PaginationFilter.SORT.getSuffix()))
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getValue(), loadDescriptor(e.getKey(), clazz, throwsIfNotExists, throwsIfNotSearchable, true, throwsIfNotSortable, entityFieldMap)))
+                .filter(e -> e.getValue() != null)
+                .map(e -> {
+                    Sort s = Sort.by(e.getValue().getEntityKey());
+                    switch (SortType.load(e.getKey(), SortType.ASC)) {
+                        case ASC -> s = s.ascending();
+                        case DESC -> s = s.descending();
+                    }
+                    return s;
+
+                }).findAny().orElseThrow(() -> new InvalidFieldException("Invalid or not present sort key", PaginationFilter.SORT.getSuffix()));
+
+    }
+
+    public static PageRequest loadSortAndPagination(Map<String, String> filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExists, boolean throwsIfNotSearchable, Map<String, String> entityFieldMap) {
 
         final AtomicInteger limit = new AtomicInteger(-1);
         final AtomicInteger offset = new AtomicInteger(-1);
@@ -97,40 +144,6 @@ public class JPASearchCore {
         return result;
     }
 
-    public static <R, T> Specification<R> specification(Map<String, String> filters,
-                                                        Class<T> clazz,
-                                                        Map<String, JoinType> fetchMap,
-                                                        boolean throwsIfNotExists,
-                                                        boolean throwsIfNotSearchable, Map<String, String> entityFieldMap) {
-
-        return (root, query, criteriaBuilder) -> {
-            fetchManagement(fetchMap, root);
-            return criteriaBuilder.and(andPredicates(filters, root, criteriaBuilder, clazz, throwsIfNotExists, throwsIfNotSearchable, entityFieldMap).toArray(Predicate[]::new));
-        };
-    }
-
-    private static void fetchManagement(Map<String, JoinType> fetchMap, Root<?> root) {
-
-        if (fetchMap != null) {
-            fetchMap.forEach((k, v) -> {
-                if (k.contains(".")) {
-                    Fetch<?, ?> fetch = null;
-                    for (String f : k.split("\\.")) {
-                        if (fetch == null) {
-                            fetch = root.fetch(f, v);
-
-                        } else {
-                            fetch.fetch(f, v);
-                        }
-                    }
-
-                } else {
-                    root.fetch(k, v);
-                }
-            });
-        }
-    }
-
     private static <T> List<Predicate> andPredicates(@NonNull Map<String, String> filters, @NonNull Root<?> root, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Class<T> clazz, boolean throwsIfNotExists, boolean throwsIfNotSearchable, Map<String, String> entityFieldMap) {
         return filters.entrySet().stream()
                 .filter(e -> PaginationFilter.keys().stream().noneMatch(p -> e.getKey().endsWith(p)))
@@ -157,7 +170,6 @@ public class JPASearchCore {
             return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value, descriptor.searchable.trim());
         }
 
-        preValidations(descriptor.searchable, descriptor.path, value);
         SearchType searchType = SearchType.UNTYPED.equals(descriptor.searchable.targetType()) ? SearchType.load(descriptor.propertyDescriptor.getPropertyType(), SearchType.STRING) : descriptor.searchable.targetType();
         Object targetValue = searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat());
         searchableValidations(targetValue, descriptor.searchable, descriptor.path, value, searchType);
@@ -237,13 +249,6 @@ public class JPASearchCore {
         }
     }
 
-    private static void preValidations(Searchable searchable, String field, String value) {
-        // Regex
-        if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !value.matches(searchable.regexPattern())) {
-            throw new InvalidValueException("Value [" + value + " does not match pattern [" + searchable.regexPattern() + " of field [" + field + "]", field, value);
-        }
-    }
-
     private static void searchableValidations(Object targetValue, Searchable searchable, String field, String value, SearchType searchType) {
 
         // Length
@@ -264,6 +269,11 @@ public class JPASearchCore {
         int minDigits = searchType.getMinDigits(targetValue);
         if (minLength >= 0 && searchable.minDigits() >= 0 && minDigits < searchable.minDigits()) {
             throw new InvalidValueException("Value [" + value + "] less than minimum digits count [" + searchable.minDigits() + "] defined on field [" + field + "]", field, value);
+        }
+
+        // Regex
+        if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !searchType.matchRegex(targetValue, searchable.regexPattern())) {
+            throw new InvalidValueException("Value [" + value + " does not match pattern [" + searchable.regexPattern() + " of field [" + field + "]", field, value);
         }
     }
 

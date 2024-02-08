@@ -160,4 +160,17 @@ public enum SearchType {
             default -> -1;
         };
     }
+
+    public boolean matchRegex(Object value, String regex) {
+
+        if (value instanceof Collection<?> coll) {
+            return coll.stream().allMatch(v -> matchRegex(v, regex));
+        }
+
+        return switch (this) {
+            case STRING -> String.valueOf(value).matches(regex);
+            default -> true;
+        };
+
+    }
 }

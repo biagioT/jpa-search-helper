@@ -155,13 +155,23 @@ public class JPASearchCoreTests {
     }
 
     @Test
-    public void badRegexTest() {
+    public void badRegexTest1() {
         Map<String, String> filters = new HashMap<>();
         filters.put("email", "biagio.tozzi");
         filters.put("date1", "20240125");
         InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
         Assertions.assertEquals("email", ex.getField());
         Assertions.assertEquals("biagio.tozzi", ex.getValue());
+    }
+
+    @Test
+    public void badRegexTest2() {
+        Map<String, String> filters = new HashMap<>();
+        filters.put("email_in", "biagio.tozzi@gmail.com,biagio.tozzi");
+        filters.put("date1", "20240125");
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        Assertions.assertEquals("email", ex.getField());
+        Assertions.assertEquals("biagio.tozzi@gmail.com,biagio.tozzi", ex.getValue());
     }
 
     @Test
