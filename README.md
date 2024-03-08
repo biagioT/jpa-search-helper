@@ -27,13 +27,13 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:0.0.5'
+implementation 'app.tozzi:jpa-search-helper:0.0.6'
 ```
 
 ### Managed search filters
