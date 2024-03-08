@@ -124,6 +124,9 @@ The annotation allows you to specify:
   - *maxDigits, minDigits*: only for numeric types. Maximum/minimum number of digits.
   - *regexPattern*: regex pattern.
   - *decimalFormat*: only for decimal numeric types. Default #.##
+
+- Other:
+
   - *trim*: apply trim
   - *tags*: useful if the DTO field can correspond to multiple entity fields
   
