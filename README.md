@@ -94,6 +94,7 @@ public class Person {
     
     private Company company;
 
+    @SearchableClass
     @Data
     public static class Company {
         
@@ -123,6 +124,8 @@ The annotation allows you to specify:
   - *maxDigits, minDigits*: only for numeric types. Maximum/minimum number of digits.
   - *regexPattern*: regex pattern.
   - *decimalFormat*: only for decimal numeric types. Default #.##
+  - *trim*: apply trim
+  - *tags*: useful if the DTO field can correspond to multiple entity fields
   
 
 Exceptions:
