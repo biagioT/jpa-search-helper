@@ -98,10 +98,10 @@ public class Person {
     @Data
     public static class Company {
         
-        @Searchable(entityFieldKey=companyEntity.name)
+        @Searchable(entityFieldKey= "companyEntity.name")
         private String name;
               
-        @Searchable(entityFieldKey=companyEntity.employeesCount)
+        @Searchable(entityFieldKey= "companyEntity.employeesCount")
         private int employees;
     }
 }
