@@ -33,6 +33,8 @@ public final class ExampleBean {
     @Searchable(datePattern = "yyyyMMdd")
     private Date date1;
 
+    private ExampleNestedBean nestedBean;
+
     @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
     private Date date2;
 
@@ -72,14 +74,6 @@ public final class ExampleBean {
     @Searchable(datePattern = "HHmmssXXX")
     private OffsetTime offsetTime;
 
-    @Searchable
-    private boolean primitiveBoolean;
-
-    @Searchable
-    private Boolean wrapperBoolean;
-
-    private ExampleNestedBean nestedBean;
-
     @Searchable(tags = {
             @Tag(fieldKey = "f1"),
             @Tag(fieldKey = "f2"),
@@ -88,6 +82,12 @@ public final class ExampleBean {
             @Tag(fieldKey = "tf3", entityFieldKey = "tttee")
     })
     private String fieldName;
+
+    @Searchable
+    private boolean primitiveBoolean;
+
+    @Searchable
+    private Boolean wrapperBoolean;
 
     @SearchableClass
     @Data

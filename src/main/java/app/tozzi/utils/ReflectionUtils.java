@@ -32,6 +32,13 @@ public class ReflectionUtils {
                         }
                         root.append(f.getName());
                         getAllSearchableFields(root, f.getType(), res);
+
+                        if (root.indexOf(".") != -1) {
+                            root.delete(root.lastIndexOf("."), root.length());
+
+                        } else {
+                            root.setLength(0);
+                        }
                     }
                 });
 
