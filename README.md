@@ -33,7 +33,7 @@ Read this readme!
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:0.0.4'
+implementation 'app.tozzi:jpa-search-helper:0.0.5'
 ```
 
 ### Managed search filters
