@@ -27,7 +27,7 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 
