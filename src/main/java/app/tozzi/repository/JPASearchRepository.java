@@ -22,7 +22,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, true, true);
+        Specification<E> specification = JPASearchCore.specification(filters, type, true);
         return findAll(specification);
     }
 
@@ -35,7 +35,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, true);
+        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true);
         return findAll(specification);
     }
 
@@ -50,7 +50,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, true, entityFieldMap);
+        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, entityFieldMap);
         return findAll(specification);
     }
 
@@ -62,8 +62,8 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, true, true);
-        Sort sort = JPASearchCore.loadSort(filters, type, true, true, true, null);
+        Specification<E> specification = JPASearchCore.specification(filters, type, true);
+        Sort sort = JPASearchCore.loadSort(filters, type, true, true, null);
         return findAll(specification, sort);
     }
 
@@ -76,8 +76,8 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, true);
-        Sort sort = JPASearchCore.loadSort(filters, type, true, true, true, null);
+        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true);
+        Sort sort = JPASearchCore.loadSort(filters, type, true, true, null);
         return findAll(specification, sort);
     }
 
@@ -92,8 +92,8 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, true, entityFieldMap);
-        Sort sort = JPASearchCore.loadSort(filters, type, true, true, true, entityFieldMap);
+        Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, entityFieldMap);
+        Sort sort = JPASearchCore.loadSort(filters, type, true, true, entityFieldMap);
         return findAll(specification, sort);
     }
 
@@ -105,8 +105,8 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default Page<E> findAllWithPaginationAndSorting(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, true, true);
-        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(filters, type, true, true, true, null);
+        Specification<E> specification = JPASearchCore.specification(filters, type, true);
+        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(filters, type, true, true, null);
         return findAll(specification, pageRequest);
     }
 
@@ -121,8 +121,8 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default Page<E> findAllWithPaginationAndSorting(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, true, true, entityFieldMap);
-        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(filters, type, true, true, true, entityFieldMap);
+        Specification<E> specification = JPASearchCore.specification(filters, type, true, entityFieldMap);
+        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(filters, type, true, true, entityFieldMap);
         return findAll(specification, pageRequest);
     }
 
@@ -134,7 +134,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, true, true);
+        Specification<E> specification = JPASearchCore.specification(filters, type, true);
         return count(specification);
     }
 
@@ -147,7 +147,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return
      */
     default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
-        Specification<E> specification = JPASearchCore.specification(filters, type, true, true, entityFieldMap);
+        Specification<E> specification = JPASearchCore.specification(filters, type, true, entityFieldMap);
         return count(specification);
     }
 

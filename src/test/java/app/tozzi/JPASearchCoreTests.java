@@ -21,7 +21,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("string_eq", "test");
         filters.put("date1", "20240125");
-        InvalidFieldException ex = Assertions.assertThrows(InvalidFieldException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidFieldException ex = Assertions.assertThrows(InvalidFieldException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("string", ex.getField());
     }
 
@@ -30,7 +30,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("unknowndield_eq", "test");
         filters.put("date1", "20240125");
-        InvalidFieldException ex = Assertions.assertThrows(InvalidFieldException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidFieldException ex = Assertions.assertThrows(InvalidFieldException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("unknowndield", ex.getField());
     }
 
@@ -39,7 +39,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveInteger", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveInteger", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -49,7 +49,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperInteger", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperInteger", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -59,7 +59,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveLong", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveLong", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -69,7 +69,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperLong", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperLong", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -79,7 +79,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveFloat", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveFloat", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -89,7 +89,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperFloat", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperFloat", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -99,7 +99,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveDouble", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveDouble", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -109,7 +109,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperDouble", "string");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperDouble", ex.getField());
         Assertions.assertEquals("string", ex.getValue());
     }
@@ -119,7 +119,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveInteger", "11");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveInteger", ex.getField());
         Assertions.assertEquals("11", ex.getValue());
     }
@@ -129,7 +129,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveInteger", "4");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveInteger", ex.getField());
         Assertions.assertEquals("4", ex.getValue());
     }
@@ -139,7 +139,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperInteger", "1");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperInteger", ex.getField());
         Assertions.assertEquals("1", ex.getValue());
     }
@@ -149,7 +149,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperInteger", "12345");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperInteger", ex.getField());
         Assertions.assertEquals("12345", ex.getValue());
     }
@@ -159,7 +159,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("email", "biagio.tozzi");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("email", ex.getField());
         Assertions.assertEquals("biagio.tozzi", ex.getValue());
     }
@@ -169,7 +169,7 @@ public class JPASearchCoreTests {
         Map<String, String> filters = new HashMap<>();
         filters.put("email_in", "biagio.tozzi@gmail.com,biagio.tozzi");
         filters.put("date1", "20240125");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("email", ex.getField());
         Assertions.assertEquals("biagio.tozzi@gmail.com,biagio.tozzi", ex.getValue());
     }
@@ -178,7 +178,7 @@ public class JPASearchCoreTests {
     public void badDateTest1() {
         Map<String, String> filters = new HashMap<>();
         filters.put("date1", "25/01/2024");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("date1", ex.getField());
         Assertions.assertEquals("25/01/2024", ex.getValue());
     }
@@ -187,7 +187,7 @@ public class JPASearchCoreTests {
     public void badDateTest2() {
         Map<String, String> filters = new HashMap<>();
         filters.put("date2", "25/01/2024");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("date2", ex.getField());
         Assertions.assertEquals("25/01/2024", ex.getValue());
     }
@@ -196,7 +196,7 @@ public class JPASearchCoreTests {
     public void badLocalDateTimeTest() {
         Map<String, String> filters = new HashMap<>();
         filters.put("localDateTime", "25/01/2024");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("localDateTime", ex.getField());
         Assertions.assertEquals("25/01/2024", ex.getValue());
     }
@@ -205,7 +205,7 @@ public class JPASearchCoreTests {
     public void badLocalDateTest() {
         Map<String, String> filters = new HashMap<>();
         filters.put("localDate", "25/01/2024");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("localDate", ex.getField());
         Assertions.assertEquals("25/01/2024", ex.getValue());
     }
@@ -214,7 +214,7 @@ public class JPASearchCoreTests {
     public void badLocalTimeTest() {
         Map<String, String> filters = new HashMap<>();
         filters.put("localTime", "26:10:50");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("localTime", ex.getField());
         Assertions.assertEquals("26:10:50", ex.getValue());
     }
@@ -223,7 +223,7 @@ public class JPASearchCoreTests {
     public void badOffsetDateTimeTest() {
         Map<String, String> filters = new HashMap<>();
         filters.put("offsetDateTime", "25/01/2024");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("offsetDateTime", ex.getField());
         Assertions.assertEquals("25/01/2024", ex.getValue());
     }
@@ -232,7 +232,7 @@ public class JPASearchCoreTests {
     public void badOffsetTimeTest() {
         Map<String, String> filters = new HashMap<>();
         filters.put("offsetTime", "26:10:50");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("offsetTime", ex.getField());
         Assertions.assertEquals("26:10:50", ex.getValue());
     }
@@ -241,7 +241,7 @@ public class JPASearchCoreTests {
     public void badDecimalFormatTest1() {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveFloat", "1.22");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveFloat", ex.getField());
         Assertions.assertEquals(1.22f, ex.getValue());
     }
@@ -250,7 +250,7 @@ public class JPASearchCoreTests {
     public void badDecimalFormatTest2() {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperFloat", "1.234");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperFloat", ex.getField());
         Assertions.assertEquals(1.234f, ex.getValue());
     }
@@ -259,7 +259,7 @@ public class JPASearchCoreTests {
     public void badDecimalFormatTest3() {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveDouble", "1.22");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveDouble", ex.getField());
         Assertions.assertEquals(1.22, ex.getValue());
     }
@@ -268,7 +268,7 @@ public class JPASearchCoreTests {
     public void badDecimalFormatTest4() {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperDouble", "1.22");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperDouble", ex.getField());
         Assertions.assertEquals(1.22, ex.getValue());
     }
@@ -277,7 +277,7 @@ public class JPASearchCoreTests {
     public void badDecimalFormatTest5() {
         Map<String, String> filters = new HashMap<>();
         filters.put("bigDecimal", "1.234");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("bigDecimal", ex.getField());
         Assertions.assertEquals(new BigDecimal("1.234"), ex.getValue());
     }
@@ -286,7 +286,7 @@ public class JPASearchCoreTests {
     public void badBooleanTest1() {
         Map<String, String> filters = new HashMap<>();
         filters.put("wrapperBoolean", "88");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("wrapperBoolean", ex.getField());
         Assertions.assertEquals("88", ex.getValue());
     }
@@ -295,7 +295,7 @@ public class JPASearchCoreTests {
     public void badBooleanTest2() {
         Map<String, String> filters = new HashMap<>();
         filters.put("primitiveBoolean", "88");
-        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, true, null)));
+        InvalidValueException ex = Assertions.assertThrows(InvalidValueException.class, () -> filters.forEach((key, value) -> JPASearchCore.filterManagement(key, value, ExampleBean.class, true, null)));
         Assertions.assertEquals("primitiveBoolean", ex.getField());
         Assertions.assertEquals("88", ex.getValue());
     }
@@ -306,8 +306,25 @@ public class JPASearchCoreTests {
         filters.put("date2", "20240125");
         Map<String, String> fields = new HashMap<>();
         fields.put("date2", "date3");
-        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, true, fields)).toList();
+        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, fields)).toList();
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("date2") && f.getFieldKey().equals("date3")));
+    }
+
+    @Test
+    public void tagTest() {
+        Map<String, String> filters = new HashMap<>();
+        filters.put("f1", "test1");
+        filters.put("f2", "test1");
+        filters.put("t.f2", "test1");
+        filters.put("t.f3", "test1");
+        filters.put("tf3", "test1");
+        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, null)).toList();
+
+        Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("f1") && f.getFieldKey().equals("f1")));
+        Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("f2") && f.getFieldKey().equals("f2")));
+        Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("t.f2") && f.getFieldKey().equals("t.f2")));
+        Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("t.f3") && f.getFieldKey().equals("ttt")));
+        Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("tf3") && f.getFieldKey().equals("tttee")));
     }
 
     @Test
@@ -336,7 +353,7 @@ public class JPASearchCoreTests {
         filters.put("primitiveBoolean", "true");
         filters.put("wrapperBoolean", "false");
 
-        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, true, null)).toList();
+        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, null)).toList();
 
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("primitiveInteger")));
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("wrapperInteger")));
@@ -414,7 +431,7 @@ public class JPASearchCoreTests {
         filters.put("nestedBean.string6_iEndsWith", "Nested!");
         filters.put("nestedBean.string7_iNotEq", "Nested!");
 
-        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, true, null)).toList();
+        List<JPASearchCore.FilterBean> fb = filters.entrySet().stream().map(e -> JPASearchCore.filterManagement(e.getKey(), e.getValue(), ExampleBean.class, true, null)).toList();
 
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("primitiveInteger")));
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("wrapperInteger")));

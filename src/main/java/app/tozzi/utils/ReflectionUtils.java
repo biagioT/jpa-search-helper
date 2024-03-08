@@ -1,36 +1,39 @@
 package app.tozzi.utils;
 
-import app.tozzi.exceptions.InvalidFieldException;
+import app.tozzi.annotations.Searchable;
+import app.tozzi.annotations.SearchableClass;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 
-import java.beans.PropertyDescriptor;
-import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class ReflectionUtils {
 
-    public static <T extends Annotation> boolean hasAnnotation(String field, PropertyDescriptor propertyDescriptor, Class<T> clazz) {
-
-        try {
-            return propertyDescriptor.getReadMethod().getDeclaringClass().getDeclaredField(field).isAnnotationPresent(clazz);
-
-        } catch (NoSuchFieldException e) {
-            throw new InvalidFieldException("Field [" + field + "] does not exists", e, field);
-        }
+    public static Map<String, Pair<Searchable, Class<?>>> getAllSearchableFields(Class<?> beanClass) {
+        Map<String, Pair<Searchable, Class<?>>> res = new HashMap<>();
+        getAllSearchableFields(new StringBuilder(), beanClass, res);
+        return res;
     }
 
-    public static <T extends Annotation> T getAnnotation(String field, PropertyDescriptor propertyDescriptor, Class<T> clazz) {
+    private static void getAllSearchableFields(final StringBuilder root, Class<?> beanClass, Map<String, Pair<Searchable, Class<?>>> res) {
 
-        try {
-            return propertyDescriptor.getReadMethod().getDeclaringClass().getDeclaredField(field).getAnnotation(clazz);
+        Stream.of(BeanUtils.getPropertyDescriptors(beanClass)).flatMap(pd -> Stream.of(pd.getReadMethod().getDeclaringClass().getDeclaredFields()))
+                .forEach(f -> {
 
-        } catch (NoSuchFieldException e) {
-            throw new InvalidFieldException("Field [" + field + "] does not exists", e, field);
-        }
+                    if (f.isAnnotationPresent(Searchable.class)) {
+                        res.put(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
+                    }
+
+                    if (f.getType().isAnnotationPresent(SearchableClass.class)) {
+                        if (!root.isEmpty()) {
+                            root.append(".");
+                        }
+                        root.append(f.getName());
+                        getAllSearchableFields(root, f.getType(), res);
+                    }
+                });
+
     }
-
-    public static PropertyDescriptor getPropertyDescriptor(String fieldName, Class<?> clazz) {
-        return Stream.of(BeanUtils.getPropertyDescriptors(clazz)).filter(p -> p.getName().equals(fieldName)).findAny().orElse(null);
-    }
-
 }

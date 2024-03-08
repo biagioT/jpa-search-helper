@@ -1,6 +1,8 @@
 package app.tozzi.test;
 
 import app.tozzi.annotations.Searchable;
+import app.tozzi.annotations.SearchableClass;
+import app.tozzi.annotations.Tag;
 import app.tozzi.model.SearchType;
 import lombok.Data;
 
@@ -78,6 +80,16 @@ public final class ExampleBean {
 
     private ExampleNestedBean nestedBean;
 
+    @Searchable(tags = {
+            @Tag(fieldKey = "f1"),
+            @Tag(fieldKey = "f2"),
+            @Tag(fieldKey = "t.f2"),
+            @Tag(fieldKey = "t.f3", entityFieldKey = "ttt"),
+            @Tag(fieldKey = "tf3", entityFieldKey = "tttee")
+    })
+    private String fieldName;
+
+    @SearchableClass
     @Data
     public static class ExampleNestedBean {
 

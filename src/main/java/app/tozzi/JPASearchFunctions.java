@@ -4,6 +4,7 @@ import app.tozzi.model.FieldRootBuilderBean;
 import jakarta.persistence.criteria.*;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Function;
 
 public class JPASearchFunctions {
@@ -43,7 +44,8 @@ public class JPASearchFunctions {
     public static final Function<FieldRootBuilderBean<?>, Predicate> EMPTY = s -> s.criteriaBuilder.isEmpty(getPath(s.root, s.field));
     public static final Function<FieldRootBuilderBean<?>, Predicate> BETWEEN = s -> {
         Collection<?> coll = (Collection<?>) s.value;
-        return s.criteriaBuilder.between(getPath(s.root, s.field), (Comparable) coll.iterator().next(), (Comparable) coll.iterator().next());
+        Iterator<?> iterator = coll.iterator();
+        return s.criteriaBuilder.between(getPath(s.root, s.field), (Comparable) iterator.next(), (Comparable) iterator.next());
     };
 
     private static Object toUpperCase(Object object) {

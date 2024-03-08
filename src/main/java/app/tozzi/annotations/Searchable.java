@@ -33,4 +33,6 @@ public @interface Searchable {
 
     boolean trim() default false;
 
+    Tag[] tags() default {};
+
 }
