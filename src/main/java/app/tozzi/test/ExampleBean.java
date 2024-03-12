@@ -1,7 +1,7 @@
 package app.tozzi.test;
 
+import app.tozzi.annotations.NestedSearchable;
 import app.tozzi.annotations.Searchable;
-import app.tozzi.annotations.SearchableClass;
 import app.tozzi.annotations.Tag;
 import app.tozzi.model.SearchType;
 import lombok.Data;
@@ -33,6 +33,7 @@ public final class ExampleBean {
     @Searchable(datePattern = "yyyyMMdd")
     private Date date1;
 
+    @NestedSearchable
     private ExampleNestedBean nestedBean;
 
     @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
@@ -89,7 +90,6 @@ public final class ExampleBean {
     @Searchable
     private Boolean wrapperBoolean;
 
-    @SearchableClass
     @Data
     public static class ExampleNestedBean {
 

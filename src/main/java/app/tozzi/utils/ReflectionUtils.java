@@ -1,7 +1,7 @@
 package app.tozzi.utils;
 
+import app.tozzi.annotations.NestedSearchable;
 import app.tozzi.annotations.Searchable;
-import app.tozzi.annotations.SearchableClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 
@@ -26,7 +26,7 @@ public class ReflectionUtils {
                         res.put(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
                     }
 
-                    if (f.getType().isAnnotationPresent(SearchableClass.class)) {
+                    if (f.isAnnotationPresent(NestedSearchable.class)) {
                         if (!root.isEmpty()) {
                             root.append(".");
                         }
