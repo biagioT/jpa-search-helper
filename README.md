@@ -27,13 +27,13 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:0.0.6'
+implementation 'app.tozzi:jpa-search-helper:0.0.7'
 ```
 
 ### Managed search filters
@@ -91,10 +91,10 @@ public class Person {
 
     @Searchable
     private String country;
-    
+
+    @NestedSearchable
     private Company company;
 
-    @SearchableClass
     @Data
     public static class Company {
         
