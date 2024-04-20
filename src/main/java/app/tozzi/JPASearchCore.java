@@ -60,20 +60,39 @@ public class JPASearchCore {
     private static void fetchManagement(Map<String, JoinType> fetchMap, Root<?> root) {
 
         if (fetchMap != null) {
+            List<String> doneFetches = new ArrayList<>();
+
             fetchMap.forEach((k, v) -> {
                 if (k.contains(".")) {
-                    Fetch<?, ?> fetch = null;
-                    for (String f : k.split("\\.")) {
-                        if (fetch == null) {
-                            fetch = root.fetch(f, v);
+                    Iterator<String> it = Arrays.stream(k.split("\\.")).iterator();
+                    Fetch<?, ?> fetch;
+                    String f = it.next();
+                    StringBuilder tempPath = new StringBuilder(f);
+
+                    if (!doneFetches.contains(f)) {
+                        fetch = root.fetch(f, v);
+                        doneFetches.add(f);
+
+                    } else {
+                        fetch = root.getFetches().stream().filter(rf -> rf.getAttribute().getName().equals(f)).findAny().orElseThrow();
+                    }
+
+                    while (it.hasNext()) {
+                        String f1 = it.next();
+                        tempPath.append(".").append(f1);
+
+                        if (!doneFetches.contains(tempPath.toString())) {
+                            fetch = fetch.fetch(it.next(), v);
+                            doneFetches.add(tempPath.toString());
 
                         } else {
-                            fetch.fetch(f, v);
+                            fetch = fetch.getFetches().stream().filter(rf -> rf.getAttribute().getName().equals(f1)).findAny().orElseThrow();
                         }
                     }
 
-                } else {
+                } else if (!doneFetches.contains(k)) {
                     root.fetch(k, v);
+                    doneFetches.add(k);
                 }
             });
         }

@@ -20,6 +20,7 @@ Read this readme!
 
 ### Prerequisites
 - Java 17 or later
+- Spring Boot 3.2.x
 
 ### Project dependency
 #### Maven
@@ -27,13 +28,13 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>0.0.7</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:0.0.7'
+implementation 'app.tozzi:jpa-search-helper:1.0.0'
 ```
 
 ### Managed search filters
