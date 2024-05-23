@@ -20,7 +20,7 @@ Read this readme!
 
 ### Prerequisites
 - Java 17 or later
-- Spring Boot 3.2.x
+- Spring Boot 3.2.x or later
 
 ### Project dependency
 #### Maven
@@ -59,9 +59,9 @@ implementation 'app.tozzi:jpa-search-helper:1.0.0'
 | Less Than or Equal        | _lte         | sql_col <= val                         
 | Between                   | _between     | sql_col BETWEEN val1 AND val2          
 | Null                      | _is | sql_col IS NULL                        | 'null'
-| Empty                     | _is | sql_col IS NULL                        | 'empty'
+| Empty                     | _is | sql_col = ''                       | 'empty'
 | Not Null                  | _is | sql_col IS NOT NULL                    | 'not_null'
-| Not Empty                 | _is | sql_col IS NOT NULL                    | 'not_empty'
+| Not Empty                 | _is | sql_col <> ''                    | 'not_empty'
 
 
 ### Pagination
@@ -241,8 +241,8 @@ public class PersonManager {
     private PersonRepository personRepository;
     		 		
     public List<Person> find(Map<String, String> filters) { 		
-	    return personRepository.findAllWithPaginationAndSorting(filters, Person.class).stream().map(this::toDTO).toList(); 
-	} 
+	return personRepository.findAllWithPaginationAndSorting(filters, Person.class).stream().map(this::toDTO).toList(); 
+    } 
 
     private static Person toDTO(PersonEntity personEntity) {
         // ...
@@ -287,4 +287,50 @@ personRepository.findAll(filters, Person.class, fetches, entityFieldMap);
 personRepository.findAllWithPaginationAndSorting(filters, Person.class, entityFieldMap);
 
 // ...
+```
+
+### Multiple object for the same Entity
+Another special case could be where an object can be repeated within the DTO to represent multiple pieces of the entity. The solution for the search:
+```java
+
+@Entity
+public class CoupleEntity {
+	private String p1FirstName;
+	private String p1LastName;
+	private String p2FirstName;
+	private String p2LastName;
+}
+
+@Data
+public class CoupleDTO {
+
+	@NestedSearchable
+	private Person p1;
+
+	@NestedSearchable
+	private Person p2;
+
+	@Data
+	public static class Person {
+
+		@Searchable(tags = {
+	            @Tag(fieldKey = "p1.firstName", entityFieldKey = "p1FirstName"),
+	            @Tag(fieldKey = "p2.firstName", entityFieldKey = "p2FirstName"),
+    		})
+		private String firstName;
+
+		@Searchable(tags = {
+	            @Tag(fieldKey = "p1.lastName", entityFieldKey = "p1LastName"),
+	            @Tag(fieldKey = "p2.lastName", entityFieldKey = "p2LastName"),
+    		})
+		private String lastName;
+	}
+}
+```
+
+```bash
+curl - request GET \
+ - url 'https://www.myexampledomain.com/couples?
+p1FirstName_iEq=Romeo
+&p2FirstName_iEq=Giulietta'
 ```
