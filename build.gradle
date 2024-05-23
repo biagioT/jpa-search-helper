@@ -20,6 +20,9 @@ repositories {
     mavenCentral()
 }
 
+tasks.bootJar {enabled = false}
+tasks.jar {enabled = true}
+
 dependencies {
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api:2.2.3'
