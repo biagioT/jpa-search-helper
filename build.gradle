@@ -93,10 +93,6 @@ publishing {
     }
 }
 
-signing {
-    sign publishing.publications.maven
-}
-
 javadoc {
     options.addBooleanOption('html5', true)
 }
