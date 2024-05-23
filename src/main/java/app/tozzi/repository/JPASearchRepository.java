@@ -1,7 +1,7 @@
 package app.tozzi.repository;
 
 import app.tozzi.JPASearchCore;
-import jakarta.persistence.criteria.JoinType;
+import javax.persistence.criteria.JoinType;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -1,7 +1,7 @@
 package app.tozzi.model;
 
 import app.tozzi.JPASearchFunctions;
-import jakarta.persistence.criteria.Predicate;
+import javax.persistence.criteria.Predicate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;

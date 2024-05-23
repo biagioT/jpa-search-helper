@@ -7,7 +7,7 @@ import app.tozzi.exceptions.InvalidValueException;
 import app.tozzi.model.*;
 import app.tozzi.utils.GenericUtils;
 import app.tozzi.utils.ReflectionUtils;
-import jakarta.persistence.criteria.*;
+import javax.persistence.criteria.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;

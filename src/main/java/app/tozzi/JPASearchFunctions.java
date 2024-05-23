@@ -1,7 +1,7 @@
 package app.tozzi;
 
 import app.tozzi.model.FieldRootBuilderBean;
-import jakarta.persistence.criteria.*;
+import javax.persistence.criteria.*;
 
 import java.util.Collection;
 import java.util.Iterator;
