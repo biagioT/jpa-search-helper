@@ -295,9 +295,20 @@ Another special case could be where an object can be repeated within the DTO to 
 
 @Entity
 public class CoupleEntity {
+
+	@Id
+	private Long id;
+
+	@Column(name = "p1_fn")
 	private String p1FirstName;
+
+	@Column(name = "p1_ln")
 	private String p1LastName;
+
+	@Column(name = "p2_fn")
 	private String p2FirstName;
+
+	@Column(name = "p2_ln")
 	private String p2LastName;
 }
 
