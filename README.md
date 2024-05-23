@@ -331,6 +331,6 @@ public class CoupleDTO {
 ```bash
 curl - request GET \
  - url 'https://www.myexampledomain.com/couples?
-p1FirstName_iEq=Romeo
-&p2FirstName_iEq=Giulietta'
+p1.firstName_iEq=Romeo
+&p2.firstName_iEq=Giulietta'
 ```
