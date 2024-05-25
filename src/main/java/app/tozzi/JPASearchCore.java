@@ -192,7 +192,7 @@ public class JPASearchCore {
             return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value, descriptor.searchable.trim());
         }
 
-        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat());
+        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat(), searchFilter.isNoNumberParsing());
         searchableValidations(targetValue, descriptor.searchable, descriptor.path, value, descriptor.searchType);
         filterValidations(searchFilter, descriptor.path, targetValue, descriptor.searchType);
         return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, targetValue, descriptor.searchable.trim());

@@ -38,17 +38,19 @@ public enum SearchType {
         return Stream.of(SearchType.values()).filter(s -> s.defaultClasses.contains(clazz)).findAny().orElse(defaultType);
     }
 
-    public Object getValue(String field, String value, String datePattern, String decimalFormat) {
+    public Object getValue(String field, String value, String datePattern, String decimalFormat, boolean noNumberParsing) {
 
         if (value.contains(",")) {
-            return Stream.of(value.split(",")).map(sv -> getValue(field, sv, datePattern, decimalFormat)).toList();
+            return Stream.of(value.split(",")).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing)).toList();
         }
 
         try {
             return switch (this) {
                 case STRING -> value;
-                case LONG -> Long.valueOf(value);
-                case INTEGER -> Integer.valueOf(value);
+                case LONG ->
+                        noNumberParsing ? (containsOnlyDigits(value) ? value : Long.valueOf(value)) : Long.valueOf(value);
+                case INTEGER ->
+                        noNumberParsing ? (containsOnlyDigits(value) ? value : Integer.valueOf(value)) : Integer.valueOf(value);
                 case DATE -> new SimpleDateFormat(datePattern).parse(value);
                 case LOCALDATETIME -> LocalDateTime.parse(value, DateTimeFormatter.ofPattern(datePattern));
                 case LOCALDATE -> LocalDate.parse(value, DateTimeFormatter.ofPattern(datePattern));
@@ -152,8 +154,8 @@ public enum SearchType {
     private int getSize(Object value) {
         return switch (this) {
             case STRING -> String.valueOf(value).length();
-            case LONG -> ((Long) value).intValue();
-            case INTEGER -> (Integer) value;
+            case LONG -> value instanceof String s ? Long.valueOf(s).intValue() : ((Long) value).intValue();
+            case INTEGER -> value instanceof String s ? Integer.valueOf(s) : (Integer) value;
             case FLOAT -> ((Float) value).intValue();
             case DOUBLE -> ((Double) value).intValue();
             case BIGDECIMAL -> ((BigDecimal) value).intValue();
@@ -172,5 +174,9 @@ public enum SearchType {
             default -> true;
         };
 
+    }
+
+    private static boolean containsOnlyDigits(String number) {
+        return number.matches("\\d+");
     }
 }
