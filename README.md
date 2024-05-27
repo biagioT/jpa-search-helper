@@ -59,9 +59,9 @@ implementation 'app.tozzi:jpa-search-helper:1.0.1'
 | Less Than or Equal        | _lte         | sql_col <= val                         
 | Between                   | _between     | sql_col BETWEEN val1 AND val2          
 | Null                      | _is | sql_col IS NULL                        | 'null'
-| Empty                     | _is | sql_col = ''                       | 'empty'
+| Empty                     | _is |                       | 'empty'
 | Not Null                  | _is | sql_col IS NOT NULL                    | 'not_null'
-| Not Empty                 | _is | sql_col <> ''                    | 'not_empty'
+| Not Empty                 | _is |                   | 'not_empty'
 
 
 ### Pagination
