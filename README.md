@@ -28,13 +28,13 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:1.0.1'
+implementation 'app.tozzi:jpa-search-helper:1.0.2'
 ```
 
 ### Managed search filters
@@ -130,6 +130,9 @@ The annotation allows you to specify:
 
   - *trim*: apply trim
   - *tags*: useful if the DTO field can correspond to multiple entity fields
+  - *allowedFilters*: exclusively allowed filters
+  - *notAllowedFilters*: not allowed filters
+  - *likeFilters*: allowed like filters (_contains, _iContains, _startsWith, _iStartsWith, _endsWith, _iEndsWith). Default: true
   
 
 Exceptions:
