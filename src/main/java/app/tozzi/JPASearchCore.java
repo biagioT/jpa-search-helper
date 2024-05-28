@@ -177,7 +177,7 @@ public class JPASearchCore {
 
     public static <T> FilterBean filterManagement(String key, String value, Class<T> clazz, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
 
-        if (key == null || key.isBlank() || value == null || value.isBlank()) {
+        if (key == null || key.isBlank() || value == null) {
             return null;
         }
 
@@ -192,8 +192,9 @@ public class JPASearchCore {
             return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value, descriptor.searchable.trim());
         }
 
-        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat());
-        searchableValidations(targetValue, descriptor.searchable, descriptor.path, value, descriptor.searchType);
+        searchableValidations(descriptor.searchable, descriptor.path, searchFilter);
+        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat(), searchFilter.isNoNumberParsing());
+        searchableValidationsOnTargetValue(targetValue, descriptor.searchable, descriptor.path, value, descriptor.searchType);
         filterValidations(searchFilter, descriptor.path, targetValue, descriptor.searchType);
         return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, targetValue, descriptor.searchable.trim());
     }
@@ -254,7 +255,23 @@ public class JPASearchCore {
         }
     }
 
-    private static void searchableValidations(Object targetValue, Searchable searchable, String field, String value, SearchType searchType) {
+    private static void searchableValidations(Searchable searchable, String field, SearchFilter searchFilter) {
+
+        if (searchable.allowedFilters() != null && searchable.allowedFilters().length > 0 && Stream.of(searchable.allowedFilters()).noneMatch(sf -> sf.equals(searchFilter))) {
+            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
+        }
+
+        if (searchable.notAllowedFilters() != null && searchable.notAllowedFilters().length > 0 && Stream.of(searchable.notAllowedFilters()).anyMatch(sf -> sf.equals(searchFilter))) {
+            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
+        }
+
+        if (!searchable.likeFilters() && searchFilter.isLike()) {
+            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
+        }
+
+    }
+
+    private static void searchableValidationsOnTargetValue(Object targetValue, Searchable searchable, String field, String value, SearchType searchType) {
 
         // Length
         int maxLength = searchType.getMaxLength(targetValue);

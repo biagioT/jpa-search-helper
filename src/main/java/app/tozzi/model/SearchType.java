@@ -4,6 +4,8 @@ import app.tozzi.exceptions.InvalidValueException;
 import app.tozzi.utils.GenericUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -38,17 +40,19 @@ public enum SearchType {
         return Stream.of(SearchType.values()).filter(s -> s.defaultClasses.contains(clazz)).findAny().orElse(defaultType);
     }
 
-    public Object getValue(String field, String value, String datePattern, String decimalFormat) {
+    public Object getValue(String field, String value, String datePattern, String decimalFormat, boolean noNumberParsing) {
 
-        if (value.contains(",")) {
-            return Stream.of(value.split(",")).map(sv -> getValue(field, sv, datePattern, decimalFormat)).toList();
+        if (value.contains(Constants.ARRAY_SEPARATOR)) {
+            return Stream.of(split(value, Constants.ARRAY_SEPARATOR)).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing)).toList();
         }
 
         try {
             return switch (this) {
                 case STRING -> value;
-                case LONG -> Long.valueOf(value);
-                case INTEGER -> Integer.valueOf(value);
+                case LONG ->
+                        noNumberParsing ? (containsOnlyDigits(value) ? value : Long.valueOf(value)) : Long.valueOf(value);
+                case INTEGER ->
+                        noNumberParsing ? (containsOnlyDigits(value) ? value : Integer.valueOf(value)) : Integer.valueOf(value);
                 case DATE -> new SimpleDateFormat(datePattern).parse(value);
                 case LOCALDATETIME -> LocalDateTime.parse(value, DateTimeFormatter.ofPattern(datePattern));
                 case LOCALDATE -> LocalDate.parse(value, DateTimeFormatter.ofPattern(datePattern));
@@ -81,6 +85,16 @@ public enum SearchType {
 
             throw new InvalidValueException("Unable to convert value [" + value + "] of field [" + field + "] to [" + this.name() + "] type", e, field, value);
         }
+    }
+
+    private static String[] split(String string, String separator) {
+
+        String[] res = string.split(separator);
+        if (res.length != StringUtils.countMatches(string, separator) + 1) {
+            res = ArrayUtils.add(res, "");
+        }
+
+        return res;
     }
 
     private static Number formatNumber(Number decimalNumber, String pattern, boolean bigDecimal, String field, SearchType searchType) throws ParseException {
@@ -152,8 +166,8 @@ public enum SearchType {
     private int getSize(Object value) {
         return switch (this) {
             case STRING -> String.valueOf(value).length();
-            case LONG -> ((Long) value).intValue();
-            case INTEGER -> (Integer) value;
+            case LONG -> value instanceof String s ? Long.valueOf(s).intValue() : ((Long) value).intValue();
+            case INTEGER -> value instanceof String s ? Integer.valueOf(s) : (Integer) value;
             case FLOAT -> ((Float) value).intValue();
             case DOUBLE -> ((Double) value).intValue();
             case BIGDECIMAL -> ((BigDecimal) value).intValue();
@@ -172,5 +186,9 @@ public enum SearchType {
             default -> true;
         };
 
+    }
+
+    private static boolean containsOnlyDigits(String number) {
+        return number.matches("\\d+");
     }
 }

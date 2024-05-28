@@ -20,7 +20,7 @@ Read this readme!
 
 ### Prerequisites
 - Java 17 or later
-- Spring Boot 3.2.x
+- Spring Boot 3.2.x or later
 
 ### Project dependency
 #### Maven
@@ -28,13 +28,13 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:1.0.0'
+implementation 'app.tozzi:jpa-search-helper:1.0.2'
 ```
 
 ### Managed search filters
@@ -59,9 +59,9 @@ implementation 'app.tozzi:jpa-search-helper:1.0.0'
 | Less Than or Equal        | _lte         | sql_col <= val                         
 | Between                   | _between     | sql_col BETWEEN val1 AND val2          
 | Null                      | _is | sql_col IS NULL                        | 'null'
-| Empty                     | _is | sql_col IS NULL                        | 'empty'
+| Empty                     | _is |                       | 'empty'
 | Not Null                  | _is | sql_col IS NOT NULL                    | 'not_null'
-| Not Empty                 | _is | sql_col IS NOT NULL                    | 'not_empty'
+| Not Empty                 | _is |                   | 'not_empty'
 
 
 ### Pagination
@@ -130,6 +130,9 @@ The annotation allows you to specify:
 
   - *trim*: apply trim
   - *tags*: useful if the DTO field can correspond to multiple entity fields
+  - *allowedFilters*: exclusively allowed filters
+  - *notAllowedFilters*: not allowed filters
+  - *likeFilters*: allowed like filters (_contains, _iContains, _startsWith, _iStartsWith, _endsWith, _iEndsWith). Default: true
   
 
 Exceptions:
@@ -241,8 +244,8 @@ public class PersonManager {
     private PersonRepository personRepository;
     		 		
     public List<Person> find(Map<String, String> filters) { 		
-	    return personRepository.findAllWithPaginationAndSorting(filters, Person.class).stream().map(this::toDTO).toList(); 
-	} 
+	return personRepository.findAllWithPaginationAndSorting(filters, Person.class).stream().map(this::toDTO).toList(); 
+    } 
 
     private static Person toDTO(PersonEntity personEntity) {
         // ...
@@ -287,4 +290,61 @@ personRepository.findAll(filters, Person.class, fetches, entityFieldMap);
 personRepository.findAllWithPaginationAndSorting(filters, Person.class, entityFieldMap);
 
 // ...
+```
+
+### Multiple object for the same Entity
+Another special case could be where an object can be repeated within the DTO to represent multiple pieces of the entity. The solution for the search:
+```java
+
+@Entity
+public class CoupleEntity {
+
+	@Id
+	private Long id;
+
+	@Column(name = "p1_fn")
+	private String p1FirstName;
+
+	@Column(name = "p1_ln")
+	private String p1LastName;
+
+	@Column(name = "p2_fn")
+	private String p2FirstName;
+
+	@Column(name = "p2_ln")
+	private String p2LastName;
+}
+
+@Data
+public class CoupleDTO {
+
+	@NestedSearchable
+	private Person p1;
+
+	@NestedSearchable
+	private Person p2;
+
+	@Data
+	public static class Person {
+
+		@Searchable(tags = {
+	            @Tag(fieldKey = "p1.firstName", entityFieldKey = "p1FirstName"),
+	            @Tag(fieldKey = "p2.firstName", entityFieldKey = "p2FirstName"),
+    		})
+		private String firstName;
+
+		@Searchable(tags = {
+	            @Tag(fieldKey = "p1.lastName", entityFieldKey = "p1LastName"),
+	            @Tag(fieldKey = "p2.lastName", entityFieldKey = "p2LastName"),
+    		})
+		private String lastName;
+	}
+}
+```
+
+```bash
+curl - request GET \
+ - url 'https://www.myexampledomain.com/couples?
+p1.firstName_iEq=Romeo
+&p2.firstName_iEq=Giulietta'
 ```

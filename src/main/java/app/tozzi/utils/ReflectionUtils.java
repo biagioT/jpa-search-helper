@@ -23,7 +23,7 @@ public class ReflectionUtils {
                 .forEach(f -> {
 
                     if (f.isAnnotationPresent(Searchable.class)) {
-                        res.put(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
+                        res.putIfAbsent(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
                     }
 
                     if (f.isAnnotationPresent(NestedSearchable.class)) {
