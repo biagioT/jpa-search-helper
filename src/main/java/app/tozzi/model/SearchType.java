@@ -40,10 +40,10 @@ public enum SearchType {
         return Stream.of(SearchType.values()).filter(s -> s.defaultClasses.contains(clazz)).findAny().orElse(defaultType);
     }
 
-    public Object getValue(String field, String value, String datePattern, String decimalFormat, boolean noNumberParsing) {
+    public Object getValue(String field, String value, String datePattern, String decimalFormat, boolean noNumberParsing, boolean multipleValues) {
 
-        if (value.contains(Constants.ARRAY_SEPARATOR)) {
-            return Stream.of(split(value, Constants.ARRAY_SEPARATOR)).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing)).toList();
+        if (multipleValues && value.contains(Constants.ARRAY_SEPARATOR)) {
+            return Stream.of(split(value, Constants.ARRAY_SEPARATOR)).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing, multipleValues)).toList();
         }
 
         try {
