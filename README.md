@@ -20,7 +20,7 @@ Read this readme!
 
 ### Prerequisites
 - Java 17 or later
-- Spring Boot 3.2.x or later
+- Spring Boot 2.7.x
 
 ### Project dependency
 #### Maven
@@ -28,13 +28,13 @@ Read this readme!
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.2.GISGRO</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:1.0.2'
+implementation 'app.tozzi:jpa-search-helper:1.0.2.GISGRO'
 ```
 
 ### Managed search filters

@@ -1,3 +1,14 @@
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.amazonaws:aws-java-sdk-core:1.12.731")
+    }
+}
+
 plugins {
     id 'java-library'
     id 'maven-publish'
@@ -49,7 +60,7 @@ publishing {
         maven(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "1.0.2"
+            version = "1.0.2.GISGRO"
             from components.java
             pom {
                 name = 'JPA Search Helper'
@@ -82,12 +93,24 @@ publishing {
     }
 
     repositories {
+//        maven {
+//            name = "GitHubPackages"
+//            url = "https://maven.pkg.github.com/VRTfinland/jpa-search-helper"
+//            credentials {
+//                username = System.getenv("GITHUB_ACTOR")
+//                password = System.getenv("GITHUB_TOKEN")
+//            }
+//        }
+//
         maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/VRTfinland/jpa-search-helper"
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+            name "s3-repo"
+            ext {
+                awsCredentials = new ProfileCredentialsProvider("old_prod").credentials
+            }
+            url "s3://gisgro-packages/maven"
+            credentials(AwsCredentials) {
+                accessKey awsCredentials.AWSAccessKeyId
+                secretKey awsCredentials.AWSSecretKey
             }
         }
     }
