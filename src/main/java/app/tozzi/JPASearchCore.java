@@ -171,7 +171,7 @@ public class JPASearchCore {
                 .filter(e -> PaginationFilter.keys().stream().noneMatch(p -> e.getKey().endsWith(p)))
                 .map(e -> filterManagement(e.getKey(), e.getValue(), clazz, throwsIfNotExistsOrSearchable, entityFieldMap))
                 .filter(Objects::nonNull)
-                .map(f -> f.searchFilter.getFunction().apply(new FieldRootBuilderBean<>(f.fieldKey, root, criteriaBuilder, f.value, f.trim)))
+                .map(f -> f.operator.getFunction().apply(new FieldRootBuilderBean<>(f.fieldKey, root, criteriaBuilder, f.value, f.trim)))
                 .toList();
     }
 
@@ -187,16 +187,16 @@ public class JPASearchCore {
             return null;
         }
 
-        SearchFilter searchFilter = SearchFilter.load(descriptor.suffix, value, SearchFilter.EQ);
-        if (searchFilter.hasFixedValue()) {
-            return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value, descriptor.searchable.trim());
+        Operator operator = Operator.load(descriptor.suffix, value, Operator.EQ);
+        if (operator.hasFixedValue()) {
+            return new FilterBean(descriptor.entityKey, descriptor.path, operator, value, descriptor.searchable.trim());
         }
 
-        searchableValidations(descriptor.searchable, descriptor.path, searchFilter);
-        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat(), searchFilter.isNoNumberParsing());
+        searchableValidations(descriptor.searchable, descriptor.path, operator);
+        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat(), operator.isNoNumberParsing());
         searchableValidationsOnTargetValue(targetValue, descriptor.searchable, descriptor.path, value, descriptor.searchType);
-        filterValidations(searchFilter, descriptor.path, targetValue, descriptor.searchType);
-        return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, targetValue, descriptor.searchable.trim());
+        filterValidations(operator, descriptor.path, targetValue, descriptor.searchType);
+        return new FilterBean(descriptor.entityKey, descriptor.path, operator, targetValue, descriptor.searchable.trim());
     }
 
     private static DescriptorBean loadDescriptor(String key, boolean throwsIfNotExistsOrNotSortable, boolean checkSortable,
@@ -240,33 +240,33 @@ public class JPASearchCore {
                 SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField);
     }
 
-    private static void filterValidations(SearchFilter searchFilter, String field, Object valueObj, SearchType searchType) {
+    private static void filterValidations(Operator operator, String field, Object valueObj, SearchType searchType) {
         boolean isCollection = Collection.class.isAssignableFrom(valueObj.getClass());
         Collection<?> collection = isCollection ? (Collection<?>) valueObj : null;
         int values = isCollection ? collection.size() : 1;
 
-        if (searchFilter.getAllowedValues() != -1 && searchFilter.getAllowedValues() != values) {
-            throw new InvalidValueException("Invalid values count: [" + values + "] for type [" + searchType.name() + "] of field [" + field + "]. Expected: [" + searchFilter.getAllowedValues() + "]; received: [" + values + "]", field, valueObj);
+        if (operator.getAllowedValues() != -1 && operator.getAllowedValues() != values) {
+            throw new InvalidValueException("Invalid values count: [" + values + "] for type [" + searchType.name() + "] of field [" + field + "]. Expected: [" + operator.getAllowedValues() + "]; received: [" + values + "]", field, valueObj);
         }
 
         boolean isComparable = isCollection ? collection.stream().anyMatch(v -> Comparable.class.isAssignableFrom(v.getClass())) : Comparable.class.isAssignableFrom(valueObj.getClass());
-        if (!isComparable && searchFilter.isComparable()) {
-            throw new InvalidFieldException("Not allowed filter [" + searchFilter.getName() + "] for type [" + searchType.name() + "] of field [" + field + "]", field);
+        if (!isComparable && operator.isComparable()) {
+            throw new InvalidFieldException("Not allowed filter [" + operator.getName() + "] for type [" + searchType.name() + "] of field [" + field + "]", field);
         }
     }
 
-    private static void searchableValidations(Searchable searchable, String field, SearchFilter searchFilter) {
+    private static void searchableValidations(Searchable searchable, String field, Operator operator) {
 
-        if (searchable.allowedFilters() != null && searchable.allowedFilters().length > 0 && Stream.of(searchable.allowedFilters()).noneMatch(sf -> sf.equals(searchFilter))) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getName() + "] for field [" + field + "]", field);
+        if (searchable.allowedFilters() != null && searchable.allowedFilters().length > 0 && Stream.of(searchable.allowedFilters()).noneMatch(sf -> sf.equals(operator))) {
+            throw new InvalidFieldException("Not allowed filters [" + operator.getName() + "] for field [" + field + "]", field);
         }
 
-        if (searchable.notAllowedFilters() != null && searchable.notAllowedFilters().length > 0 && Stream.of(searchable.notAllowedFilters()).anyMatch(sf -> sf.equals(searchFilter))) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getName() + "] for field [" + field + "]", field);
+        if (searchable.notAllowedFilters() != null && searchable.notAllowedFilters().length > 0 && Stream.of(searchable.notAllowedFilters()).anyMatch(sf -> sf.equals(operator))) {
+            throw new InvalidFieldException("Not allowed filters [" + operator.getName() + "] for field [" + field + "]", field);
         }
 
-        if (!searchable.likeFilters() && searchFilter.isLike()) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getName() + "] for field [" + field + "]", field);
+        if (!searchable.likeFilters() && operator.isLike()) {
+            throw new InvalidFieldException("Not allowed filters [" + operator.getName() + "] for field [" + field + "]", field);
         }
 
     }
@@ -304,7 +304,7 @@ public class JPASearchCore {
     public static class FilterBean {
         private String fieldKey;
         private String originalKey;
-        private SearchFilter searchFilter;
+        private Operator operator;
         private Object value;
         private boolean trim;
     }

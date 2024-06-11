@@ -2,7 +2,7 @@ package app.tozzi;
 
 import app.tozzi.exceptions.InvalidFieldException;
 import app.tozzi.exceptions.InvalidValueException;
-import app.tozzi.model.SearchFilter;
+import app.tozzi.model.Operator;
 import app.tozzi.test.ExampleBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -455,26 +455,26 @@ public class JPASearchCoreTests {
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("nestedBean.string6")));
         Assertions.assertTrue(fb.stream().anyMatch(f -> f.getOriginalKey().equals("nestedBean.string7")));
 
-        Assertions.assertEquals(SearchFilter.EQ, fb.stream().filter(f -> f.getOriginalKey().equals("primitiveInteger")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.EQ_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("email")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.IS_EMPTY, fb.stream().filter(f -> f.getOriginalKey().equals("integerString")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.IS_NULL, fb.stream().filter(f -> f.getOriginalKey().equals("wrapperInteger")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.IS_NOT_NULL, fb.stream().filter(f -> f.getOriginalKey().equals("dateString")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.GT, fb.stream().filter(f -> f.getOriginalKey().equals("date1")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.GTE, fb.stream().filter(f -> f.getOriginalKey().equals("date2")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.LT, fb.stream().filter(f -> f.getFieldKey().equals("entity.long-one")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.LTE, fb.stream().filter(f -> f.getFieldKey().equals("entity.long-two")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.BETWEEN, fb.stream().filter(f -> f.getOriginalKey().equals("primitiveFloat")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.IS_NOT_EMPTY, fb.stream().filter(f -> f.getOriginalKey().equals("wrapperFloat")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.NIN, fb.stream().filter(f -> f.getOriginalKey().equals("wrapperDouble")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.IN, fb.stream().filter(f -> f.getOriginalKey().equals("primitiveDouble")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.CONTAINS, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.CONTAINS_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string2")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.STARTSWITH, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string3")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.STARTSWITH_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string4")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.ENDSWITH, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string5")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.ENDSWITH_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string6")).findAny().orElseThrow().getSearchFilter());
-        Assertions.assertEquals(SearchFilter.NOTEQ_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string7")).findAny().orElseThrow().getSearchFilter());
+        Assertions.assertEquals(Operator.EQ, fb.stream().filter(f -> f.getOriginalKey().equals("primitiveInteger")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.EQ_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("email")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.IS_EMPTY, fb.stream().filter(f -> f.getOriginalKey().equals("integerString")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.IS_NULL, fb.stream().filter(f -> f.getOriginalKey().equals("wrapperInteger")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.IS_NOT_NULL, fb.stream().filter(f -> f.getOriginalKey().equals("dateString")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.GT, fb.stream().filter(f -> f.getOriginalKey().equals("date1")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.GTE, fb.stream().filter(f -> f.getOriginalKey().equals("date2")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.LT, fb.stream().filter(f -> f.getFieldKey().equals("entity.long-one")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.LTE, fb.stream().filter(f -> f.getFieldKey().equals("entity.long-two")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.BETWEEN, fb.stream().filter(f -> f.getOriginalKey().equals("primitiveFloat")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.IS_NOT_EMPTY, fb.stream().filter(f -> f.getOriginalKey().equals("wrapperFloat")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.NIN, fb.stream().filter(f -> f.getOriginalKey().equals("wrapperDouble")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.IN, fb.stream().filter(f -> f.getOriginalKey().equals("primitiveDouble")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.CONTAINS, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.CONTAINS_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string2")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.STARTSWITH, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string3")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.STARTSWITH_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string4")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.ENDSWITH, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string5")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.ENDSWITH_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string6")).findAny().orElseThrow().getOperator());
+        Assertions.assertEquals(Operator.NOTEQ_IGNORECASE, fb.stream().filter(f -> f.getOriginalKey().equals("nestedBean.string7")).findAny().orElseThrow().getOperator());
     }
 
 }

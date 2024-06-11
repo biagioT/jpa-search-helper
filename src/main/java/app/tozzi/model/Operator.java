@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 @Getter
 @AllArgsConstructor
-public enum SearchFilter {
+public enum Operator {
 
     EQ("eq", JPASearchFunctions.EQ, false, null, 1, false, false),
     EQ_IGNORECASE("iEq", JPASearchFunctions.EQ_IGNORECASE, false, null, 1, false, false),
@@ -43,8 +43,8 @@ public enum SearchFilter {
     private final boolean noNumberParsing;
     private final boolean like;
 
-    public static SearchFilter load(String suffix, String fixedValue, @NonNull SearchFilter defaultSearchFilter) {
-        return Stream.of(SearchFilter.values()).filter(f -> f.name.equals(suffix) && (f.fixedValue == null || fixedValue.equalsIgnoreCase(f.fixedValue))).findAny().orElse(defaultSearchFilter);
+    public static Operator load(String suffix, String fixedValue, @NonNull Operator defaultOperator) {
+        return Stream.of(Operator.values()).filter(f -> f.name.equals(suffix) && (f.fixedValue == null || fixedValue.equalsIgnoreCase(f.fixedValue))).findAny().orElse(defaultOperator);
     }
 
     public boolean hasFixedValue() {

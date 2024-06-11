@@ -1,6 +1,6 @@
 package app.tozzi.annotations;
 
-import app.tozzi.model.SearchFilter;
+import app.tozzi.model.Operator;
 import app.tozzi.model.SearchType;
 
 import java.lang.annotation.ElementType;
@@ -36,9 +36,9 @@ public @interface Searchable {
 
     Tag[] tags() default {};
 
-    SearchFilter[] allowedFilters() default {};
+    Operator[] allowedFilters() default {};
 
-    SearchFilter[] notAllowedFilters() default {};
+    Operator[] notAllowedFilters() default {};
 
     boolean likeFilters() default true;
 
