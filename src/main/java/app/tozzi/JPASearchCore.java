@@ -251,22 +251,22 @@ public class JPASearchCore {
 
         boolean isComparable = isCollection ? collection.stream().anyMatch(v -> Comparable.class.isAssignableFrom(v.getClass())) : Comparable.class.isAssignableFrom(valueObj.getClass());
         if (!isComparable && searchFilter.isComparable()) {
-            throw new InvalidFieldException("Not allowed filter [" + searchFilter.getSuffix() + "] for type [" + searchType.name() + "] of field [" + field + "]", field);
+            throw new InvalidFieldException("Not allowed filter [" + searchFilter.getName() + "] for type [" + searchType.name() + "] of field [" + field + "]", field);
         }
     }
 
     private static void searchableValidations(Searchable searchable, String field, SearchFilter searchFilter) {
 
         if (searchable.allowedFilters() != null && searchable.allowedFilters().length > 0 && Stream.of(searchable.allowedFilters()).noneMatch(sf -> sf.equals(searchFilter))) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
+            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getName() + "] for field [" + field + "]", field);
         }
 
         if (searchable.notAllowedFilters() != null && searchable.notAllowedFilters().length > 0 && Stream.of(searchable.notAllowedFilters()).anyMatch(sf -> sf.equals(searchFilter))) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
+            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getName() + "] for field [" + field + "]", field);
         }
 
         if (!searchable.likeFilters() && searchFilter.isLike()) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
+            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getName() + "] for field [" + field + "]", field);
         }
 
     }
