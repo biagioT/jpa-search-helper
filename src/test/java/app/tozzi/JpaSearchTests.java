@@ -21,14 +21,14 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 
 @DataJpaTest
-@ContextConfiguration(classes = {JpaTests.class})
+@ContextConfiguration(classes = {JpaSearchTests.class})
 @EnableAutoConfiguration
 @TestPropertySource(properties = {
     "spring.jpa.show-sql=true",
     "logging.level.org.hibernate.SQL=DEBUG",
     "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE"
 })
-public class JpaTests {
+public class JpaSearchTests {
     ObjectMapper mapper = new ObjectMapper();
     @Autowired private TestEntityRepository testEntityRepository;
     @Autowired private TestEntity2Repository testEntity2Repository;
@@ -74,35 +74,35 @@ public class JpaTests {
     public void testAllFilters() {
         setup();
         var filterString = """
-           ["and",
-             ["and", 
-                 ["and",
-                   ["eq", ":primitiveInteger", 6],
-                   ["iEq", ":email", "test@test.fi"],
-                   ["lt", ":primitiveLong", 10],
-                   ["in", ":primitiveDouble", 1.3, 1.4],
-                   ["between", ":primitiveFloat", 1.3, 1.4],
-                   ["lte", ":wrapperLong", 10],
-                   ["nin", ":wrapperDouble", 1.3, 1.4],
-                   ["isNull", ":wrapperInteger"],
-                   ["eq", ":integerString", ""]
-                ]
-             ],
-             ["and", 
-               ["isNotNull", ":dateString"],
-               ["notEq", ":bigDecimal",  ["bigDecimal", "1.35"]],
-               ["eq", ":bigDecimal",  ["bigDecimal", "1.23"]],
-               ["eq", ":nestedBean.string", "Nested! daa dumdidum"],
-               ["iNotEq", ":nestedBean.string", "blaa!"],
-               ["startsWith", ":nestedBean.string", "Nested!"],
-               ["iStartsWith", ":nestedBean.string", "NESTED!"],
-               ["contains", ":nestedBean.string", "Nested!"],
-               ["iEndsWith", ":nestedBean.string", "DUM"],
-               ["iContains", ":nestedBean.string", "NESTED!"],
-               ["endsWith", ":nestedBean.string", "dum"]
-             ]
+          ["and",
+            ["and",
+              ["and",
+                ["eq", ":primitiveInteger", 6],
+                ["iEq", ":email", "test@test.fi"],
+                ["lt", ":primitiveLong", 10],
+                ["in", ":primitiveDouble", 1.3, 1.4],
+                ["between", ":primitiveFloat", 1.3, 1.4],
+                ["lte", ":wrapperLong", 10],
+                ["nin", ":wrapperDouble", 1.3, 1.4],
+                ["isNull", ":wrapperInteger"],
+                ["eq", ":integerString", ""]
+               ]
+            ],
+            ["and",
+              ["isNotNull", ":dateString"],
+              ["notEq", ":bigDecimal",  ["bigDecimal", "1.35"]],
+              ["eq", ":bigDecimal",  ["bigDecimal", "1.23"]],
+              ["eq", ":nestedBean.string", "Nested! daa dumdidum"],
+              ["iNotEq", ":nestedBean.string", "blaa!"],
+              ["startsWith", ":nestedBean.string", "Nested!"],
+              ["iStartsWith", ":nestedBean.string", "NESTED!"],
+              ["contains", ":nestedBean.string", "Nested!"],
+              ["iEndsWith", ":nestedBean.string", "DUM"],
+              ["iContains", ":nestedBean.string", "NESTED!"],
+              ["endsWith", ":nestedBean.string", "dum"]
+            ]
           ]
-           """;
+          """;
 
         /*
              H2 does not support DATE function, so can't test this
@@ -125,7 +125,7 @@ public class JpaTests {
             ["eq", ":primitiveInteger", 6],
             ["eq", ":primitiveInteger", 7]
           ]
-           """;
+          """;
 
         JsonNode filters = mapper.readTree(filterString);
         List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
@@ -141,7 +141,7 @@ public class JpaTests {
           ["not",
             ["eq", ":primitiveInteger", 7]
           ]
-           """;
+          """;
 
         JsonNode filters = mapper.readTree(filterString);
         List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
