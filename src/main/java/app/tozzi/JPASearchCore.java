@@ -187,32 +187,9 @@ public class JPASearchCore {
         }
     }
 
-    public static Sort loadSort(JsonNode filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrNotSearchable, Map<String, String> entityFieldMap) {
-        return null;
-        //return filters.entrySet().stream().filter(e -> e.getKey().endsWith(PaginationFilter.SORT.getSuffix()))
-        //        .map(e -> new AbstractMap.SimpleEntry<>(e.getValue(),
-        //                loadDescriptor(e.getKey(), throwsIfNotExistsOrNotSearchable, true, throwsIfNotSortable, entityFieldMap,
-        //                        ReflectionUtils.getAllSearchableFields(clazz))))
-        //        .filter(e -> e.getValue() != null)
-        //        .map(e -> {
-        //            Sort s = Sort.by(e.getValue().getEntityKey());
-        //            switch (SortType.load(e.getKey(), SortType.ASC)) {
-        //                case ASC -> s = s.ascending();
-        //                case DESC -> s = s.descending();
-        //            }
-        //            return s;
-
-        //        }).findAny().orElseThrow(() -> new InvalidFieldException("Invalid or not present sort key", PaginationFilter.SORT.getSuffix()));
-
-    }
-
-    public static PageRequest loadSortAndPagination(JsonNode filterPayload, Class<?> entityClass, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
-        Integer pageSize = null;
-        Integer pageOffset = null;
+    public static Sort loadSort(JsonNode filterPayload, Class<?> entityClass, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrNotSearchable, Map<String, String> entityFieldMap) {
         Sort sort = null;
-
         var options = filterPayload.get("options");
-
         if (options != null) {
             var sortKey = options.get("sortKey");
             var descending = false;
@@ -237,6 +214,19 @@ public class JPASearchCore {
                     sort = sort.ascending();
                 }
             }
+        }
+        return sort;
+    }
+
+    public static PageRequest loadSortAndPagination(JsonNode filterPayload, Class<?> entityClass, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
+        Integer pageSize = null;
+        Integer pageOffset = null;
+        Sort sort = null;
+
+        var options = filterPayload.get("options");
+
+        if (options != null) {
+            sort = loadSort(filterPayload, entityClass, throwsIfNotSortable, throwsIfNotExistsOrSearchable, entityFieldMap);
 
             var pageOffsetNode = options.get("pageOffset");
             if (pageOffsetNode != null) {
