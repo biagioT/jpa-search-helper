@@ -20,7 +20,6 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 
-// Test class
 @DataJpaTest
 @ContextConfiguration(classes = {JpaTests.class})
 @EnableAutoConfiguration
@@ -72,7 +71,7 @@ public class JpaTests {
 
     @SneakyThrows
     @Test
-    public void givenCustomerName_whenFindAllBySpecification_thenCustomerFound() {
+    public void testAllFilters() {
         setup();
         var filterString = """
            ["and",
@@ -110,6 +109,39 @@ public class JpaTests {
              ["gt", ":date1", ["date", 2025, 1, 25]]
              ["gte", ":date2", ["date", 2024, 1, 25]]
         */
+
+        JsonNode filters = mapper.readTree(filterString);
+        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+
+        assertThat(result).hasSize(1);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testOrOperator() {
+        setup();
+        var filterString = """
+          ["or",
+            ["eq", ":primitiveInteger", 6],
+            ["eq", ":primitiveInteger", 7]
+          ]
+           """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+
+        assertThat(result).hasSize(1);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testNotOperator() {
+        setup();
+        var filterString = """
+          ["not",
+            ["eq", ":primitiveInteger", 7]
+          ]
+           """;
 
         JsonNode filters = mapper.readTree(filterString);
         List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
