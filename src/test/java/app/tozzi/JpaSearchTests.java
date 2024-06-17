@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -38,6 +39,7 @@ public class JpaSearchTests {
             0L,
             "Nested! daa dumdidum"
         );
+
         ent2 = testEntity2Repository.save(ent2);
         TestEntity ent = new TestEntity(
             0L,
@@ -68,7 +70,75 @@ public class JpaSearchTests {
         );
         testEntityRepository.save(ent);
     }
+    private void setup2() {
+        var ent2a = new TestEntity2(
+            0L,
+            "nested1"
+        );
+        ent2a = testEntity2Repository.save(ent2a);
+        var ent2b = new TestEntity2(
+            0L,
+            "nested2"
+        );
+        ent2b = testEntity2Repository.save(ent2b);
 
+        TestEntity ent = new TestEntity(
+            0L,
+            6,
+            null,
+            "asdf",
+            "test@test.fi",
+            "",
+            "20240609",
+            new Date(2024, Calendar.MARCH, 1),
+            new Date(2024, Calendar.MARCH, 1),
+            1L,
+            10L,
+            1.35F,
+            5.6F,
+            1.3,
+            2.3,
+            new BigDecimal("1.23"),
+            LocalDateTime.now(),
+            LocalDate.now(),
+            LocalTime.now(),
+            OffsetDateTime.now(),
+            OffsetTime.now(),
+            "fieldName",
+            false,
+            true,
+            ent2a
+        );
+        testEntityRepository.save(ent);
+        ent = new TestEntity(
+            0L,
+            7,
+            null,
+            "asdf",
+            "test@test.fi",
+            "",
+            "20240609",
+            new Date(2024, Calendar.MARCH, 1),
+            new Date(2024, Calendar.MARCH, 1),
+            1L,
+            10L,
+            1.35F,
+            5.6F,
+            1.3,
+            2.3,
+            new BigDecimal("1.23"),
+            LocalDateTime.now(),
+            LocalDate.now(),
+            LocalTime.now(),
+            OffsetDateTime.now(),
+            OffsetTime.now(),
+            "fieldName",
+            false,
+            true,
+            ent2b
+        );
+        testEntityRepository.save(ent);
+    }
     @SneakyThrows
     @Test
     public void testAllFilters() {
@@ -152,5 +222,135 @@ public class JpaSearchTests {
         List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
 
         assertThat(result).hasSize(1);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSort() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": "primitiveInteger",
+            "pageSize": 2,
+            "pageOffset": 0
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result).hasSize(2);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(6);
+        assertThat(result.getContent().get(1).getPrimitiveInteger()).isEqualTo(7);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSortDesc() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": "-primitiveInteger",
+            "pageSize": 2,
+            "pageOffset": 0
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result).hasSize(2);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0).getId()).isEqualTo(2);
+        assertThat(result.getContent().get(1).getId()).isEqualTo(1);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSortLimit() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": "primitiveInteger",
+            "pageSize": 1,
+            "pageOffset": 0
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(6);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSortLimit2() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": "primitiveInteger",
+            "pageSize": 1,
+            "pageOffset": 1
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testNestedSortLimit() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": "nestedBean.string",
+            "pageSize": 1,
+            "pageOffset": 1
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testNestedSortLimitDesc() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": "-nestedBean.string",
+            "pageSize": 1,
+            "pageOffset": 1
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(6);
     }
 }

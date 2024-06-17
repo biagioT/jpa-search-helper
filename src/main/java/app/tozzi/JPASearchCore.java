@@ -51,10 +51,11 @@ public class JPASearchCore {
                                                         boolean throwsIfNotExistsOrNotSearchable,
                                                         Map<String, String> entityFieldMap) {
 
-
         var filterExpression = filterPayload.get("filter");
+
         return (root, query, criteriaBuilder) -> {
             fetchManagement(fetchMap, root);
+
             var expr = processExpression(filterExpression, criteriaBuilder, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap);
             if (expr instanceof Predicate) {
                 return (Predicate) expr;
@@ -205,63 +206,62 @@ public class JPASearchCore {
 
     }
 
-    public static PageRequest loadSortAndPagination(JsonNode filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
+    public static PageRequest loadSortAndPagination(JsonNode filterPayload, Class<?> entityClass, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
+        Integer pageSize = null;
+        Integer pageOffset = null;
+        Sort sort = null;
 
-        final AtomicInteger limit = new AtomicInteger(-1);
-        final AtomicInteger offset = new AtomicInteger(-1);
-        final AtomicReference<Sort> sort = new AtomicReference<>();
+        var options = filterPayload.get("options");
 
-        //filters.entrySet().stream().filter(e -> PaginationFilter.keys().stream().anyMatch(p -> e.getKey().endsWith(p)))
-        //        .forEach(e -> {
+        if (options != null) {
+            var sortKey = options.get("sortKey");
+            var descending = false;
+            if (sortKey != null) {
+                var sortKeyStr = sortKey.asText();
+                if (sortKeyStr.startsWith("-")) {
+                    sortKeyStr = sortKeyStr.substring(1);
+                    descending = true;
+                }
+                var descriptor = loadDescriptor(
+                    sortKeyStr,
+                    throwsIfNotSortable,
+                    false,
+                    false,
+                    entityFieldMap,
+                    ReflectionUtils.getAllSearchableFields(entityClass)
+                );
+                sort = Sort.by(descriptor.entityKey);
+                if (descending) {
+                    sort = sort.descending();
+                } else {
+                    sort = sort.ascending();
+                }
+            }
 
-        //            String suffix = e.getKey().contains("_") ? e.getKey().substring(e.getKey().lastIndexOf("_")) : e.getKey();
-        //            PaginationFilter pk = PaginationFilter.load(suffix);
-        //            if (pk != null) {
-        //                switch (pk) {
-        //                    case LIMIT -> limit.set(GenericUtils.loadInt(e.getValue(), -1));
-        //                    case OFFSET -> offset.set(GenericUtils.loadInt(e.getValue(), -1));
-        //                    case SORT -> {
-        //                        DescriptorBean descriptor = loadDescriptor(e.getKey(), throwsIfNotExistsOrSearchable, true, throwsIfNotSortable, entityFieldMap,
-        //                                ReflectionUtils.getAllSearchableFields(clazz));
-        //                        if (descriptor != null) {
-        //                            Sort s = Sort.by(descriptor.entityKey);
-        //                            switch (SortType.load(e.getValue(), SortType.ASC)) {
-        //                                case ASC -> s = s.ascending();
-        //                                case DESC -> s = s.descending();
-        //                            }
+            var pageOffsetNode = options.get("pageOffset");
+            if (pageOffsetNode != null) {
+                pageOffset = pageOffsetNode.asInt();
+            }
+            var pageSizeNode = options.get("pageSize");
+            if (pageSizeNode != null) {
+                pageSize = pageSizeNode.asInt();
+            }
+        }
 
-        //                            sort.set(s);
-        //                        }
-        //                    }
-        //                    default -> throw new InvalidFieldException("Invalid key " + e.getKey(), e.getKey());
-        //                }
-        //            }
-        //        });
-
-        if (limit.get() == -1) {
+        if (pageSize == null) {
             throw new InvalidFieldException("Invalid or not present limit", PaginationFilter.LIMIT.getSuffix());
         }
 
-        PageRequest result = PageRequest.ofSize(limit.get());
-        if (offset.get() != -1) {
-            result = result.withPage(offset.get());
+        PageRequest result = PageRequest.ofSize(pageSize);
+        if (pageOffset != null) {
+            result = result.withPage(pageOffset);
         }
-        if (sort.get() != null) {
-            result = result.withSort(sort.get());
+        if (sort != null) {
+            result = result.withSort(sort);
         }
 
         return result;
     }
-
-    //private static <T> List<Predicate> andPredicates(@NonNull Map<String, String> filters, @NonNull Root<?> root, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Class<T> clazz,
-    //                                                 boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
-    //    return filters.entrySet().stream()
-    //            .filter(e -> PaginationFilter.keys().stream().noneMatch(p -> e.getKey().endsWith(p)))
-    //            .map(e -> filterManagement("OP!!!!", e.getKey(), e.getValue(), clazz, throwsIfNotExistsOrSearchable, entityFieldMap))
-    //            .filter(Objects::nonNull)
-    //            .map(f -> f.operator.getFunction().apply(new FieldRootBuilderBean<>(f.fieldKey, root, criteriaBuilder, f.value, f.trim)))
-    //            .toList();
-    //}
 
     public static <T> FilterBean filterManagement(String operatorStr, String key, String value, Class<T> clazz, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
 
