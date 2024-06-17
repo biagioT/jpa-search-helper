@@ -249,7 +249,7 @@ public class JPASearchCore {
         }
 
         if (pageSize == null) {
-            throw new InvalidFieldException("Invalid or not present limit", PaginationFilter.LIMIT.getSuffix());
+            throw new JPASearchException("Invalid or not present limit");
         }
 
         PageRequest result = PageRequest.ofSize(pageSize);
@@ -261,27 +261,6 @@ public class JPASearchCore {
         }
 
         return result;
-    }
-
-    public static <T> FilterBean filterManagement(String operatorStr, String key, String value, Class<T> clazz, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
-
-        if (key == null || key.isBlank() || value == null) {
-            return null;
-        }
-
-        DescriptorBean descriptor = loadDescriptor(key, throwsIfNotExistsOrSearchable, false, false, entityFieldMap, ReflectionUtils.getAllSearchableFields(clazz));
-
-        if (descriptor == null) {
-            return null;
-        }
-
-        Operator operator = Operator.load(operatorStr);
-
-        searchableValidations(descriptor.searchable, descriptor.path, operator);
-        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat(), operator.isNoNumberParsing());
-        searchableValidationsOnTargetValue(targetValue, descriptor.searchable, descriptor.path, value, descriptor.searchType);
-        filterValidations(operator, descriptor.path, targetValue, descriptor.searchType);
-        return new FilterBean(descriptor.entityKey, descriptor.path, operator, targetValue, descriptor.searchable.trim());
     }
 
     private static DescriptorBean loadDescriptor(String key, boolean throwsIfNotExistsOrNotSortable, boolean checkSortable,
@@ -322,65 +301,6 @@ public class JPASearchCore {
 
         return new DescriptorBean(fullField, searchable,
                 SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField);
-    }
-
-    private static void filterValidations(Operator operator, String field, Object valueObj, SearchType searchType) {
-        boolean isCollection = Collection.class.isAssignableFrom(valueObj.getClass());
-        Collection<?> collection = isCollection ? (Collection<?>) valueObj : null;
-        int values = isCollection ? collection.size() : 1;
-
-        if (operator.getAllowedValues() != -1 && operator.getAllowedValues() != values) {
-            throw new InvalidValueException("Invalid values count: [" + values + "] for type [" + searchType.name() + "] of field [" + field + "]. Expected: [" + operator.getAllowedValues() + "]; received: [" + values + "]", field, valueObj);
-        }
-
-        boolean isComparable = isCollection ? collection.stream().anyMatch(v -> Comparable.class.isAssignableFrom(v.getClass())) : Comparable.class.isAssignableFrom(valueObj.getClass());
-        if (!isComparable && operator.isComparable()) {
-            throw new InvalidFieldException("Not allowed filter [" + operator.getName() + "] for type [" + searchType.name() + "] of field [" + field + "]", field);
-        }
-    }
-
-    private static void searchableValidations(Searchable searchable, String field, Operator operator) {
-
-        if (searchable.allowedFilters() != null && searchable.allowedFilters().length > 0 && Stream.of(searchable.allowedFilters()).noneMatch(sf -> sf.equals(operator))) {
-            throw new InvalidFieldException("Not allowed filters [" + operator.getName() + "] for field [" + field + "]", field);
-        }
-
-        if (searchable.notAllowedFilters() != null && searchable.notAllowedFilters().length > 0 && Stream.of(searchable.notAllowedFilters()).anyMatch(sf -> sf.equals(operator))) {
-            throw new InvalidFieldException("Not allowed filters [" + operator.getName() + "] for field [" + field + "]", field);
-        }
-
-        if (!searchable.likeFilters() && operator.isLike()) {
-            throw new InvalidFieldException("Not allowed filters [" + operator.getName() + "] for field [" + field + "]", field);
-        }
-
-    }
-
-    private static void searchableValidationsOnTargetValue(Object targetValue, Searchable searchable, String field, String value, SearchType searchType) {
-
-        // Length
-        int maxLength = searchType.getMaxLength(targetValue);
-        if (maxLength >= 0 && searchable.maxSize() >= 0 && maxLength > searchable.maxSize()) {
-            throw new InvalidValueException("Value [" + value + "] exceeds maximum length [" + searchable.maxSize() + "] defined on field [" + field + "]", field, value);
-        }
-        int minLength = searchType.getMinLength(targetValue);
-        if (minLength >= 0 && searchable.minSize() >= 0 && minLength < searchable.minSize()) {
-            throw new InvalidValueException("Value [" + value + "] less than minimum length [" + searchable.minSize() + "] defined on field [" + field + "]", field, value);
-        }
-
-        // Digits
-        int maxDigits = searchType.getMaxDigits(targetValue);
-        if (maxDigits >= 0 && searchable.maxDigits() >= 0 && maxDigits > searchable.maxDigits()) {
-            throw new InvalidValueException("Value [" + value + "] exceeds maximum digits count [" + searchable.maxDigits() + "] defined on field [" + field + "]", field, value);
-        }
-        int minDigits = searchType.getMinDigits(targetValue);
-        if (minLength >= 0 && searchable.minDigits() >= 0 && minDigits < searchable.minDigits()) {
-            throw new InvalidValueException("Value [" + value + "] less than minimum digits count [" + searchable.minDigits() + "] defined on field [" + field + "]", field, value);
-        }
-
-        // Regex
-        if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !searchType.matchRegex(targetValue, searchable.regexPattern())) {
-            throw new InvalidValueException("Value [" + value + " does not match pattern [" + searchable.regexPattern() + " of field [" + field + "]", field, value);
-        }
     }
 
     @Data

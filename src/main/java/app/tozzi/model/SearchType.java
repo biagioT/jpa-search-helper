@@ -42,8 +42,8 @@ public enum SearchType {
 
     public Object getValue(String field, String value, String datePattern, String decimalFormat, boolean noNumberParsing) {
 
-        if (value.contains(Constants.ARRAY_SEPARATOR)) {
-            return Stream.of(split(value, Constants.ARRAY_SEPARATOR)).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing)).toList();
+        if (value.contains(",")) {
+            return Stream.of(split(value, ",")).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing)).toList();
         }
 
         try {
@@ -114,78 +114,6 @@ public enum SearchType {
         }
 
         return formattedNumber;
-    }
-
-    public int getMaxLength(Object value) {
-
-        if (value instanceof Collection<?> coll) {
-            return Collections.max(new ArrayList<>(coll).stream().map(this::getSize).toList());
-        }
-
-        return getSize(value);
-
-    }
-
-    public int getMinLength(Object value) {
-
-        if (value instanceof Collection<?> coll) {
-            return Collections.min(new ArrayList<>(coll).stream().map(this::getSize).toList());
-        }
-
-        return getSize(value);
-
-    }
-
-    public int getMaxDigits(Object value) {
-
-        if (value instanceof Collection<?> coll) {
-            return Collections.max(new ArrayList<>(coll).stream().map(this::getDigits).toList());
-        }
-
-        return getDigits(value);
-
-    }
-
-    public int getMinDigits(Object value) {
-
-        if (value instanceof Collection<?> coll) {
-            return Collections.min(new ArrayList<>(coll).stream().map(this::getDigits).toList());
-        }
-
-        return getDigits(value);
-
-    }
-
-    private int getDigits(Object value) {
-        return switch (this) {
-            case LONG, INTEGER, FLOAT, DOUBLE, BIGDECIMAL -> String.valueOf(value).length();
-            default -> -1;
-        };
-    }
-
-    private int getSize(Object value) {
-        return switch (this) {
-            case STRING -> String.valueOf(value).length();
-            case LONG -> value instanceof String s ? Long.valueOf(s).intValue() : ((Long) value).intValue();
-            case INTEGER -> value instanceof String s ? Integer.valueOf(s) : (Integer) value;
-            case FLOAT -> ((Float) value).intValue();
-            case DOUBLE -> ((Double) value).intValue();
-            case BIGDECIMAL -> ((BigDecimal) value).intValue();
-            default -> -1;
-        };
-    }
-
-    public boolean matchRegex(Object value, String regex) {
-
-        if (value instanceof Collection<?> coll) {
-            return coll.stream().allMatch(v -> matchRegex(v, regex));
-        }
-
-        return switch (this) {
-            case STRING -> String.valueOf(value).matches(regex);
-            default -> true;
-        };
-
     }
 
     private static boolean containsOnlyDigits(String number) {
