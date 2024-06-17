@@ -2,6 +2,9 @@ package app.tozzi.repository;
 
 import app.tozzi.JPASearchCore;
 import javax.persistence.criteria.JoinType;
+
+import app.tozzi.JPASearchFunctions;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +24,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param type
      * @return
      */
-    default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
+    default List<E> findAll(@NonNull JsonNode filters, @NonNull Class<?> type) {
         Specification<E> specification = JPASearchCore.specification(filters, type, true);
         return findAll(specification);
     }
@@ -34,7 +37,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param fetches
      * @return
      */
-    default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
+    default List<E> findAll(@NonNull JsonNode filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
         Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true);
         return findAll(specification);
     }
@@ -49,7 +52,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param fetches
      * @return
      */
-    default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
+    default List<E> findAll(@NonNull JsonNode filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
         Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, entityFieldMap);
         return findAll(specification);
     }
@@ -61,7 +64,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param type
      * @return
      */
-    default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
+    default List<E> findAllSorted(@NonNull JsonNode filters, @NonNull Class<?> type) {
         Specification<E> specification = JPASearchCore.specification(filters, type, true);
         Sort sort = JPASearchCore.loadSort(filters, type, true, true, null);
         return findAll(specification, sort);
@@ -75,7 +78,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param fetches
      * @return
      */
-    default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
+    default List<E> findAllSorted(@NonNull JsonNode filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
         Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true);
         Sort sort = JPASearchCore.loadSort(filters, type, true, true, null);
         return findAll(specification, sort);
@@ -91,7 +94,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param fetches
      * @return
      */
-    default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
+    default List<E> findAllSorted(@NonNull JsonNode filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
         Specification<E> specification = JPASearchCore.specification(filters, type, fetches, true, entityFieldMap);
         Sort sort = JPASearchCore.loadSort(filters, type, true, true, entityFieldMap);
         return findAll(specification, sort);
@@ -104,7 +107,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param type
      * @return
      */
-    default Page<E> findAllWithPaginationAndSorting(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
+    default Page<E> findAllWithPaginationAndSorting(@NonNull JsonNode filters, @NonNull Class<?> type) {
         Specification<E> specification = JPASearchCore.specification(filters, type, true);
         PageRequest pageRequest = JPASearchCore.loadSortAndPagination(filters, type, true, true, null);
         return findAll(specification, pageRequest);
@@ -120,7 +123,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param entityFieldMap
      * @return
      */
-    default Page<E> findAllWithPaginationAndSorting(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
+    default Page<E> findAllWithPaginationAndSorting(@NonNull JsonNode filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
         Specification<E> specification = JPASearchCore.specification(filters, type, true, entityFieldMap);
         PageRequest pageRequest = JPASearchCore.loadSortAndPagination(filters, type, true, true, entityFieldMap);
         return findAll(specification, pageRequest);
@@ -133,7 +136,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param type
      * @return
      */
-    default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
+    default long count(@NonNull JsonNode filters, @NonNull Class<?> type) {
         Specification<E> specification = JPASearchCore.specification(filters, type, true);
         return count(specification);
     }
@@ -146,7 +149,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @param entityFieldMap
      * @return
      */
-    default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
+    default long count(@NonNull JsonNode filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
         Specification<E> specification = JPASearchCore.specification(filters, type, true, entityFieldMap);
         return count(specification);
     }
