@@ -25,35 +25,37 @@ import java.util.stream.Stream;
 import static app.tozzi.JPASearchFunctions.getPath;
 
 public class JPASearchCore {
-    public static <R, T> Specification<R> specification(JsonNode filters,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
                                                         Class<T> entityClass,
                                                         boolean throwsIfNotExistsOrNotSearchable) {
-        return specification(filters, entityClass, null, throwsIfNotExistsOrNotSearchable, null);
+        return specification(filterPayload, entityClass, null, throwsIfNotExistsOrNotSearchable, null);
     }
 
-    public static <R, T> Specification<R> specification(JsonNode filters,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
                                                         Class<T> entityClass,
                                                         Map<String, JoinType> fetchMap,
                                                         boolean throwsIfNotExistsOrNotSearchable) {
-        return specification(filters, entityClass, fetchMap, throwsIfNotExistsOrNotSearchable, null);
+        return specification(filterPayload, entityClass, fetchMap, throwsIfNotExistsOrNotSearchable, null);
     }
 
-    public static <R, T> Specification<R> specification(JsonNode filters,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
                                                         Class<T> entityClass,
                                                         boolean throwsIfNotExistsOrNotSearchable,
                                                         Map<String, String> entityFieldMap) {
-        return specification(filters, entityClass, null, throwsIfNotExistsOrNotSearchable, entityFieldMap);
+        return specification(filterPayload, entityClass, null, throwsIfNotExistsOrNotSearchable, entityFieldMap);
     }
 
-    public static <R, T> Specification<R> specification(JsonNode filters,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
                                                         Class<T> entityClass,
                                                         Map<String, JoinType> fetchMap,
                                                         boolean throwsIfNotExistsOrNotSearchable,
                                                         Map<String, String> entityFieldMap) {
 
+
+        var filterExpression = filterPayload.get("filter");
         return (root, query, criteriaBuilder) -> {
             fetchManagement(fetchMap, root);
-            var expr = processExpression(filters, criteriaBuilder, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap);
+            var expr = processExpression(filterExpression, criteriaBuilder, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap);
             if (expr instanceof Predicate) {
                 return (Predicate) expr;
             } else {

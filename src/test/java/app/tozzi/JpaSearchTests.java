@@ -74,34 +74,37 @@ public class JpaSearchTests {
     public void testAllFilters() {
         setup();
         var filterString = """
-          ["and",
-            ["and",
+          {
+            "filter":
               ["and",
-                ["eq", ":primitiveInteger", 6],
-                ["iEq", ":email", "test@test.fi"],
-                ["lt", ":primitiveLong", 10],
-                ["in", ":primitiveDouble", 1.3, 1.4],
-                ["between", ":primitiveFloat", 1.3, 1.4],
-                ["lte", ":wrapperLong", 10],
-                ["nin", ":wrapperDouble", 1.3, 1.4],
-                ["isNull", ":wrapperInteger"],
-                ["eq", ":integerString", ""]
-               ]
-            ],
-            ["and",
-              ["isNotNull", ":dateString"],
-              ["notEq", ":bigDecimal",  ["bigDecimal", "1.35"]],
-              ["eq", ":bigDecimal",  ["bigDecimal", "1.23"]],
-              ["eq", ":nestedBean.string", "Nested! daa dumdidum"],
-              ["iNotEq", ":nestedBean.string", "blaa!"],
-              ["startsWith", ":nestedBean.string", "Nested!"],
-              ["iStartsWith", ":nestedBean.string", "NESTED!"],
-              ["contains", ":nestedBean.string", "Nested!"],
-              ["iEndsWith", ":nestedBean.string", "DUM"],
-              ["iContains", ":nestedBean.string", "NESTED!"],
-              ["endsWith", ":nestedBean.string", "dum"]
-            ]
-          ]
+                ["and",
+                  ["and",
+                    ["eq", ":primitiveInteger", 6],
+                    ["iEq", ":email", "test@test.fi"],
+                    ["lt", ":primitiveLong", 10],
+                    ["in", ":primitiveDouble", 1.3, 1.4],
+                    ["between", ":primitiveFloat", 1.3, 1.4],
+                    ["lte", ":wrapperLong", 10],
+                    ["nin", ":wrapperDouble", 1.3, 1.4],
+                    ["isNull", ":wrapperInteger"],
+                    ["eq", ":integerString", ""]
+                   ]
+                ],
+                ["and",
+                  ["isNotNull", ":dateString"],
+                  ["notEq", ":bigDecimal",  ["bigDecimal", "1.35"]],
+                  ["eq", ":bigDecimal",  ["bigDecimal", "1.23"]],
+                  ["eq", ":nestedBean.string", "Nested! daa dumdidum"],
+                  ["iNotEq", ":nestedBean.string", "blaa!"],
+                  ["startsWith", ":nestedBean.string", "Nested!"],
+                  ["iStartsWith", ":nestedBean.string", "NESTED!"],
+                  ["contains", ":nestedBean.string", "Nested!"],
+                  ["iEndsWith", ":nestedBean.string", "DUM"],
+                  ["iContains", ":nestedBean.string", "NESTED!"],
+                  ["endsWith", ":nestedBean.string", "dum"]
+                ]
+             ]
+          }
           """;
 
         /*
@@ -121,10 +124,12 @@ public class JpaSearchTests {
     public void testOrOperator() {
         setup();
         var filterString = """
-          ["or",
+          {
+           "filter": ["or",
             ["eq", ":primitiveInteger", 6],
             ["eq", ":primitiveInteger", 7]
-          ]
+           ]
+          }
           """;
 
         JsonNode filters = mapper.readTree(filterString);
@@ -138,9 +143,9 @@ public class JpaSearchTests {
     public void testNotOperator() {
         setup();
         var filterString = """
-          ["not",
+          {"filter": ["not",
             ["eq", ":primitiveInteger", 7]
-          ]
+          ]}
           """;
 
         JsonNode filters = mapper.readTree(filterString);
