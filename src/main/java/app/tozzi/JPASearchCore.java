@@ -3,7 +3,6 @@ package app.tozzi;
 import app.tozzi.annotations.Searchable;
 import app.tozzi.annotations.Tag;
 import app.tozzi.exceptions.InvalidFieldException;
-import app.tozzi.exceptions.InvalidValueException;
 import app.tozzi.model.*;
 import app.tozzi.exceptions.JPASearchException;
 import app.tozzi.utils.ReflectionUtils;
@@ -18,8 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static app.tozzi.JPASearchFunctions.getPath;
@@ -107,7 +104,7 @@ public class JPASearchCore {
         } else if (node.isArray()) {
             return processExpression(node, cb, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap);
         } else if (node.isNull()) {
-            return cb.nullLiteral(entityClass); // entityClass? //literal(null);
+            return cb.nullLiteral(entityClass);
         } else {
             throw new JPASearchException("unexpected: " + node);
         }
@@ -291,16 +288,6 @@ public class JPASearchCore {
 
         return new DescriptorBean(fullField, searchable,
                 SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField);
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class FilterBean {
-        private String fieldKey;
-        private String originalKey;
-        private Operator operator;
-        private Object value;
-        private boolean trim;
     }
 
     @Data
