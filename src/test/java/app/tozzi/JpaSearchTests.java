@@ -231,7 +231,7 @@ public class JpaSearchTests {
         var filterString = """
           {"filter": ["gte", ":primitiveInteger", 6],
           "options": {
-            "sortKey": "primitiveInteger",
+            "sortKey": ["primitiveInteger"],
             "pageSize": 2,
             "pageOffset": 0
           }
@@ -254,6 +254,29 @@ public class JpaSearchTests {
         var filterString = """
           {"filter": ["gte", ":primitiveInteger", 6],
           "options": {
+            "sortKey": ["-primitiveInteger"],
+            "pageSize": 2,
+            "pageOffset": 0
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result).hasSize(2);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
+        assertThat(result.getContent().get(1).getPrimitiveInteger()).isEqualTo(6);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSortDesc2() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
             "sortKey": "-primitiveInteger",
             "pageSize": 2,
             "pageOffset": 0
@@ -266,10 +289,9 @@ public class JpaSearchTests {
         assertThat(result).hasSize(2);
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getContent().size()).isEqualTo(2);
-        assertThat(result.getContent().get(0).getId()).isEqualTo(2);
-        assertThat(result.getContent().get(1).getId()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
+        assertThat(result.getContent().get(1).getPrimitiveInteger()).isEqualTo(6);
     }
-
     @SneakyThrows
     @Test
     public void testSortLimit() {
@@ -277,7 +299,7 @@ public class JpaSearchTests {
         var filterString = """
           {"filter": ["gte", ":primitiveInteger", 6],
           "options": {
-            "sortKey": "primitiveInteger",
+            "sortKey": ["primitiveInteger"],
             "pageSize": 1,
             "pageOffset": 0
           }
@@ -298,7 +320,7 @@ public class JpaSearchTests {
         var filterString = """
           {"filter": ["gte", ":primitiveInteger", 6],
           "options": {
-            "sortKey": "primitiveInteger",
+            "sortKey": ["primitiveInteger"],
             "pageSize": 1,
             "pageOffset": 1
           }
@@ -319,7 +341,7 @@ public class JpaSearchTests {
         var filterString = """
           {"filter": ["gte", ":primitiveInteger", 6],
           "options": {
-            "sortKey": "nestedBean.string",
+            "sortKey": ["nestedBean.string"],
             "pageSize": 1,
             "pageOffset": 1
           }
@@ -340,7 +362,7 @@ public class JpaSearchTests {
         var filterString = """
           {"filter": ["gte", ":primitiveInteger", 6],
           "options": {
-            "sortKey": "-nestedBean.string",
+            "sortKey": ["-nestedBean.string"],
             "pageSize": 1,
             "pageOffset": 1
           }
@@ -352,5 +374,26 @@ public class JpaSearchTests {
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(6);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testNestedSortLimitMultipleCriteria() {
+        setup2();
+        var filterString = """
+          {"filter": ["gte", ":primitiveInteger", 6],
+          "options": {
+            "sortKey": ["primitiveInteger", "-nestedBean.string"],
+            "pageSize": 1,
+            "pageOffset": 1
+          }
+          }
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.getContent().size()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 }

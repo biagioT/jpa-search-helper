@@ -36,7 +36,7 @@ Filter is changed to JSON expression format:
       ]
    ],
    "options": {
-       "sortKey": "primitiveInteger",
+       "sortKey": ["-email", "primitiveInteger"],
        "pageSize": 10,
        "pageOffset": 0 
    } 

@@ -197,34 +197,43 @@ public class JPASearchCore {
         boolean throwsIfNotExistsOrNotSearchable,
         Map<String, String> entityFieldMap
     ) {
-        Sort sort = null;
+        ArrayList<Sort.Order> orderSpecs = new ArrayList<>();
         var options = filterPayload.get("options");
         if (options != null) {
-            var sortKey = options.get("sortKey");
-            var descending = false;
-            if (sortKey != null) {
-                var sortKeyStr = sortKey.asText();
-                if (sortKeyStr.startsWith("-")) {
-                    sortKeyStr = sortKeyStr.substring(1);
-                    descending = true;
+            var sortKeysNode = options.get("sortKey");
+            if (sortKeysNode != null) {
+                var keyList = new ArrayList<String>();
+                if (sortKeysNode.isTextual()) {
+                    keyList.add(sortKeysNode.asText());
+                } else if(sortKeysNode.isArray()) {
+                    for (var itm: sortKeysNode) {
+                        keyList.add(itm.asText());
+                    }
                 }
-                var descriptor = loadDescriptor(
-                    sortKeyStr,
-                    throwsIfNotExistsOrNotSearchable,
-                    true,
-                    throwsIfNotSortable,
-                    entityFieldMap,
-                    ReflectionUtils.getAllSearchableFields(entityClass)
-                );
-                sort = Sort.by(descriptor.entityKey);
-                if (descending) {
-                    sort = sort.descending();
-                } else {
-                    sort = sort.ascending();
+                for(var sortKeyStr : keyList) {
+                    var descending = false;
+                    if (sortKeyStr.startsWith("-")) {
+                        sortKeyStr = sortKeyStr.substring(1);
+                        descending = true;
+                    }
+                    var descriptor = loadDescriptor(
+                        sortKeyStr,
+                        throwsIfNotExistsOrNotSearchable,
+                        true,
+                        throwsIfNotSortable,
+                        entityFieldMap,
+                        ReflectionUtils.getAllSearchableFields(entityClass)
+                    );
+
+                    if (descending) {
+                        orderSpecs.add(Sort.Order.desc(descriptor.entityKey));
+                    } else {
+                        orderSpecs.add(Sort.Order.asc(descriptor.entityKey));
+                    }
                 }
             }
         }
-        return sort;
+        return Sort.by(orderSpecs);
     }
 
     public static PageRequest loadSortAndPagination(
