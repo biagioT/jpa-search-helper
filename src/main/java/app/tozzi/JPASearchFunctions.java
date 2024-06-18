@@ -79,7 +79,12 @@ public class JPASearchFunctions {
         var className = (String)values[0];
         var valueName = (String)values[1];
         var searchables = ReflectionUtils.getAllSearchableFields(entityClass);
-        var cls = (Class<Enum>) searchables.values().stream().filter(v -> v.getValue().isEnum() && v.getValue().getName().endsWith("." + className)).findFirst().orElseThrow(() -> new JPASearchException("Enum not found")).getValue();
+        var cls = (Class<Enum>) searchables.values()
+            .stream()
+            .filter(v -> v.getValue().isEnum() && v.getValue().getName().endsWith("." + className))
+            .findFirst()
+            .orElseThrow(() -> new JPASearchException("Enum not found"))
+            .getValue();
         return cb.literal(Enum.valueOf(cls, valueName));
     };
 

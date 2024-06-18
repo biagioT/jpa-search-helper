@@ -294,40 +294,38 @@ public class JPASearchCore {
                                                  Map<String, String> entityFieldMap,
                                                  Map<String, Pair<Searchable, Class<?>>> searchableFields
     ) {
-        String fullField = key.contains("_") ? key.substring(0, key.lastIndexOf("_")) : key;
-
         Map<String, Pair<Pair<Searchable, Class<?>>, Tag>> tagMap = new HashMap<>();
         searchableFields.entrySet().stream().filter(e -> e.getValue().getKey().tags() != null && e.getValue().getKey().tags().length > 0)
                 .forEach(e -> Stream.of(e.getValue().getKey().tags()).forEach(t -> {
                     tagMap.put(t.fieldKey(), Pair.of(e.getValue(), t));
                 }));
 
-        if (!searchableFields.containsKey(fullField) && !tagMap.containsKey(fullField)) {
+        if (!searchableFields.containsKey(key) && !tagMap.containsKey(key)) {
 
             if (throwsIfNotExistsOrNotSortable) {
-                throw new InvalidFieldException("Field [" + fullField + "] does not exists or not sortable", fullField);
+                throw new InvalidFieldException("Field [" + key + "] does not exists or not sortable", key);
             }
 
             return null;
         }
 
-        Searchable searchable = searchableFields.containsKey(fullField) ? searchableFields.get(fullField).getKey() : tagMap.get(fullField).getKey().getKey();
-        Class<?> type = searchableFields.containsKey(fullField) ? searchableFields.get(fullField).getValue() : tagMap.get(fullField).getKey().getValue();
+        Searchable searchable = searchableFields.containsKey(key) ? searchableFields.get(key).getKey() : tagMap.get(key).getKey().getKey();
+        Class<?> type = searchableFields.containsKey(key) ? searchableFields.get(key).getValue() : tagMap.get(key).getKey().getValue();
 
         if (checkSortable && !searchable.sortable()) {
             if (throwsIfNotSortable) {
-                throw new InvalidFieldException("Field [" + fullField + "] is not sortable", fullField);
+                throw new InvalidFieldException("Field [" + key + "] is not sortable", key);
             }
 
             return null;
         }
 
-        String entityField = entityFieldMap != null && entityFieldMap.containsKey(fullField) ? entityFieldMap.get(fullField) :
-                (tagMap.containsKey(fullField) ?
-                        (tagMap.get(fullField).getRight().entityFieldKey() != null && !tagMap.get(fullField).getRight().entityFieldKey().isBlank() ? tagMap.get(fullField).getRight().entityFieldKey() : fullField)
-                        : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : fullField));
+        String entityField = entityFieldMap != null && entityFieldMap.containsKey(key) ? entityFieldMap.get(key) :
+                (tagMap.containsKey(key) ?
+                        (tagMap.get(key).getRight().entityFieldKey() != null && !tagMap.get(key).getRight().entityFieldKey().isBlank() ? tagMap.get(key).getRight().entityFieldKey() : key)
+                        : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : key));
 
-        return new DescriptorBean(fullField, searchable,
+        return new DescriptorBean(key, searchable,
                 SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField, type);
     }
 
