@@ -53,7 +53,14 @@ public class JPASearchCore {
         return (root, query, criteriaBuilder) -> {
             fetchManagement(fetchMap, root);
 
-            var expr = processExpression(filterExpression, criteriaBuilder, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap);
+            var expr = processExpression(
+                filterExpression,
+                criteriaBuilder,
+                root,
+                entityClass,
+                throwsIfNotExistsOrNotSearchable,
+                entityFieldMap
+            );
             if (expr instanceof Predicate) {
                 return (Predicate) expr;
             } else {
@@ -71,8 +78,7 @@ public class JPASearchCore {
         Map<String, String> entityFieldMap
     ) {
         if (node.isTextual()) {
-            // textual means field name if it starts with :.
-            // ["eq", ":field", "asdf"]
+            // Textual means field name if it starts with `:`. For example ["eq", ":field", "asdf"]
             var asText = node.asText();
             if (asText.startsWith(":")) {
                 var fieldName = asText.substring(1);
@@ -84,7 +90,7 @@ public class JPASearchCore {
                     entityFieldMap,
                     ReflectionUtils.getAllSearchableFields(entityClass)
                 );
-                var path = getPath(root, fieldName); //.as(descriptor.searchType.getDefaultClasses().stream().findFirst().orElseThrow());
+                var path = getPath(root, fieldName);
                 if (descriptor.searchable.trim() && descriptor.searchType == SearchType.STRING) {
                     return cb.trim(path.as(String.class));
                 } else {
@@ -123,7 +129,7 @@ public class JPASearchCore {
         }
 
         var operator = Operator.load(node.get(0).textValue());
-        var arguments = new ArrayList<Expression<?>>();
+        var arguments = new ArrayList<>();
 
         for (var i = 1; i< node.size(); i++) {
             var child = node.get(i);
@@ -184,7 +190,13 @@ public class JPASearchCore {
         }
     }
 
-    public static Sort loadSort(JsonNode filterPayload, Class<?> entityClass, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrNotSearchable, Map<String, String> entityFieldMap) {
+    public static Sort loadSort(
+        JsonNode filterPayload,
+        Class<?> entityClass,
+        boolean throwsIfNotSortable,
+        boolean throwsIfNotExistsOrNotSearchable,
+        Map<String, String> entityFieldMap
+    ) {
         Sort sort = null;
         var options = filterPayload.get("options");
         if (options != null) {
@@ -198,9 +210,9 @@ public class JPASearchCore {
                 }
                 var descriptor = loadDescriptor(
                     sortKeyStr,
+                    throwsIfNotExistsOrNotSearchable,
+                    true,
                     throwsIfNotSortable,
-                    false,
-                    false,
                     entityFieldMap,
                     ReflectionUtils.getAllSearchableFields(entityClass)
                 );
@@ -215,7 +227,13 @@ public class JPASearchCore {
         return sort;
     }
 
-    public static PageRequest loadSortAndPagination(JsonNode filterPayload, Class<?> entityClass, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
+    public static PageRequest loadSortAndPagination(
+        JsonNode filterPayload,
+        Class<?> entityClass,
+        boolean throwsIfNotSortable,
+        boolean throwsIfNotExistsOrSearchable,
+        Map<String, String> entityFieldMap
+    ) {
         Integer pageSize = null;
         Integer pageOffset = null;
         Sort sort = null;
@@ -223,7 +241,13 @@ public class JPASearchCore {
         var options = filterPayload.get("options");
 
         if (options != null) {
-            sort = loadSort(filterPayload, entityClass, throwsIfNotSortable, throwsIfNotExistsOrSearchable, entityFieldMap);
+            sort = loadSort(
+                filterPayload,
+                entityClass,
+                throwsIfNotSortable,
+                throwsIfNotExistsOrSearchable,
+                entityFieldMap
+            );
 
             var pageOffsetNode = options.get("pageOffset");
             if (pageOffsetNode != null) {
@@ -250,9 +274,13 @@ public class JPASearchCore {
         return result;
     }
 
-    private static DescriptorBean loadDescriptor(String key, boolean throwsIfNotExistsOrNotSortable, boolean checkSortable,
-                                                 boolean throwsIfNotSortable, Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Class<?>>> searchableFields) {
-
+    private static DescriptorBean loadDescriptor(String key,
+                                                 boolean throwsIfNotExistsOrNotSortable,
+                                                 boolean checkSortable,
+                                                 boolean throwsIfNotSortable,
+                                                 Map<String, String> entityFieldMap,
+                                                 Map<String, Pair<Searchable, Class<?>>> searchableFields
+    ) {
         String fullField = key.contains("_") ? key.substring(0, key.lastIndexOf("_")) : key;
 
         Map<String, Pair<Pair<Searchable, Class<?>>, Tag>> tagMap = new HashMap<>();

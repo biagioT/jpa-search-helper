@@ -36,8 +36,6 @@ public enum Operator {
     DATE("date", JPASearchFunctions.DATE, true,  2, false, false),
     BIG_DECIMAL("bigDecimal", JPASearchFunctions.BIG_DECIMAL, true,  2, false, false),
 
-
-
     IS_NULL("isNull", JPASearchFunctions.NULL, false,  1, false, false),
     IS_EMPTY("isEmpty", JPASearchFunctions.EMPTY, false,  1, false, false),
     IS_NOT_NULL("isNotNull", JPASearchFunctions.NOT_NULL, false,  1, false, false),

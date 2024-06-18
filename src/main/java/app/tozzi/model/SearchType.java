@@ -1,24 +1,16 @@
 package app.tozzi.model;
 
-import app.tozzi.exceptions.InvalidValueException;
-import app.tozzi.utils.GenericUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
 @AllArgsConstructor
 @Getter
 public enum SearchType {
-
     UNTYPED(Collections.emptyList()),
     STRING(List.of(String.class)),
     LONG(List.of(Long.class, long.class)),
@@ -38,85 +30,5 @@ public enum SearchType {
 
     public static SearchType load(Class<?> clazz, SearchType defaultType) {
         return Stream.of(SearchType.values()).filter(s -> s.defaultClasses.contains(clazz)).findAny().orElse(defaultType);
-    }
-
-    public Object getValue(String field, String value, String datePattern, String decimalFormat, boolean noNumberParsing) {
-
-        if (value.contains(",")) {
-            return Stream.of(split(value, ",")).map(sv -> getValue(field, sv, datePattern, decimalFormat, noNumberParsing)).toList();
-        }
-
-        try {
-            return switch (this) {
-                case STRING -> value;
-                case LONG ->
-                        noNumberParsing ? (containsOnlyDigits(value) ? value : Long.valueOf(value)) : Long.valueOf(value);
-                case INTEGER ->
-                        noNumberParsing ? (containsOnlyDigits(value) ? value : Integer.valueOf(value)) : Integer.valueOf(value);
-                case DATE -> new SimpleDateFormat(datePattern).parse(value);
-                case LOCALDATETIME -> LocalDateTime.parse(value, DateTimeFormatter.ofPattern(datePattern));
-                case LOCALDATE -> LocalDate.parse(value, DateTimeFormatter.ofPattern(datePattern));
-                case LOCALTIME -> LocalTime.parse(value, DateTimeFormatter.ofPattern(datePattern));
-                case OFFSETDATETIME -> OffsetDateTime.parse(value, DateTimeFormatter.ofPattern(datePattern));
-                case OFFSETTIME -> OffsetTime.parse(value, DateTimeFormatter.ofPattern(datePattern));
-                case BOOLEAN -> GenericUtils.parseBoolean(value);
-                case FLOAT -> {
-                    Float number = Float.valueOf(value);
-                    Number formatted = formatNumber(number, decimalFormat, false, field, FLOAT);
-                    yield formatted.floatValue();
-                }
-                case DOUBLE -> {
-                    Double number = Double.valueOf(value);
-                    Number formatted = formatNumber(number, decimalFormat, false, field, DOUBLE);
-                    yield formatted.doubleValue();
-                }
-                case BIGDECIMAL -> {
-                    BigDecimal number = new BigDecimal(value);
-                    Number formatted = formatNumber(number, decimalFormat, true, field, BIGDECIMAL);
-                    yield (BigDecimal) formatted;
-                }
-                case UNTYPED -> throw new IllegalArgumentException();
-            };
-
-        } catch (Exception e) {
-            if (e instanceof InvalidValueException ive) {
-                throw ive;
-            }
-
-            throw new InvalidValueException("Unable to convert value [" + value + "] of field [" + field + "] to [" + this.name() + "] type", e, field, value);
-        }
-    }
-
-    private static String[] split(String string, String separator) {
-
-        String[] res = string.split(separator);
-        if (res.length != StringUtils.countMatches(string, separator) + 1) {
-            res = ArrayUtils.add(res, "");
-        }
-
-        return res;
-    }
-
-    private static Number formatNumber(Number decimalNumber, String pattern, boolean bigDecimal, String field, SearchType searchType) throws ParseException {
-        Number formattedNumber = GenericUtils.formatNumber(decimalNumber, pattern, bigDecimal);
-        Number number = null;
-
-        switch (searchType) {
-            case INTEGER -> number = formattedNumber.intValue();
-            case FLOAT -> number = formattedNumber.floatValue();
-            case DOUBLE -> number = formattedNumber.doubleValue();
-            case BIGDECIMAL -> number = (BigDecimal) formattedNumber;
-            default -> throw new IllegalArgumentException();
-        }
-
-        if (!number.equals(decimalNumber)) {
-            throw new InvalidValueException("Invalid decimal format [" + decimalNumber + "] of field [" + field + "]", field, decimalNumber);
-        }
-
-        return formattedNumber;
-    }
-
-    private static boolean containsOnlyDigits(String number) {
-        return number.matches("\\d+");
     }
 }

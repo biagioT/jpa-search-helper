@@ -35,11 +35,4 @@ public @interface Searchable {
     boolean trim() default false;
 
     Tag[] tags() default {};
-
-    Operator[] allowedFilters() default {};
-
-    Operator[] notAllowedFilters() default {};
-
-    boolean likeFilters() default true;
-
 }
