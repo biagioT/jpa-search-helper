@@ -148,10 +148,10 @@ public class JPASearchCore {
         }
         if (op.isEvaluateStrings()) {
             var values = arguments.toArray(new Expression[0]);
-            return op.getFunction().apply(cb, values, entityClass);
+            return op.getExprFunction().apply(cb, values, entityClass);
         } else {
             var values = arguments.toArray();
-            return op.getFunction2().apply(cb, values, entityClass);
+            return op.getObjFunction().apply(cb, values, entityClass);
         }
     }
 

@@ -2,8 +2,8 @@ package app.tozzi.model;
 
 import app.tozzi.JPASearchFunctions;
 
-import app.tozzi.utils.JPAExpressionFunction;
-import app.tozzi.utils.JPAExpressionFunction2;
+import app.tozzi.utils.JPAFuncWithExpressions;
+import app.tozzi.utils.JPAFuncWithObjects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -44,16 +44,16 @@ public enum Operator {
     IS_NOT_NULL("isNotNull", JPASearchFunctions.NOT_NULL),
     IS_NOT_EMPTY("isNotEmpty", JPASearchFunctions.NOT_EMPTY);
 
-    Operator(String name, JPAExpressionFunction<?, ?> fnc) {
+    Operator(String name, JPAFuncWithExpressions<?, ?> fnc) {
         this(name, fnc, null,  true);
     }
-    Operator(String name, JPAExpressionFunction2<?> fnc) {
+    Operator(String name, JPAFuncWithObjects<?> fnc) {
         this(name, null, fnc, false);
     }
 
     private final String name;
-    private final JPAExpressionFunction<?, ?> function;
-    private final JPAExpressionFunction2<?> function2;
+    private final JPAFuncWithExpressions<?, ?> exprFunction;
+    private final JPAFuncWithObjects<?> objFunction;
     private final boolean evaluateStrings;
 
     public static Operator load(String name) {
