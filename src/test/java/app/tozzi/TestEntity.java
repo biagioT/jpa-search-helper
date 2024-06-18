@@ -46,9 +46,6 @@ public class TestEntity {
     @Searchable(datePattern = "yyyyMMdd")
     private Date date1;
 
-    //@NestedSearchable
-    //private ExampleNestedBean nestedBean;
-
     @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
     private Date date2;
 
@@ -107,4 +104,7 @@ public class TestEntity {
     @ManyToOne
     @JoinColumn
     private TestEntity2 nestedBean;
+
+    @Searchable
+    private TestEnum testEnum;
 }

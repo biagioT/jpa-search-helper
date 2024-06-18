@@ -69,7 +69,8 @@ public class JPASearchCore {
         };
     }
 
-    private static <T> Expression<?> processValue(
+    private static <T> Object processValue(
+        Operator op,
         JsonNode node,
         CriteriaBuilder cb,
         Root<?> root,
@@ -78,10 +79,8 @@ public class JPASearchCore {
         Map<String, String> entityFieldMap
     ) {
         if (node.isTextual()) {
-            // Textual means field name if it starts with `:`. For example ["eq", ":field", "asdf"]
-            var asText = node.asText();
-            if (asText.startsWith(":")) {
-                var fieldName = asText.substring(1);
+            if (op.isEvaluateStrings()) {
+                var fieldName = node.asText();
                 var descriptor = loadDescriptor(
                     fieldName,
                     throwsIfNotExistsOrNotSearchable,
@@ -93,11 +92,13 @@ public class JPASearchCore {
                 var path = getPath(root, fieldName);
                 if (descriptor.searchable.trim() && descriptor.searchType == SearchType.STRING) {
                     return cb.trim(path.as(String.class));
+                } else if (descriptor.entityType.isEnum()) {
+                    return path.as(descriptor.entityType);
                 } else {
                     return path;
                 }
             } else {
-                return cb.literal(asText);
+                return node.asText();
             }
         } else if (node.isInt()) {
             return cb.literal(node.asInt());
@@ -116,11 +117,11 @@ public class JPASearchCore {
         }
     }
 
-    private static <T> Expression<T> processExpression(
+    private static Expression<?> processExpression(
         JsonNode node,
         CriteriaBuilder cb,
         Root<?> root,
-        Class<T> entityClass,
+        Class entityClass,
         boolean throwsIfNotExistsOrNotSearchable,
         Map<String, String> entityFieldMap
     ) {
@@ -128,13 +129,14 @@ public class JPASearchCore {
             throw new JPASearchException("Invalid expression");
         }
 
-        var operator = Operator.load(node.get(0).textValue());
+        var op = Operator.load(node.get(0).textValue());
         var arguments = new ArrayList<>();
 
-        for (var i = 1; i< node.size(); i++) {
+        for (var i = 1; i < node.size(); i++) {
             var child = node.get(i);
             arguments.add(
                 processValue(
+                    op,
                     child,
                     cb,
                     root,
@@ -144,10 +146,14 @@ public class JPASearchCore {
                 )
             );
         }
-
-        return operator.getFunction().apply(cb, arguments.toArray(new Expression[0]));
+        if (op.isEvaluateStrings()) {
+            var values = arguments.toArray(new Expression[0]);
+            return op.getFunction().apply(cb, values, entityClass);
+        } else {
+            var values = arguments.toArray();
+            return op.getFunction2().apply(cb, values, entityClass);
+        }
     }
-
 
     private static void fetchManagement(Map<String, JoinType> fetchMap, Root<?> root) {
 
@@ -324,7 +330,7 @@ public class JPASearchCore {
                         : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : fullField));
 
         return new DescriptorBean(fullField, searchable,
-                SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField);
+                SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField, type);
     }
 
     @Data
@@ -334,5 +340,6 @@ public class JPASearchCore {
         private Searchable searchable;
         private SearchType searchType;
         private String entityKey;
+        private Class<?> entityType;
     }
 }
