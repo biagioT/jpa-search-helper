@@ -51,3 +51,5 @@ Filter is changed to JSON expression format:
 See also [README](https://github.com/biagioT/jpa-search-helper/blob/main/README.md) from original project. Some features are implemented, some are not.
 
 TODO: write a full description how this thing works...
+
+We publish versions about the lib in [Jitpack](https://jitpack.io/#VRTFinland/jpa-search-helper)
