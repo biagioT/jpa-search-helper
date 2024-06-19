@@ -20,7 +20,6 @@ public enum Operator {
     EQ("eq", JPASearchFunctions.EQ),
     CONTAINS("contains", JPASearchFunctions.CONTAINS),
     IN("in", JPASearchFunctions.IN),
-    NIN("nin", JPASearchFunctions.NIN),
     STARTSWITH("startsWith", JPASearchFunctions.STARTSWITH),
     ENDSWITH("endsWith", JPASearchFunctions.ENDSWITH),
     GT("gt", JPASearchFunctions.GT),

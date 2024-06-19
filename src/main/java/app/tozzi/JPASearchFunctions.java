@@ -42,8 +42,6 @@ public class JPASearchFunctions {
         }
         return in;
     };
-    public static final JPAFuncWithExpressions<Collection, Boolean> NIN
-        = (cb, values) -> cb.not(IN.apply(cb, values));
     public static final JPAFuncWithExpressions<?, Boolean> NULL
         = (cb, values) -> cb.isNull(values[0]);
     public static final JPAFuncWithExpressions<Collection, Boolean> EMPTY
