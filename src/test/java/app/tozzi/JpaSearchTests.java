@@ -153,31 +153,32 @@ public class JpaSearchTests {
       ["and",
         ["and",
           ["eq", "primitiveInteger", 6],
-          ["iEq", "email", ["str", "test@test.fi"]],
+          ["eq", ["lower" ,"email"], ["str", "test@test.fi"]],
           ["lt", "primitiveLong", 10],
           ["in", "primitiveDouble", 1.3, 1.4],
           ["between", "primitiveFloat", 1.3, 1.4],
           ["lte", "wrapperLong", 10],
-          ["nin", "wrapperDouble", 1.3, 1.4],
+          ["not", ["in", "wrapperDouble", 1.3, 1.4]],
           ["isNull", "wrapperInteger"],
           ["eq", "integerString", ["str", ""]],
           ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]]
         ]
       ],
       ["and",
-        ["isNotNull", "dateString"],
-        ["notEq", "bigDecimal",  ["bigDecimal", "1.35"]],
+        ["not", ["isNull", "dateString"]],
+        ["not", ["eq", "bigDecimal",  ["bigDecimal", "1.35"]]],
         ["eq", "bigDecimal",  ["bigDecimal", "1.23"]],
         ["eq", "nestedBean.string", ["str", "Nested! daa dumdidum"]],
-        ["iNotEq", "nestedBean.string", ["str","blaa!"]],
+        ["not", ["eq", ["lower", "nestedBean.string"], ["str","blaa!"]]],
         ["startsWith", "nestedBean.string", ["str", "Nested!"]],
-        ["iStartsWith", "nestedBean.string", ["str","NESTED!"]],
-        ["contains", "nestedBean.string", ["str", "Nested!"]],
-        ["iEndsWith", "nestedBean.string", ["str", "DUM"]],
-        ["iContains", "nestedBean.string", ["str", "NESTED!"]],
-        ["endsWith", "nestedBean.string", ["str", "dum"]]
+        ["startsWith", ["lower" ,"nestedBean.string"], ["str","nested!"]],
+        ["contains", "nestedBean.string", ["str","Nested!"]],
+        ["contains", ["lower","nestedBean.string"], ["str","nested!"]],
+        ["endsWith", "nestedBean.string", ["str","dum"]],
+        ["endsWith", ["lower","nestedBean.string"], ["str","dum"]]
       ]
-   ]
+   ]            
+   
    }
           """;
 

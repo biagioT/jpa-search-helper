@@ -146,9 +146,9 @@ public class JPASearchCore {
                 )
             );
         }
-        if (op.isEvaluateStrings()) {;
+        if (op.isEvaluateStrings()) {
             return op.getExprFunction().apply(cb, arguments.toArray(new Expression[0]));
-        } else {;
+        } else {
             return op.getObjFunction().apply(cb, arguments.toArray(), entityClass);
         }
     }
