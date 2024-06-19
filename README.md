@@ -21,7 +21,8 @@ Filter is changed to JSON expression format:
           ["not", ["in", "wrapperDouble", 1.3, 1.4]],
           ["isNull", "wrapperInteger"],
           ["eq", "integerString", ["str",""]],
-          ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]]
+          ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]],
+          ["eq", "period", ["period", "P6M"]]
         ]
       ],
       ["and",

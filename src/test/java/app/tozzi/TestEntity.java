@@ -107,4 +107,7 @@ public class TestEntity {
 
     @Searchable
     private TestEnum testEnum;
+
+    @Searchable
+    private Period period;
 }

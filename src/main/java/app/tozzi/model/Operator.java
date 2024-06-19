@@ -34,6 +34,7 @@ public enum Operator {
     ENUM("enum", JPASearchFunctions.ENUM),
     STR("str", JPASearchFunctions.STR),
     BIG_DECIMAL("bigDecimal", JPASearchFunctions.BIG_DECIMAL),
+    PERIOD("period", JPASearchFunctions.PERIOD),
 
     IS_NULL("isNull", JPASearchFunctions.NULL),
     IS_EMPTY("isEmpty", JPASearchFunctions.EMPTY);

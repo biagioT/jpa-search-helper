@@ -67,7 +67,8 @@ public class JpaSearchTests {
             false,
             true,
             ent2,
-            TestEnum.VALUE1
+            TestEnum.VALUE1,
+            Period.parse("P6M")
         );
         testEntityRepository.save(ent);
     }
@@ -109,7 +110,8 @@ public class JpaSearchTests {
             false,
             true,
             ent2a,
-            TestEnum.VALUE1
+            TestEnum.VALUE1,
+            Period.parse("P12M")
         );
         testEntityRepository.save(ent);
         ent = new TestEntity(
@@ -138,7 +140,8 @@ public class JpaSearchTests {
             false,
             true,
             ent2b,
-            TestEnum.VALUE2
+            TestEnum.VALUE2,
+            Period.parse("P6M")
         );
         testEntityRepository.save(ent);
     }
@@ -161,7 +164,8 @@ public class JpaSearchTests {
           ["not", ["in", "wrapperDouble", 1.3, 1.4]],
           ["isNull", "wrapperInteger"],
           ["eq", "integerString", ["str", ""]],
-          ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]]
+          ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]],
+          ["eq", "period", ["period", "P6M"]]
         ]
       ],
       ["and",

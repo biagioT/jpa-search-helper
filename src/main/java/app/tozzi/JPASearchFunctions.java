@@ -9,6 +9,8 @@ import javax.persistence.criteria.*;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.Duration;
+import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,8 +57,9 @@ public class JPASearchFunctions {
         return cb.function("STR_TO_DATE", java.sql.Date.class, cb.literal(dateStr), cb.literal("%Y-%m-%dT%H:%i:%sZ"));
     };
 
-
     public static final JPAFuncWithObjects<BigDecimal> BIG_DECIMAL = (cb, values, entityClass) -> cb.literal(new BigDecimal((String)values[0]));
+
+    public static final JPAFuncWithObjects<Period> PERIOD = (cb, values, entityClass) -> cb.literal(Period.parse((String)values[0]));
 
     public static final JPAFuncWithObjects<String> STR = (cb, values, entityClass) -> cb.literal((String)values[0]);
 
