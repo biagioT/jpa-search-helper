@@ -16,7 +16,9 @@ plugins {
 }
 
 group = "app.tozzi"
-version = "1.0.2.GISGRO"
+
+val libVersion = "1.0.2.GISGRO"
+version = libVersion
 
 java.apply {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -66,7 +68,28 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
+
+            group = "app.tozzi"
+            artifactId = "jpa-search-helper"
+            version = libVersion
             from(components["java"])
+            pom {
+                name = "JPA Search Helper"
+                description = "Helper library for building advanced and dynamic queries using JPA in Spring"
+
+                licenses {
+                    license {
+                        name = "Mozilla Public License 2.0"
+                        url = "https://www.mozilla.org/en-US/MPL/2.0/"
+                    }
+                }
+
+                scm {
+                    connection = "scm:git:git://github.com:VRTFinland/jpa-search-helper.git"
+                    developerConnection = "scm:git:ssh://github.com:VRTFinland/jpa-search-helper.git"
+                    url = "https://github.com/VRTFinland/jpa-search-helper/tree/main"
+                }
+            }
         }
     }
 }
