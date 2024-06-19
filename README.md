@@ -1,7 +1,9 @@
 # JPA Search Helper
 
 ### Description
-Adapted from [jpa-search-helper](https://github.com/biagioT/jpa-search-helper). 
+Adapted from [jpa-search-helper](https://github.com/biagioT/jpa-search-helper).
+We essentially took the idea but it was not general enough for our use case. 
+So we needed to rewrite most of it.
 Filter is changed to JSON expression format:
 
 ```json
