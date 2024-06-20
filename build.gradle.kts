@@ -17,7 +17,7 @@ plugins {
 
 group = "com.gisgro"
 
-val libVersion = "2.0.1"
+val libVersion = "2.0.2"
 version = libVersion
 
 java.apply {
@@ -57,9 +57,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
     testImplementation("com.h2database:h2")
-    //testImplementation "org.hamcrest:hamcrest-library:2.2"
-    //testImplementation "org.mockito:mockito-core:3.12.4"
-    //testImplementation "junit:junit:4.13.2"
 }
 
 publishing {
@@ -93,5 +90,11 @@ publishing {
 tasks {
     test {
         useJUnitPlatform()
+    }
+    bootJar {
+        enabled = false
+    }
+    jar {
+        enabled = true
     }
 }
