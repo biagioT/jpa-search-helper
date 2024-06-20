@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/VRTFinland/jpa-search-helper.svg)](https://jitpack.io/#VRTFinland/jpa-search-helper)
+
 # JPA Search Helper
 
 ### Description
