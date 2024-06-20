@@ -61,7 +61,7 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        create<MavenPublication>("mavenJava") {
 
             group = "com.gisgro"
             artifactId = "jpa-search-helper"
