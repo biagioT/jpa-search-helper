@@ -32,7 +32,7 @@ public enum Operator {
 
     DATE("date", JPASearchFunctions.DATE),
     ENUM("enum", JPASearchFunctions.ENUM),
-    STR("str", JPASearchFunctions.STR),
+    FIELD("field", JPASearchFunctions.FIELD),
     BIG_DECIMAL("bigDecimal", JPASearchFunctions.BIG_DECIMAL),
     PERIOD("period", JPASearchFunctions.PERIOD),
 

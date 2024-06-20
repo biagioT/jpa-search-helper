@@ -83,17 +83,17 @@ public class JPASearchCore {
         Map<String, Pair<Searchable, Class<?>>> searchableFields
     ) {
         if (node.isTextual()) {
-            if (op.isEvaluateStrings()) {
-                var fieldName = node.asText();
+            var text = node.asText();
+            if (op == Operator.FIELD) {
                 var descriptor = loadDescriptor(
-                    fieldName,
+                    text,
                     throwsIfNotExistsOrNotSearchable,
                     false,
                     false,
                     entityFieldMap,
                     searchableFields
                 );
-                var path = getPath(root, fieldName);
+                var path = getPath(root, text);
                 if (descriptor.searchable.trim() && descriptor.searchType == SearchType.STRING) {
                     return cb.trim(path.as(String.class));
                 } else if (descriptor.entityType.isEnum()) {
@@ -101,8 +101,10 @@ public class JPASearchCore {
                 } else {
                     return path;
                 }
+            } else if (!op.isEvaluateStrings()) {
+                return text;
             } else {
-                return node.asText();
+                return cb.literal(text);
             }
         } else if (node.isInt()) {
             return cb.literal(node.asInt());
@@ -294,7 +296,7 @@ public class JPASearchCore {
         return result;
     }
 
-    private static DescriptorBean loadDescriptor(String key,
+    public static DescriptorBean loadDescriptor(String key,
                                                  boolean throwsIfNotExistsOrNotSortable,
                                                  boolean checkSortable,
                                                  boolean throwsIfNotSortable,

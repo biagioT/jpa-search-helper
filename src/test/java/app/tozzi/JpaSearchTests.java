@@ -155,33 +155,33 @@ public class JpaSearchTests {
     ["and",
       ["and",
         ["and",
-          ["eq", "primitiveInteger", 6],
-          ["eq", ["lower" ,"email"], ["str", "test@test.fi"]],
-          ["lt", "primitiveLong", 10],
-          ["in", "primitiveDouble", 1.3, 1.4],
-          ["between", "primitiveFloat", 1.3, 1.4],
-          ["lte", "wrapperLong", 10],
-          ["not", ["in", "wrapperDouble", 1.3, 1.4]],
-          ["isNull", "wrapperInteger"],
-          ["eq", "integerString", ["str", ""]],
-          ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]],
-          ["eq", "period", ["period", "P6M"]]
+          ["eq", ["field","primitiveInteger"], 6],
+          ["eq", ["lower" , ["field","email"]], "test@test.fi"],
+          ["lt", ["field" ,"primitiveLong"], 10],
+          ["in", ["field","primitiveDouble"], 1.3, 1.4],
+          ["between", ["field","primitiveFloat"], 1.3, 1.4],
+          ["lte", ["field","wrapperLong"], 10],
+          ["not", ["in", ["field","wrapperDouble"], 1.3, 1.4]],
+          ["isNull", ["field","wrapperInteger"]],
+          ["eq", ["field","integerString"], ""],
+          ["eq", ["field","testEnum"], ["enum", "TestEnum", "VALUE1"]],
+          ["eq", ["field","period"], ["period", "P6M"]]
         ]
       ],
       ["and",
-        ["not", ["isNull", "dateString"]],
-        ["not", ["eq", "bigDecimal",  ["bigDecimal", "1.35"]]],
-        ["eq", "bigDecimal",  ["bigDecimal", "1.23"]],
-        ["eq", "nestedBean.string", ["str", "Nested! daa dumdidum"]],
-        ["not", ["eq", ["lower", "nestedBean.string"], ["str","blaa!"]]],
-        ["startsWith", "nestedBean.string", ["str", "Nested!"]],
-        ["startsWith", ["lower" ,"nestedBean.string"], ["str","nested!"]],
-        ["contains", "nestedBean.string", ["str","Nested!"]],
-        ["contains", ["lower","nestedBean.string"], ["str","nested!"]],
-        ["endsWith", "nestedBean.string", ["str","dum"]],
-        ["endsWith", ["lower","nestedBean.string"], ["str","dum"]]
+        ["not", ["isNull", ["field" ,"dateString"]]],
+        ["not", ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.35"]]],
+        ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.23"]],
+        ["eq", ["field","nestedBean.string"], "Nested! daa dumdidum"],
+        ["not", ["eq", ["lower", ["field","nestedBean.string"]], "blaa!"]],
+        ["startsWith", ["field","nestedBean.string"], "Nested!"],
+        ["startsWith", ["lower" ,["field","nestedBean.string"]], "nested!"],
+        ["contains", ["field","nestedBean.string"], "Nested!"],
+        ["contains", ["lower",["field","nestedBean.string"]], "nested!"],
+        ["endsWith", ["field","nestedBean.string"], "dum"],
+        ["endsWith", ["lower",["field","nestedBean.string"]], "dum"]
       ]
-   ]            
+      ]            
    
    }
           """;
@@ -207,8 +207,8 @@ public class JpaSearchTests {
         var filterString = """
           {
            "filter": ["or",
-            ["eq", "primitiveInteger", 6],
-            ["eq", "primitiveInteger", 7]
+            ["eq", ["field", "primitiveInteger"], 6],
+            ["eq", ["field", "primitiveInteger"], 7]
            ]
           }
           """;
@@ -225,7 +225,7 @@ public class JpaSearchTests {
         setup();
         var filterString = """
           {"filter": ["not",
-            ["eq", "primitiveInteger", 7]
+            ["eq", ["field", "primitiveInteger"], 7]
           ]}
           """;
 
@@ -240,7 +240,7 @@ public class JpaSearchTests {
     public void testEnum() {
         setup2();
         var filterString = """
-          {"filter": ["eq", "testEnum", ["enum", "TestEnum", "VALUE1"]]}
+          {"filter": ["eq", ["field", "testEnum"], ["enum", "TestEnum", "VALUE1"]]}
           """;
 
         JsonNode filters = mapper.readTree(filterString);
@@ -253,7 +253,7 @@ public class JpaSearchTests {
     public void testSort() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["primitiveInteger"],
             "pageSize": 2,
@@ -276,7 +276,7 @@ public class JpaSearchTests {
     public void testSortDesc() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["-primitiveInteger"],
             "pageSize": 2,
@@ -299,7 +299,7 @@ public class JpaSearchTests {
     public void testSortDesc2() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": "-primitiveInteger",
             "pageSize": 2,
@@ -321,7 +321,7 @@ public class JpaSearchTests {
     public void testSortLimit() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["primitiveInteger"],
             "pageSize": 1,
@@ -342,7 +342,7 @@ public class JpaSearchTests {
     public void testSortLimit2() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["primitiveInteger"],
             "pageSize": 1,
@@ -363,7 +363,7 @@ public class JpaSearchTests {
     public void testNestedSortLimit() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["nestedBean.string"],
             "pageSize": 1,
@@ -384,7 +384,7 @@ public class JpaSearchTests {
     public void testNestedSortLimitDesc() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["-nestedBean.string"],
             "pageSize": 1,
@@ -405,7 +405,7 @@ public class JpaSearchTests {
     public void testNestedSortLimitMultipleCriteria() {
         setup2();
         var filterString = """
-          {"filter": ["gte", "primitiveInteger", 6],
+          {"filter": ["gte", ["field", "primitiveInteger"], 6],
           "options": {
             "sortKey": ["primitiveInteger", "-nestedBean.string"],
             "pageSize": 1,

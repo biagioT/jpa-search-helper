@@ -1,20 +1,21 @@
 package app.tozzi;
 
 import app.tozzi.exceptions.JPASearchException;
+import app.tozzi.model.SearchType;
 import app.tozzi.utils.JPAFuncWithExpressions;
 import app.tozzi.utils.JPAFuncWithObjects;
-import app.tozzi.utils.ReflectionUtils;
 
 import javax.persistence.criteria.*;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.Duration;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+
+import static app.tozzi.JPASearchCore.loadDescriptor;
 
 public class JPASearchFunctions {
     public static final JPAFuncWithExpressions<Boolean, Boolean> AND = (cb, values) -> cb.and(toPredicates(values));
@@ -57,16 +58,16 @@ public class JPASearchFunctions {
         return cb.function("STR_TO_DATE", java.sql.Date.class, cb.literal(dateStr), cb.literal("%Y-%m-%dT%H:%i:%sZ"));
     };
 
-    public static final JPAFuncWithObjects<BigDecimal> BIG_DECIMAL = (cb, values, entityClass) -> cb.literal(new BigDecimal((String)values[0]));
+    public static final JPAFuncWithObjects<BigDecimal> BIG_DECIMAL = (cb, values, searchableFields) -> cb.literal(new BigDecimal((String)values[0]));
 
-    public static final JPAFuncWithObjects<Period> PERIOD = (cb, values, entityClass) -> cb.literal(Period.parse((String)values[0]));
+    public static final JPAFuncWithObjects<Period> PERIOD = (cb, values, searchableFields) -> cb.literal(Period.parse((String)values[0]));
 
-    public static final JPAFuncWithObjects<String> STR = (cb, values, entityClass) -> cb.literal((String)values[0]);
+    public static final JPAFuncWithExpressions<?, ?> FIELD = (cb, values) -> values[0]; // no-op, handled in processValue
 
-    public static final JPAFuncWithObjects<Enum> ENUM = (cb, values, searchables) -> {
+    public static final JPAFuncWithObjects<Enum> ENUM = (cb, values, searchableFields) -> {
         var className = (String)values[0];
         var valueName = (String)values[1];
-        var cls = (Class<Enum>) searchables.values()
+        var cls = (Class<Enum>) searchableFields.values()
             .stream()
             .filter(v -> v.getValue().isEnum() && v.getValue().getName().endsWith("." + className))
             .findFirst()
