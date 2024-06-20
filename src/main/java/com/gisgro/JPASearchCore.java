@@ -1,11 +1,11 @@
-package app.gisgro;
+package com.gisgro;
 
-import app.gisgro.annotations.Searchable;
-import app.gisgro.annotations.Tag;
-import app.gisgro.exceptions.InvalidFieldException;
-import app.gisgro.model.*;
-import app.gisgro.exceptions.JPASearchException;
-import app.gisgro.utils.ReflectionUtils;
+import com.gisgro.annotations.Searchable;
+import com.gisgro.annotations.Tag;
+import com.gisgro.exceptions.InvalidFieldException;
+import com.gisgro.model.*;
+import com.gisgro.exceptions.JPASearchException;
+import com.gisgro.utils.ReflectionUtils;
 import javax.persistence.criteria.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,7 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static app.gisgro.JPASearchFunctions.getPath;
+import static com.gisgro.JPASearchFunctions.getPath;
 
 public class JPASearchCore {
     public static <R, T> Specification<R> specification(JsonNode filterPayload,

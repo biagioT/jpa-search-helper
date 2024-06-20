@@ -1,7 +1,7 @@
-package app.gisgro.utils;
+package com.gisgro.utils;
 
-import app.gisgro.annotations.NestedSearchable;
-import app.gisgro.annotations.Searchable;
+import com.gisgro.annotations.NestedSearchable;
+import com.gisgro.annotations.Searchable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 

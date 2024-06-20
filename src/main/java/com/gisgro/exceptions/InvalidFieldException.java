@@ -1,4 +1,4 @@
-package app.gisgro.exceptions;
+package com.gisgro.exceptions;
 
 import lombok.Getter;
 

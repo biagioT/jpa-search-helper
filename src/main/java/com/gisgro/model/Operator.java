@@ -1,10 +1,10 @@
-package app.gisgro.model;
+package com.gisgro.model;
 
-import app.gisgro.JPASearchFunctions;
+import com.gisgro.JPASearchFunctions;
 
-import app.gisgro.exceptions.JPASearchException;
-import app.gisgro.utils.JPAFuncWithExpressions;
-import app.gisgro.utils.JPAFuncWithObjects;
+import com.gisgro.exceptions.JPASearchException;
+import com.gisgro.utils.JPAFuncWithExpressions;
+import com.gisgro.utils.JPAFuncWithObjects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

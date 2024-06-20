@@ -1,4 +1,4 @@
-package app.gisgro;
+package com.gisgro;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

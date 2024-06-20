@@ -1,6 +1,6 @@
-package app.gisgro.annotations;
+package com.gisgro.annotations;
 
-import app.gisgro.model.SearchType;
+import com.gisgro.model.SearchType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

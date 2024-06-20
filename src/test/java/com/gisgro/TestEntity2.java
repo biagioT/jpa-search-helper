@@ -1,6 +1,6 @@
-package app.gisgro;
+package com.gisgro;
 
-import app.gisgro.annotations.Searchable;
+import com.gisgro.annotations.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

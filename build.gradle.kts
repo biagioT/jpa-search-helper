@@ -15,9 +15,9 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
-group = "app.gisgro"
+group = "com.gisgro"
 
-val libVersion = "2.0.0"
+val libVersion = "2.0.1"
 version = libVersion
 
 java.apply {
@@ -30,9 +30,6 @@ java.apply {
 repositories {
     mavenCentral()
 }
-
-tasks.bootJar {enabled = false}
-tasks.jar {enabled = true}
 
 dependencies {
     // JPA
@@ -69,7 +66,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
 
-            group = "app.gisgro"
+            group = "com.gisgro"
             artifactId = "jpa-search-helper"
             version = libVersion
             from(components["java"])

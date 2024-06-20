@@ -1,9 +1,8 @@
-package app.gisgro;
+package com.gisgro;
 
-import app.gisgro.exceptions.JPASearchException;
-import app.gisgro.model.SearchType;
-import app.gisgro.utils.JPAFuncWithExpressions;
-import app.gisgro.utils.JPAFuncWithObjects;
+import com.gisgro.exceptions.JPASearchException;
+import com.gisgro.utils.JPAFuncWithExpressions;
+import com.gisgro.utils.JPAFuncWithObjects;
 
 import javax.persistence.criteria.*;
 
@@ -14,8 +13,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-
-import static app.gisgro.JPASearchCore.loadDescriptor;
 
 public class JPASearchFunctions {
     public static final JPAFuncWithExpressions<Boolean, Boolean> AND = (cb, values) -> cb.and(toPredicates(values));

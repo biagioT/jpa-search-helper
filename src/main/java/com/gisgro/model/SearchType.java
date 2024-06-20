@@ -1,4 +1,4 @@
-package app.gisgro.model;
+package com.gisgro.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

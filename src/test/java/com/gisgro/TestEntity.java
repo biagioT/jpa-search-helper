@@ -1,9 +1,9 @@
-package app.gisgro;
+package com.gisgro;
 
-import app.gisgro.annotations.NestedSearchable;
-import app.gisgro.annotations.Searchable;
-import app.gisgro.annotations.Tag;
-import app.gisgro.model.SearchType;
+import com.gisgro.annotations.NestedSearchable;
+import com.gisgro.annotations.Searchable;
+import com.gisgro.annotations.Tag;
+import com.gisgro.model.SearchType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

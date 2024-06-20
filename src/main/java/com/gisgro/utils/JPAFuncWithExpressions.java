@@ -1,4 +1,4 @@
-package app.gisgro.utils;
+package com.gisgro.utils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;

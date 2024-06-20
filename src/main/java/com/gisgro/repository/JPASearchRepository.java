@@ -1,9 +1,8 @@
-package app.gisgro.repository;
+package com.gisgro.repository;
 
-import app.gisgro.JPASearchCore;
+import com.gisgro.JPASearchCore;
 import javax.persistence.criteria.JoinType;
 
-import app.gisgro.JPASearchFunctions;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;

@@ -1,4 +1,4 @@
-package app.gisgro.annotations;
+package com.gisgro.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
