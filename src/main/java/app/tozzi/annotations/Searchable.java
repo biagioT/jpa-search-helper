@@ -1,6 +1,5 @@
 package app.tozzi.annotations;
 
-import app.tozzi.model.Operator;
 import app.tozzi.model.SearchType;
 
 import java.lang.annotation.ElementType;
