@@ -1,11 +1,11 @@
-package app.tozzi;
+package app.gisgro;
 
-import app.tozzi.annotations.Searchable;
-import app.tozzi.annotations.Tag;
-import app.tozzi.exceptions.InvalidFieldException;
-import app.tozzi.model.*;
-import app.tozzi.exceptions.JPASearchException;
-import app.tozzi.utils.ReflectionUtils;
+import app.gisgro.annotations.Searchable;
+import app.gisgro.annotations.Tag;
+import app.gisgro.exceptions.InvalidFieldException;
+import app.gisgro.model.*;
+import app.gisgro.exceptions.JPASearchException;
+import app.gisgro.utils.ReflectionUtils;
 import javax.persistence.criteria.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,7 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static app.tozzi.JPASearchFunctions.getPath;
+import static app.gisgro.JPASearchFunctions.getPath;
 
 public class JPASearchCore {
     public static <R, T> Specification<R> specification(JsonNode filterPayload,

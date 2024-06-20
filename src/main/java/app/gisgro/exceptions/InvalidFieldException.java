@@ -1,4 +1,4 @@
-package app.tozzi.exceptions;
+package app.gisgro.exceptions;
 
 import lombok.Getter;
 

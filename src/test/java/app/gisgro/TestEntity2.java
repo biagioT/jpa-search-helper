@@ -1,6 +1,6 @@
-package app.tozzi;
+package app.gisgro;
 
-import app.tozzi.annotations.Searchable;
+import app.gisgro.annotations.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package app.tozzi.model;
+package app.gisgro.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,6 @@
-package app.tozzi.annotations;
+package app.gisgro.annotations;
 
-import app.tozzi.model.SearchType;
+import app.gisgro.model.SearchType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

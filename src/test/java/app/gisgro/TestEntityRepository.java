@@ -1,6 +1,6 @@
-package app.tozzi;
+package app.gisgro;
 
-import app.tozzi.repository.JPASearchRepository;
+import app.gisgro.repository.JPASearchRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

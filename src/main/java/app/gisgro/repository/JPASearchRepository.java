@@ -1,9 +1,9 @@
-package app.tozzi.repository;
+package app.gisgro.repository;
 
-import app.tozzi.JPASearchCore;
+import app.gisgro.JPASearchCore;
 import javax.persistence.criteria.JoinType;
 
-import app.tozzi.JPASearchFunctions;
+import app.gisgro.JPASearchFunctions;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;

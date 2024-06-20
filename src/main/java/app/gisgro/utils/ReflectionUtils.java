@@ -1,7 +1,7 @@
-package app.tozzi.utils;
+package app.gisgro.utils;
 
-import app.tozzi.annotations.NestedSearchable;
-import app.tozzi.annotations.Searchable;
+import app.gisgro.annotations.NestedSearchable;
+import app.gisgro.annotations.Searchable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 

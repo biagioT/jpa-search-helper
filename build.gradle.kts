@@ -15,7 +15,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
-group = "app.tozzi"
+group = "app.gisgro"
 
 val libVersion = "1.0.2.GISGRO"
 version = libVersion
@@ -69,7 +69,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
 
-            group = "app.tozzi"
+            group = "app.gisgro"
             artifactId = "jpa-search-helper"
             version = libVersion
             from(components["java"])

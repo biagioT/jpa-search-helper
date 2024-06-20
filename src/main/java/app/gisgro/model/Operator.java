@@ -1,10 +1,10 @@
-package app.tozzi.model;
+package app.gisgro.model;
 
-import app.tozzi.JPASearchFunctions;
+import app.gisgro.JPASearchFunctions;
 
-import app.tozzi.exceptions.JPASearchException;
-import app.tozzi.utils.JPAFuncWithExpressions;
-import app.tozzi.utils.JPAFuncWithObjects;
+import app.gisgro.exceptions.JPASearchException;
+import app.gisgro.utils.JPAFuncWithExpressions;
+import app.gisgro.utils.JPAFuncWithObjects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

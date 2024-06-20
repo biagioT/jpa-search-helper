@@ -1,4 +1,4 @@
-package app.tozzi.utils;
+package app.gisgro.utils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;

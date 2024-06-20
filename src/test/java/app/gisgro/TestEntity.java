@@ -1,9 +1,9 @@
-package app.tozzi;
+package app.gisgro;
 
-import app.tozzi.annotations.NestedSearchable;
-import app.tozzi.annotations.Searchable;
-import app.tozzi.annotations.Tag;
-import app.tozzi.model.SearchType;
+import app.gisgro.annotations.NestedSearchable;
+import app.gisgro.annotations.Searchable;
+import app.gisgro.annotations.Tag;
+import app.gisgro.model.SearchType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
