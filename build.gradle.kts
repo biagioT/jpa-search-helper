@@ -89,5 +89,6 @@ tasks {
     }
     jar {
         enabled = true
+        archiveClassifier.set("")
     }
 }
