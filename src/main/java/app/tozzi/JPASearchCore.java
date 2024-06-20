@@ -3,58 +3,162 @@ package app.tozzi;
 import app.tozzi.annotations.Searchable;
 import app.tozzi.annotations.Tag;
 import app.tozzi.exceptions.InvalidFieldException;
-import app.tozzi.exceptions.InvalidValueException;
 import app.tozzi.model.*;
-import app.tozzi.utils.GenericUtils;
+import app.tozzi.exceptions.JPASearchException;
 import app.tozzi.utils.ReflectionUtils;
 import javax.persistence.criteria.*;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import static app.tozzi.JPASearchFunctions.getPath;
+
 public class JPASearchCore {
-
-    public static <R, T> Specification<R> specification(Map<String, String> filters,
-                                                        Class<T> clazz,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
+                                                        Class<T> entityClass,
                                                         boolean throwsIfNotExistsOrNotSearchable) {
-
-        return specification(filters, clazz, null, throwsIfNotExistsOrNotSearchable, null);
+        return specification(filterPayload, entityClass, null, throwsIfNotExistsOrNotSearchable, null);
     }
 
-    public static <R, T> Specification<R> specification(Map<String, String> filters,
-                                                        Class<T> clazz,
-                                                        boolean throwsIfNotExistsOrNotSearchable, Map<String, String> entityFieldMap) {
-
-        return specification(filters, clazz, null, throwsIfNotExistsOrNotSearchable, entityFieldMap);
-    }
-
-    public static <R, T> Specification<R> specification(Map<String, String> filters,
-                                                        Class<T> clazz,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
+                                                        Class<T> entityClass,
                                                         Map<String, JoinType> fetchMap,
                                                         boolean throwsIfNotExistsOrNotSearchable) {
-
-        return specification(filters, clazz, fetchMap, throwsIfNotExistsOrNotSearchable, null);
+        return specification(filterPayload, entityClass, fetchMap, throwsIfNotExistsOrNotSearchable, null);
     }
 
-    public static <R, T> Specification<R> specification(Map<String, String> filters,
-                                                        Class<T> clazz,
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
+                                                        Class<T> entityClass,
+                                                        boolean throwsIfNotExistsOrNotSearchable,
+                                                        Map<String, String> entityFieldMap) {
+        return specification(filterPayload, entityClass, null, throwsIfNotExistsOrNotSearchable, entityFieldMap);
+    }
+
+    public static <R, T> Specification<R> specification(JsonNode filterPayload,
+                                                        Class<T> entityClass,
                                                         Map<String, JoinType> fetchMap,
                                                         boolean throwsIfNotExistsOrNotSearchable,
                                                         Map<String, String> entityFieldMap) {
 
+        var filterExpression = filterPayload.get("filter");
+
         return (root, query, criteriaBuilder) -> {
             fetchManagement(fetchMap, root);
-            return criteriaBuilder.and(andPredicates(filters, root, criteriaBuilder, clazz, throwsIfNotExistsOrNotSearchable, entityFieldMap).toArray(Predicate[]::new));
+
+            var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
+
+            var expr = processExpression(
+                filterExpression,
+                criteriaBuilder,
+                root,
+                entityClass,
+                throwsIfNotExistsOrNotSearchable,
+                entityFieldMap,
+                searchableFields
+            );
+            if (expr instanceof Predicate) {
+                return (Predicate) expr;
+            } else {
+                throw new JPASearchException("Not resulting a predicate" + expr);
+            }
         };
+    }
+
+    private static <T> Object processValue(
+        Operator op,
+        JsonNode node,
+        CriteriaBuilder cb,
+        Root<?> root,
+        Class<T> entityClass,
+        boolean throwsIfNotExistsOrNotSearchable,
+        Map<String, String> entityFieldMap,
+        Map<String, Pair<Searchable, Class<?>>> searchableFields
+    ) {
+        if (node.isTextual()) {
+            var text = node.asText();
+            if (op == Operator.FIELD) {
+                var descriptor = loadDescriptor(
+                    text,
+                    throwsIfNotExistsOrNotSearchable,
+                    false,
+                    false,
+                    entityFieldMap,
+                    searchableFields
+                );
+                var path = getPath(root, text);
+                if (descriptor.searchable.trim() && descriptor.searchType == SearchType.STRING) {
+                    return cb.trim(path.as(String.class));
+                } else if (descriptor.entityType.isEnum()) {
+                    return path.as(descriptor.entityType);
+                } else {
+                    return path;
+                }
+            } else if (!op.isEvaluateStrings()) {
+                return text;
+            } else {
+                return cb.literal(text);
+            }
+        } else if (node.isInt()) {
+            return cb.literal(node.asInt());
+        } else if (node.isLong()) {
+            return cb.literal(node.asLong());
+        } else if (node.isDouble()) {
+            return cb.literal(node.asDouble());
+        } else if (node.isBoolean()) {
+            return cb.literal(node.asBoolean());
+        } else if (node.isArray()) {
+            return processExpression(node, cb, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap, searchableFields);
+        } else if (node.isNull()) {
+            return cb.nullLiteral(entityClass);
+        } else {
+            throw new JPASearchException("unexpected: " + node);
+        }
+    }
+
+    private static Expression<?> processExpression(
+        JsonNode node,
+        CriteriaBuilder cb,
+        Root<?> root,
+        Class<?> entityClass,
+        boolean throwsIfNotExistsOrNotSearchable,
+        Map<String, String> entityFieldMap,
+        Map<String, Pair<Searchable, Class<?>>> searchableFields
+    ) {
+        if (!node.isArray() || node.isEmpty() || !node.get(0).isTextual()) {
+            throw new JPASearchException("Invalid expression");
+        }
+
+        var op = Operator.load(node.get(0).textValue());
+        var arguments = new ArrayList<>();
+
+        for (var i = 1; i < node.size(); i++) {
+            var child = node.get(i);
+            arguments.add(
+                processValue(
+                    op,
+                    child,
+                    cb,
+                    root,
+                    entityClass,
+                    throwsIfNotExistsOrNotSearchable,
+                    entityFieldMap,
+                    searchableFields
+                )
+            );
+        }
+        if (op.isEvaluateStrings()) {
+            return op.getExprFunction().apply(cb, arguments.toArray(new Expression[0]));
+        } else {
+            return op.getObjFunction().apply(cb, arguments.toArray(), searchableFields);
+        }
     }
 
     private static void fetchManagement(Map<String, JoinType> fetchMap, Root<?> root) {
@@ -98,224 +202,149 @@ public class JPASearchCore {
         }
     }
 
-    public static Sort loadSort(Map<String, String> filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrNotSearchable, Map<String, String> entityFieldMap) {
-
-        return filters.entrySet().stream().filter(e -> e.getKey().endsWith(PaginationFilter.SORT.getSuffix()))
-                .map(e -> new AbstractMap.SimpleEntry<>(e.getValue(),
-                        loadDescriptor(e.getKey(), throwsIfNotExistsOrNotSearchable, true, throwsIfNotSortable, entityFieldMap,
-                                ReflectionUtils.getAllSearchableFields(clazz))))
-                .filter(e -> e.getValue() != null)
-                .map(e -> {
-                    Sort s = Sort.by(e.getValue().getEntityKey());
-                    switch (SortType.load(e.getKey(), SortType.ASC)) {
-                        case ASC -> s = s.ascending();
-                        case DESC -> s = s.descending();
+    public static Sort loadSort(
+        JsonNode filterPayload,
+        Class<?> entityClass,
+        boolean throwsIfNotSortable,
+        boolean throwsIfNotExistsOrNotSearchable,
+        Map<String, String> entityFieldMap
+    ) {
+        ArrayList<Sort.Order> orderSpecs = new ArrayList<>();
+        var options = filterPayload.get("options");
+        var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
+        if (options != null) {
+            var sortKeysNode = options.get("sortKey");
+            if (sortKeysNode != null) {
+                var keyList = new ArrayList<String>();
+                if (sortKeysNode.isTextual()) {
+                    keyList.add(sortKeysNode.asText());
+                } else if(sortKeysNode.isArray()) {
+                    for (var itm: sortKeysNode) {
+                        keyList.add(itm.asText());
                     }
-                    return s;
+                }
+                for(var sortKeyStr : keyList) {
+                    var descending = false;
+                    if (sortKeyStr.startsWith("-")) {
+                        sortKeyStr = sortKeyStr.substring(1);
+                        descending = true;
+                    }
+                    var descriptor = loadDescriptor(
+                        sortKeyStr,
+                        throwsIfNotExistsOrNotSearchable,
+                        true,
+                        throwsIfNotSortable,
+                        entityFieldMap,
+                        searchableFields
+                    );
 
-                }).findAny().orElseThrow(() -> new InvalidFieldException("Invalid or not present sort key", PaginationFilter.SORT.getSuffix()));
-
+                    if (descending) {
+                        orderSpecs.add(Sort.Order.desc(descriptor.entityKey));
+                    } else {
+                        orderSpecs.add(Sort.Order.asc(descriptor.entityKey));
+                    }
+                }
+            }
+        }
+        return Sort.by(orderSpecs);
     }
 
-    public static PageRequest loadSortAndPagination(Map<String, String> filters, Class<?> clazz, boolean throwsIfNotSortable, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
+    public static PageRequest loadSortAndPagination(
+        JsonNode filterPayload,
+        Class<?> entityClass,
+        boolean throwsIfNotSortable,
+        boolean throwsIfNotExistsOrSearchable,
+        Map<String, String> entityFieldMap
+    ) {
+        Integer pageSize = null;
+        Integer pageOffset = null;
+        Sort sort = null;
 
-        final AtomicInteger limit = new AtomicInteger(-1);
-        final AtomicInteger offset = new AtomicInteger(-1);
-        final AtomicReference<Sort> sort = new AtomicReference<>();
+        var options = filterPayload.get("options");
 
-        filters.entrySet().stream().filter(e -> PaginationFilter.keys().stream().anyMatch(p -> e.getKey().endsWith(p)))
-                .forEach(e -> {
+        if (options != null) {
+            sort = loadSort(
+                filterPayload,
+                entityClass,
+                throwsIfNotSortable,
+                throwsIfNotExistsOrSearchable,
+                entityFieldMap
+            );
 
-                    String suffix = e.getKey().contains("_") ? e.getKey().substring(e.getKey().lastIndexOf("_")) : e.getKey();
-                    PaginationFilter pk = PaginationFilter.load(suffix);
-                    if (pk != null) {
-                        switch (pk) {
-                            case LIMIT -> limit.set(GenericUtils.loadInt(e.getValue(), -1));
-                            case OFFSET -> offset.set(GenericUtils.loadInt(e.getValue(), -1));
-                            case SORT -> {
-                                DescriptorBean descriptor = loadDescriptor(e.getKey(), throwsIfNotExistsOrSearchable, true, throwsIfNotSortable, entityFieldMap,
-                                        ReflectionUtils.getAllSearchableFields(clazz));
-                                if (descriptor != null) {
-                                    Sort s = Sort.by(descriptor.entityKey);
-                                    switch (SortType.load(e.getValue(), SortType.ASC)) {
-                                        case ASC -> s = s.ascending();
-                                        case DESC -> s = s.descending();
-                                    }
-
-                                    sort.set(s);
-                                }
-                            }
-                            default -> throw new InvalidFieldException("Invalid key " + e.getKey(), e.getKey());
-                        }
-                    }
-                });
-
-        if (limit.get() == -1) {
-            throw new InvalidFieldException("Invalid or not present limit", PaginationFilter.LIMIT.getSuffix());
+            var pageOffsetNode = options.get("pageOffset");
+            if (pageOffsetNode != null) {
+                pageOffset = pageOffsetNode.asInt();
+            }
+            var pageSizeNode = options.get("pageSize");
+            if (pageSizeNode != null) {
+                pageSize = pageSizeNode.asInt();
+            }
         }
 
-        PageRequest result = PageRequest.ofSize(limit.get());
-        if (offset.get() != -1) {
-            result = result.withPage(offset.get());
+        if (pageSize == null) {
+            throw new JPASearchException("Invalid or not present limit");
         }
-        if (sort.get() != null) {
-            result = result.withSort(sort.get());
+
+        PageRequest result = PageRequest.ofSize(pageSize);
+        if (pageOffset != null) {
+            result = result.withPage(pageOffset);
+        }
+        if (sort != null) {
+            result = result.withSort(sort);
         }
 
         return result;
     }
 
-    private static <T> List<Predicate> andPredicates(@NonNull Map<String, String> filters, @NonNull Root<?> root, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Class<T> clazz,
-                                                     boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
-        return filters.entrySet().stream()
-                .filter(e -> PaginationFilter.keys().stream().noneMatch(p -> e.getKey().endsWith(p)))
-                .map(e -> filterManagement(e.getKey(), e.getValue(), clazz, throwsIfNotExistsOrSearchable, entityFieldMap))
-                .filter(Objects::nonNull)
-                .map(f -> f.searchFilter.getFunction().apply(new FieldRootBuilderBean<>(f.fieldKey, root, criteriaBuilder, f.value, f.trim)))
-                .toList();
-    }
-
-    public static <T> FilterBean filterManagement(String key, String value, Class<T> clazz, boolean throwsIfNotExistsOrSearchable, Map<String, String> entityFieldMap) {
-
-        if (key == null || key.isBlank() || value == null) {
-            return null;
-        }
-
-        DescriptorBean descriptor = loadDescriptor(key, throwsIfNotExistsOrSearchable, false, false, entityFieldMap, ReflectionUtils.getAllSearchableFields(clazz));
-
-        if (descriptor == null) {
-            return null;
-        }
-
-        SearchFilter searchFilter = SearchFilter.load(descriptor.suffix, value, SearchFilter.EQ);
-        if (searchFilter.hasFixedValue()) {
-            return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, value, descriptor.searchable.trim());
-        }
-
-        searchableValidations(descriptor.searchable, descriptor.path, searchFilter);
-        Object targetValue = descriptor.searchType.getValue(descriptor.path, value, descriptor.searchable.datePattern(), descriptor.searchable.decimalFormat(), searchFilter.isNoNumberParsing());
-        searchableValidationsOnTargetValue(targetValue, descriptor.searchable, descriptor.path, value, descriptor.searchType);
-        filterValidations(searchFilter, descriptor.path, targetValue, descriptor.searchType);
-        return new FilterBean(descriptor.entityKey, descriptor.path, searchFilter, targetValue, descriptor.searchable.trim());
-    }
-
-    private static DescriptorBean loadDescriptor(String key, boolean throwsIfNotExistsOrNotSortable, boolean checkSortable,
-                                                 boolean throwsIfNotSortable, Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Class<?>>> searchableFields) {
-
-        String fullField = key.contains("_") ? key.substring(0, key.lastIndexOf("_")) : key;
-        String suffixFilter = key.contains("_") ? key.substring(key.lastIndexOf("_")) : key;
-
+    public static DescriptorBean loadDescriptor(String key,
+                                                 boolean throwsIfNotExistsOrNotSortable,
+                                                 boolean checkSortable,
+                                                 boolean throwsIfNotSortable,
+                                                 Map<String, String> entityFieldMap,
+                                                 Map<String, Pair<Searchable, Class<?>>> searchableFields
+    ) {
         Map<String, Pair<Pair<Searchable, Class<?>>, Tag>> tagMap = new HashMap<>();
         searchableFields.entrySet().stream().filter(e -> e.getValue().getKey().tags() != null && e.getValue().getKey().tags().length > 0)
                 .forEach(e -> Stream.of(e.getValue().getKey().tags()).forEach(t -> {
                     tagMap.put(t.fieldKey(), Pair.of(e.getValue(), t));
                 }));
 
-        if (!searchableFields.containsKey(fullField) && !tagMap.containsKey(fullField)) {
+        if (!searchableFields.containsKey(key) && !tagMap.containsKey(key)) {
 
             if (throwsIfNotExistsOrNotSortable) {
-                throw new InvalidFieldException("Field [" + fullField + "] does not exists or not sortable", fullField);
+                throw new InvalidFieldException("Field [" + key + "] does not exists or not sortable", key);
             }
 
             return null;
         }
 
-        Searchable searchable = searchableFields.containsKey(fullField) ? searchableFields.get(fullField).getKey() : tagMap.get(fullField).getKey().getKey();
-        Class<?> type = searchableFields.containsKey(fullField) ? searchableFields.get(fullField).getValue() : tagMap.get(fullField).getKey().getValue();
+        Searchable searchable = searchableFields.containsKey(key) ? searchableFields.get(key).getKey() : tagMap.get(key).getKey().getKey();
+        Class<?> type = searchableFields.containsKey(key) ? searchableFields.get(key).getValue() : tagMap.get(key).getKey().getValue();
 
         if (checkSortable && !searchable.sortable()) {
             if (throwsIfNotSortable) {
-                throw new InvalidFieldException("Field [" + fullField + "] is not sortable", fullField);
+                throw new InvalidFieldException("Field [" + key + "] is not sortable", key);
             }
 
             return null;
         }
 
-        String entityField = entityFieldMap != null && entityFieldMap.containsKey(fullField) ? entityFieldMap.get(fullField) :
-                (tagMap.containsKey(fullField) ?
-                        (tagMap.get(fullField).getRight().entityFieldKey() != null && !tagMap.get(fullField).getRight().entityFieldKey().isBlank() ? tagMap.get(fullField).getRight().entityFieldKey() : fullField)
-                        : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : fullField));
+        String entityField = entityFieldMap != null && entityFieldMap.containsKey(key) ? entityFieldMap.get(key) :
+                (tagMap.containsKey(key) ?
+                        (tagMap.get(key).getRight().entityFieldKey() != null && !tagMap.get(key).getRight().entityFieldKey().isBlank() ? tagMap.get(key).getRight().entityFieldKey() : key)
+                        : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : key));
 
-        return new DescriptorBean(fullField, suffixFilter, searchable,
-                SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField);
-    }
-
-    private static void filterValidations(SearchFilter searchFilter, String field, Object valueObj, SearchType searchType) {
-        boolean isCollection = Collection.class.isAssignableFrom(valueObj.getClass());
-        Collection<?> collection = isCollection ? (Collection<?>) valueObj : null;
-        int values = isCollection ? collection.size() : 1;
-
-        if (searchFilter.getAllowedValues() != -1 && searchFilter.getAllowedValues() != values) {
-            throw new InvalidValueException("Invalid values count: [" + values + "] for type [" + searchType.name() + "] of field [" + field + "]. Expected: [" + searchFilter.getAllowedValues() + "]; received: [" + values + "]", field, valueObj);
-        }
-
-        boolean isComparable = isCollection ? collection.stream().anyMatch(v -> Comparable.class.isAssignableFrom(v.getClass())) : Comparable.class.isAssignableFrom(valueObj.getClass());
-        if (!isComparable && searchFilter.isComparable()) {
-            throw new InvalidFieldException("Not allowed filter [" + searchFilter.getSuffix() + "] for type [" + searchType.name() + "] of field [" + field + "]", field);
-        }
-    }
-
-    private static void searchableValidations(Searchable searchable, String field, SearchFilter searchFilter) {
-
-        if (searchable.allowedFilters() != null && searchable.allowedFilters().length > 0 && Stream.of(searchable.allowedFilters()).noneMatch(sf -> sf.equals(searchFilter))) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
-        }
-
-        if (searchable.notAllowedFilters() != null && searchable.notAllowedFilters().length > 0 && Stream.of(searchable.notAllowedFilters()).anyMatch(sf -> sf.equals(searchFilter))) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
-        }
-
-        if (!searchable.likeFilters() && searchFilter.isLike()) {
-            throw new InvalidFieldException("Not allowed filters [" + searchFilter.getSuffix() + "] for field [" + field + "]", field);
-        }
-
-    }
-
-    private static void searchableValidationsOnTargetValue(Object targetValue, Searchable searchable, String field, String value, SearchType searchType) {
-
-        // Length
-        int maxLength = searchType.getMaxLength(targetValue);
-        if (maxLength >= 0 && searchable.maxSize() >= 0 && maxLength > searchable.maxSize()) {
-            throw new InvalidValueException("Value [" + value + "] exceeds maximum length [" + searchable.maxSize() + "] defined on field [" + field + "]", field, value);
-        }
-        int minLength = searchType.getMinLength(targetValue);
-        if (minLength >= 0 && searchable.minSize() >= 0 && minLength < searchable.minSize()) {
-            throw new InvalidValueException("Value [" + value + "] less than minimum length [" + searchable.minSize() + "] defined on field [" + field + "]", field, value);
-        }
-
-        // Digits
-        int maxDigits = searchType.getMaxDigits(targetValue);
-        if (maxDigits >= 0 && searchable.maxDigits() >= 0 && maxDigits > searchable.maxDigits()) {
-            throw new InvalidValueException("Value [" + value + "] exceeds maximum digits count [" + searchable.maxDigits() + "] defined on field [" + field + "]", field, value);
-        }
-        int minDigits = searchType.getMinDigits(targetValue);
-        if (minLength >= 0 && searchable.minDigits() >= 0 && minDigits < searchable.minDigits()) {
-            throw new InvalidValueException("Value [" + value + "] less than minimum digits count [" + searchable.minDigits() + "] defined on field [" + field + "]", field, value);
-        }
-
-        // Regex
-        if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !searchType.matchRegex(targetValue, searchable.regexPattern())) {
-            throw new InvalidValueException("Value [" + value + " does not match pattern [" + searchable.regexPattern() + " of field [" + field + "]", field, value);
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class FilterBean {
-        private String fieldKey;
-        private String originalKey;
-        private SearchFilter searchFilter;
-        private Object value;
-        private boolean trim;
+        return new DescriptorBean(key, searchable,
+                SearchType.UNTYPED.equals(searchable.targetType()) ? SearchType.load(type, SearchType.STRING) : searchable.targetType(), entityField, type);
     }
 
     @Data
     @AllArgsConstructor
     public static class DescriptorBean {
         private String path;
-        private String suffix;
         private Searchable searchable;
         private SearchType searchType;
         private String entityKey;
+        private Class<?> entityType;
     }
 }

@@ -1,6 +1,5 @@
 package app.tozzi.annotations;
 
-import app.tozzi.model.SearchFilter;
 import app.tozzi.model.SearchType;
 
 import java.lang.annotation.ElementType;
@@ -35,11 +34,4 @@ public @interface Searchable {
     boolean trim() default false;
 
     Tag[] tags() default {};
-
-    SearchFilter[] allowedFilters() default {};
-
-    SearchFilter[] notAllowedFilters() default {};
-
-    boolean likeFilters() default true;
-
 }

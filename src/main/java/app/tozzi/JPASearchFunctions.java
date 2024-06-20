@@ -1,71 +1,97 @@
 package app.tozzi;
 
-import app.tozzi.model.FieldRootBuilderBean;
+import app.tozzi.exceptions.JPASearchException;
+import app.tozzi.model.SearchType;
+import app.tozzi.utils.JPAFuncWithExpressions;
+import app.tozzi.utils.JPAFuncWithObjects;
+
 import javax.persistence.criteria.*;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.Period;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.function.Function;
+
+import static app.tozzi.JPASearchCore.loadDescriptor;
 
 public class JPASearchFunctions {
+    public static final JPAFuncWithExpressions<Boolean, Boolean> AND = (cb, values) -> cb.and(toPredicates(values));
+    public static final JPAFuncWithExpressions<Boolean, Boolean> OR = (cb, values) -> cb.or(toPredicates(values));
+    public static final JPAFuncWithExpressions<Boolean, Boolean> NOT = (cb, values) -> cb.not(values[0]);
 
-    public static final Function<FieldRootBuilderBean<?>, Predicate> EQ = s -> s.criteriaBuilder.equal(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field), s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> EQ_IGNORECASE = s -> s.criteriaBuilder.equal(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class))) : s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class)), toUpperCase(s.value));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> STARTSWITH = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field).as(String.class), s.value + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> STARTSWITH_IGNORECASE = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class))) : s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class)), toUpperCase(s.value) + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> ENDSWITH = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field).as(String.class), "%" + s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> ENDSWITH_IGNORECASE = s -> s.criteriaBuilder.like(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class))) : s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class)), "%" + toUpperCase(s.value));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> CONTAINS = s -> s.criteriaBuilder.like(getPath(s.root, s.field).as(String.class), "%" + s.value + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> CONTAINS_IGNORECASE = s -> s.criteriaBuilder.like(s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class)), "%" + toUpperCase(s.value) + "%");
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NOTEQ = s -> s.criteriaBuilder.notEqual(s.trim ? s.criteriaBuilder.trim(getPath(s.root, s.field)) : getPath(s.root, s.field), s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NOTEQ_IGNORECASE = s -> s.criteriaBuilder.notEqual(s.trim ? s.criteriaBuilder.trim(s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class))) : s.criteriaBuilder.upper(getPath(s.root, s.field).as(String.class)), toUpperCase(s.value));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> GT = s -> s.trim ? s.criteriaBuilder.greaterThan(s.criteriaBuilder.trim(getPath(s.root, s.field).as(String.class)), s.value.toString()) : s.criteriaBuilder.greaterThan(getPath(s.root, s.field), (Comparable) s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> GTE = s -> s.trim ? s.criteriaBuilder.greaterThanOrEqualTo(s.criteriaBuilder.trim(getPath(s.root, s.field).as(String.class)), s.value.toString()) : s.criteriaBuilder.greaterThanOrEqualTo(getPath(s.root, s.field), (Comparable) s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> LT = s -> s.trim ? s.criteriaBuilder.lessThan(s.criteriaBuilder.trim(getPath(s.root, s.field).as(String.class)), s.value.toString()) : s.criteriaBuilder.lessThan(getPath(s.root, s.field), (Comparable) s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> LTE = s -> s.trim ? s.criteriaBuilder.lessThanOrEqualTo(s.criteriaBuilder.trim(getPath(s.root, s.field).as(String.class)), s.value.toString()) : s.criteriaBuilder.lessThanOrEqualTo(getPath(s.root, s.field), (Comparable) s.value);
-    public static final Function<FieldRootBuilderBean<?>, Predicate> IN = s -> {
-
-        CriteriaBuilder.In<Object> in = s.criteriaBuilder.in(getPath(s.root, s.field));
-        if (s.value instanceof Collection<?> coll) {
-            for (Object obj : coll) {
-                in.value(obj);
-            }
-
-        } else {
-            in.value(s.value);
+    public static final JPAFuncWithExpressions<?, Boolean> EQ = (cb, values) -> cb.equal(values[0], values[1]);
+    public static final JPAFuncWithExpressions<String, Boolean> STARTSWITH
+        = (cb, values) -> cb.like(values[0], cb.concat(values[1],  "%"));
+    public static final JPAFuncWithExpressions<String, Boolean> ENDSWITH
+        = (cb, values) -> cb.like(values[0], cb.concat("%", values[1]));
+    public static final JPAFuncWithExpressions<String, Boolean> CONTAINS
+        = (cb, values) -> cb.like(values[0], cb.concat(cb.concat("%", values[1]), "%"));
+    public static final JPAFuncWithExpressions<Comparable, Boolean> GT
+        = (cb, values) -> cb.greaterThan(values[0], values[1]);
+    public static final JPAFuncWithExpressions<Comparable, Boolean> GTE
+        = (cb, values) -> cb.greaterThanOrEqualTo(values[0], values[1]);
+    public static final JPAFuncWithExpressions<Comparable, Boolean> LT
+        = (cb, values) -> cb.lessThan(values[0], values[1]);
+    public static final JPAFuncWithExpressions<Comparable, Boolean> LTE
+        = (cb, values) -> cb.lessThanOrEqualTo(values[0], values[1]);
+    public static final JPAFuncWithExpressions<Collection, Boolean> IN = (cb, values) -> {
+        CriteriaBuilder.In<Object> in = cb.in(values[0]);
+        var size = values.length;
+        for (var i = 1; i < size; i++) {
+            in.value(values[i]);
         }
-
         return in;
     };
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NIN = s -> s.criteriaBuilder.not(IN.apply(s));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NOT_NULL = s -> s.criteriaBuilder.isNotNull(getPath(s.root, s.field));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NOT_EMPTY = s -> s.criteriaBuilder.isNotEmpty(getPath(s.root, s.field));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> NULL = s -> s.criteriaBuilder.isNull(getPath(s.root, s.field));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> EMPTY = s -> s.criteriaBuilder.isEmpty(getPath(s.root, s.field));
-    public static final Function<FieldRootBuilderBean<?>, Predicate> BETWEEN = s -> {
-        Collection<?> coll = (Collection<?>) s.value;
-        Iterator<?> iterator = coll.iterator();
-        return s.trim ? s.criteriaBuilder.between(s.criteriaBuilder.trim(getPath(s.root, s.field).as(String.class)), iterator.next().toString(), iterator.next().toString()) : s.criteriaBuilder.between(getPath(s.root, s.field), (Comparable) iterator.next(), (Comparable) iterator.next());
+    public static final JPAFuncWithExpressions<?, Boolean> NULL
+        = (cb, values) -> cb.isNull(values[0]);
+    public static final JPAFuncWithExpressions<Collection, Boolean> EMPTY
+        = (cb, values) -> cb.isEmpty(values[0]);
+    public static final JPAFuncWithExpressions<Comparable, Boolean> BETWEEN = (cb, values) -> cb.between(values[0], values[1], values[2]);
+
+    public static final JPAFuncWithExpressions<String, String> LOWER = (cb, values) -> cb.lower(values[0]);
+
+    public static final JPAFuncWithObjects<Date> DATE = (cb, values, entityClass) -> {
+        var dateStr = ZonedDateTime.parse((String)values[0]).withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        return cb.function("STR_TO_DATE", java.sql.Date.class, cb.literal(dateStr), cb.literal("%Y-%m-%dT%H:%i:%sZ"));
     };
 
-    private static Object toUpperCase(Object object) {
-        return object.toString().toUpperCase();
-    }
+    public static final JPAFuncWithObjects<BigDecimal> BIG_DECIMAL = (cb, values, searchableFields) -> cb.literal(new BigDecimal((String)values[0]));
 
-    private static <T> Expression<T> getPath(Root<?> root, String k) {
+    public static final JPAFuncWithObjects<Period> PERIOD = (cb, values, searchableFields) -> cb.literal(Period.parse((String)values[0]));
 
+    public static final JPAFuncWithExpressions<?, ?> FIELD = (cb, values) -> values[0]; // no-op, handled in processValue
+
+    public static final JPAFuncWithObjects<Enum> ENUM = (cb, values, searchableFields) -> {
+        var className = (String)values[0];
+        var valueName = (String)values[1];
+        var cls = (Class<Enum>) searchableFields.values()
+            .stream()
+            .filter(v -> v.getValue().isEnum() && v.getValue().getName().endsWith("." + className))
+            .findFirst()
+            .orElseThrow(() -> new JPASearchException("Enum not found"))
+            .getValue();
+        return cb.literal(Enum.valueOf(cls, valueName));
+    };
+
+    public static <T> Expression<T> getPath(Root<?> root, String k) {
         if (k.contains(".")) {
-
             Path<T> path = null;
-
             for (String f : k.split("\\.")) {
                 path = path == null ? root.get(f) : path.get(f);
             }
-
             return path;
-
         } else {
             return root.get(k);
         }
+    }
+    public static Predicate[] toPredicates(Expression<Boolean>[] values) {
+        Predicate[] predicates = new Predicate[values.length];
+        for(int i = 0; i < values.length; i++) {
+            predicates[i] = (Predicate) values[i];
+        }
+        return predicates;
     }
 }

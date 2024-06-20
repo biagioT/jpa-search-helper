@@ -1,17 +1,30 @@
-package app.tozzi.test;
+package app.tozzi;
 
 import app.tozzi.annotations.NestedSearchable;
 import app.tozzi.annotations.Searchable;
 import app.tozzi.annotations.Tag;
 import app.tozzi.model.SearchType;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Date;
 
-@Data
-public final class ExampleBean {
+// Entity class
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+public class TestEntity {
+
+    public TestEntity() {}
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Searchable(minSize = 5, maxSize = 10)
     private int primitiveInteger;
@@ -32,9 +45,6 @@ public final class ExampleBean {
 
     @Searchable(datePattern = "yyyyMMdd")
     private Date date1;
-
-    @NestedSearchable
-    private ExampleNestedBean nestedBean;
 
     @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
     private Date date2;
@@ -90,29 +100,14 @@ public final class ExampleBean {
     @Searchable
     private Boolean wrapperBoolean;
 
-    @Data
-    public static class ExampleNestedBean {
+    @NestedSearchable
+    @ManyToOne
+    @JoinColumn
+    private TestEntity2 nestedBean;
 
-        @Searchable
-        private String string;
+    @Searchable
+    private TestEnum testEnum;
 
-        @Searchable
-        private String string2;
-
-        @Searchable
-        private String string3;
-
-        @Searchable
-        private String string4;
-
-        @Searchable
-        private String string5;
-
-        @Searchable
-        private String string6;
-
-        @Searchable
-        private String string7;
-
-    }
+    @Searchable
+    private Period period;
 }

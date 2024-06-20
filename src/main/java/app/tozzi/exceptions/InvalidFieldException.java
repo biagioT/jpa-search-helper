@@ -12,10 +12,4 @@ public class InvalidFieldException extends RuntimeException {
         super(message);
         this.field = field;
     }
-
-    public InvalidFieldException(String message, Throwable cause, String field) {
-        super(message, cause);
-        this.field = field;
-    }
-
 }
