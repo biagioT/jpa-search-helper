@@ -17,7 +17,7 @@ plugins {
 
 group = "app.gisgro"
 
-val libVersion = "2.0"
+val libVersion = "2.0.0"
 version = libVersion
 
 java.apply {
