@@ -2,23 +2,17 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath("com.amazonaws:aws-java-sdk-core:1.12.731")
-    }
 }
 
 plugins {
     id("java-library")
     id("maven-publish")
-    id("signing")
     id("org.springframework.boot") version "2.7.11"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
 group = "com.gisgro"
-
-val libVersion = "2.0.2"
-version = libVersion
+version = "2.0.2"
 
 java.apply {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -61,12 +55,11 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
-
-            group = "com.gisgro"
+        create<MavenPublication>("maven") {
             artifactId = "jpa-search-helper"
-            version = libVersion
+
             from(components["java"])
+
             pom {
                 name = "JPA Search Helper"
                 description = "Helper library for building advanced and dynamic queries using JPA in Spring"
