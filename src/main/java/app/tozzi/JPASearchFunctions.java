@@ -63,10 +63,9 @@ public class JPASearchFunctions {
 
     public static final JPAFuncWithObjects<String> STR = (cb, values, entityClass) -> cb.literal((String)values[0]);
 
-    public static final JPAFuncWithObjects<Enum> ENUM = (cb, values, entityClass) -> {
+    public static final JPAFuncWithObjects<Enum> ENUM = (cb, values, searchables) -> {
         var className = (String)values[0];
         var valueName = (String)values[1];
-        var searchables = ReflectionUtils.getAllSearchableFields(entityClass);
         var cls = (Class<Enum>) searchables.values()
             .stream()
             .filter(v -> v.getValue().isEnum() && v.getValue().getName().endsWith("." + className))

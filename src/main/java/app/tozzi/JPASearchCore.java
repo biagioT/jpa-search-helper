@@ -53,13 +53,16 @@ public class JPASearchCore {
         return (root, query, criteriaBuilder) -> {
             fetchManagement(fetchMap, root);
 
+            var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
+
             var expr = processExpression(
                 filterExpression,
                 criteriaBuilder,
                 root,
                 entityClass,
                 throwsIfNotExistsOrNotSearchable,
-                entityFieldMap
+                entityFieldMap,
+                searchableFields
             );
             if (expr instanceof Predicate) {
                 return (Predicate) expr;
@@ -76,7 +79,8 @@ public class JPASearchCore {
         Root<?> root,
         Class<T> entityClass,
         boolean throwsIfNotExistsOrNotSearchable,
-        Map<String, String> entityFieldMap
+        Map<String, String> entityFieldMap,
+        Map<String, Pair<Searchable, Class<?>>> searchableFields
     ) {
         if (node.isTextual()) {
             if (op.isEvaluateStrings()) {
@@ -87,7 +91,7 @@ public class JPASearchCore {
                     false,
                     false,
                     entityFieldMap,
-                    ReflectionUtils.getAllSearchableFields(entityClass)
+                    searchableFields
                 );
                 var path = getPath(root, fieldName);
                 if (descriptor.searchable.trim() && descriptor.searchType == SearchType.STRING) {
@@ -109,7 +113,7 @@ public class JPASearchCore {
         } else if (node.isBoolean()) {
             return cb.literal(node.asBoolean());
         } else if (node.isArray()) {
-            return processExpression(node, cb, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap);
+            return processExpression(node, cb, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap, searchableFields);
         } else if (node.isNull()) {
             return cb.nullLiteral(entityClass);
         } else {
@@ -123,7 +127,8 @@ public class JPASearchCore {
         Root<?> root,
         Class<?> entityClass,
         boolean throwsIfNotExistsOrNotSearchable,
-        Map<String, String> entityFieldMap
+        Map<String, String> entityFieldMap,
+        Map<String, Pair<Searchable, Class<?>>> searchableFields
     ) {
         if (!node.isArray() || node.isEmpty() || !node.get(0).isTextual()) {
             throw new JPASearchException("Invalid expression");
@@ -142,14 +147,15 @@ public class JPASearchCore {
                     root,
                     entityClass,
                     throwsIfNotExistsOrNotSearchable,
-                    entityFieldMap
+                    entityFieldMap,
+                    searchableFields
                 )
             );
         }
         if (op.isEvaluateStrings()) {
             return op.getExprFunction().apply(cb, arguments.toArray(new Expression[0]));
         } else {
-            return op.getObjFunction().apply(cb, arguments.toArray(), entityClass);
+            return op.getObjFunction().apply(cb, arguments.toArray(), searchableFields);
         }
     }
 
@@ -203,6 +209,7 @@ public class JPASearchCore {
     ) {
         ArrayList<Sort.Order> orderSpecs = new ArrayList<>();
         var options = filterPayload.get("options");
+        var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
         if (options != null) {
             var sortKeysNode = options.get("sortKey");
             if (sortKeysNode != null) {
@@ -226,7 +233,7 @@ public class JPASearchCore {
                         true,
                         throwsIfNotSortable,
                         entityFieldMap,
-                        ReflectionUtils.getAllSearchableFields(entityClass)
+                        searchableFields
                     );
 
                     if (descending) {
