@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '1.0.3'
+version = '2.0.0'
 
 java {
     sourceCompatibility = '17'
@@ -24,6 +24,9 @@ dependencies {
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api'
 
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
     // Spring
     implementation 'org.springframework.data:spring-data-jpa'
     implementation 'org.springframework:spring-beans'
@@ -31,14 +34,20 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.projectlombok:lombok'
 
     // Utils
     implementation 'org.apache.commons:commons-lang3:3.14.0'
 
     // Test
-    testImplementation platform('org.junit:junit-bom:5.10.2')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'com.h2database:h2'
+    testImplementation 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+
 }
 
 publishing {
@@ -46,7 +55,7 @@ publishing {
         maven(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "1.0.3"
+            version = "2.0.0"
             from components.java
             pom {
                 name = 'JPA Search Helper'
