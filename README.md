@@ -412,7 +412,7 @@ public static class JPASearchFilterOptions {
 or if you prefer to manage a JSON:
 ```json
 {
-  ...
+  // ...
       {
          "operator": "eq",
          "key": "firstName",
@@ -423,7 +423,7 @@ or if you prefer to manage a JSON:
            "negate": true
          }
       }
-  ...
+  // ...
 }
 ```
 
@@ -451,7 +451,7 @@ or if you prefer to manage a JSON:
 ```json
 {
   "filter" : {
-    ...
+    // ...
   },
   "options" : {
     "sortKey": "firstName",
@@ -465,7 +465,8 @@ or if you prefer to manage a JSON:
 ### Other (only for Mode 1)
 - Separator for array values: `,`; e.g. _?myField_in=test1,test2_ --> values: ["test1", "test2"]
 - To escape separator: `\,`; e.g. _?myField_in=test1,test2\\,test3_ --> values: ["test1", "test2,test3"]
-"
+
+
 ---
 ### Spring Boot Project example with HTTP Endpoint
 Note: This library does not expose any endpoints and therefore no controllers.
