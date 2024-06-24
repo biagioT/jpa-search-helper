@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +83,6 @@ public class JPASearchCore {
         return result;
     }
 
-
     private static Expression<?> processExpression(
             JPASearchInput.Filter filter,
             CriteriaBuilder cb,
@@ -124,14 +124,6 @@ public class JPASearchCore {
             return processExpression(filter, cb, root, searchableFields, entityFieldMap);
 
         } else if (filter instanceof JPASearchInput.FieldFilter fieldFilter) {
-
-            if (fieldFilter.getOptions() != null && fieldFilter.getOptions().isNegate()) {
-                var not = new JPASearchInput.RootFilter();
-                not.setOperator(JPASearchOperatorGroup.NOT.getValue());
-                not.setFilters(List.of(fieldFilter));
-                return processExpression(not, cb, root, searchableFields, entityFieldMap);
-            }
-
             var exps = new ArrayList<>();
             var searchFilter = JPASearchOperatorFilter.load(fieldFilter.getOperator());
             var descriptor = JPASearchCoreFieldProcessor.processField(fieldFilter.getKey(), entityFieldMap, searchableFields, true, true, false);
@@ -172,11 +164,20 @@ public class JPASearchCore {
             } else if (fieldFilter instanceof JPASearchInput.FilterMultipleValues fmv) {
                 var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getJPASearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), ignoreCase);
                 if (valueExp != null) {
-                    exps.add(cb.literal(valueExp));
+
+                    if (valueExp instanceof Collection<?> coll) {
+                        coll.forEach(val ->  exps.add(cb.literal(val)));
+
+                    } else {
+                        exps.add(cb.literal(valueExp));
+                    }
                 }
             }
 
-            return searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]));
+            return fieldFilter.getOptions() != null
+                    && fieldFilter.getOptions().isNegate()
+                    ? JPASearchOperatorGroup.NOT.getFunction().apply(cb, new Expression[] {searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]))})
+                    : searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]));
         }
 
         throw new JPASearchException("Invalid expression");

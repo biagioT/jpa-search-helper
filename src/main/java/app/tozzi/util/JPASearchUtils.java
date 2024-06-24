@@ -54,7 +54,7 @@ public class JPASearchUtils {
                         operator = operator.replace(negationOptionIdentifier, "");
                     }
 
-                    JPASearchInput.FieldFilter filter = null;
+                    JPASearchInput.FieldFilter filter;
 
                     if (GenericUtils.containsSeparator(e.getValue(), separator, escapeSeparatorChar)) {
                         filter = new JPASearchInput.FilterMultipleValues();

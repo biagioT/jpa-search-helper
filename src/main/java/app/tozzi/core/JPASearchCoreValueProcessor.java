@@ -17,7 +17,7 @@ public class JPASearchCoreValueProcessor {
 
     protected static Object processValue(JPASearchOperatorFilter operatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
         var objValue = getValue(operatorFilter, searchType, searchable, field, value, lower);
-        searchableValidationsOnTargetValue(objValue, searchable, field, value, searchType);
+        searchableValidationsOnTargetValue(objValue, searchable, field, value, searchType, operatorFilter);
 
         if (operatorFilter.getFixedValues() != null && operatorFilter.getFixedValues().contains(value)) {
             return null;
@@ -27,30 +27,30 @@ public class JPASearchCoreValueProcessor {
         return objValue;
     }
 
-    private static void searchableValidationsOnTargetValue(Object targetValue, Searchable searchable, String field, Object value, JPASearchType JPASearchType) {
+    private static void searchableValidationsOnTargetValue(Object targetValue, Searchable searchable, String field, Object value, JPASearchType searchType, JPASearchOperatorFilter filter) {
 
         // Length
-        var maxLength = getMaxLength(JPASearchType, targetValue);
+        var maxLength = getMaxLength(searchType, targetValue);
         if (maxLength >= 0 && searchable.maxSize() >= 0 && maxLength > searchable.maxSize()) {
             throw new InvalidValueException("Value [" + value + "] exceeds maximum length [" + searchable.maxSize() + "] defined on field [" + field + "]", field, value);
         }
-        var minLength = getMinLength(JPASearchType, targetValue);
+        var minLength = getMinLength(searchType, targetValue);
         if (minLength >= 0 && searchable.minSize() >= 0 && minLength < searchable.minSize()) {
             throw new InvalidValueException("Value [" + value + "] less than minimum length [" + searchable.minSize() + "] defined on field [" + field + "]", field, value);
         }
 
         // Digits
-        var maxDigits = getMaxDigits(JPASearchType, targetValue);
+        var maxDigits = getMaxDigits(searchType, targetValue);
         if (maxDigits >= 0 && searchable.maxDigits() >= 0 && maxDigits > searchable.maxDigits()) {
             throw new InvalidValueException("Value [" + value + "] exceeds maximum digits count [" + searchable.maxDigits() + "] defined on field [" + field + "]", field, value);
         }
-        var minDigits = getMinDigits(JPASearchType, targetValue);
+        var minDigits = getMinDigits(searchType, targetValue);
         if (minLength >= 0 && searchable.minDigits() >= 0 && minDigits < searchable.minDigits()) {
             throw new InvalidValueException("Value [" + value + "] less than minimum digits count [" + searchable.minDigits() + "] defined on field [" + field + "]", field, value);
         }
 
         // Regex
-        if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !matchRegex(JPASearchType, targetValue, searchable.regexPattern())) {
+        if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !matchRegex(searchType, filter, targetValue, searchable.regexPattern())) {
             throw new InvalidValueException("Value [" + value + " does not match pattern [" + searchable.regexPattern() + " of field [" + field + "]", field, value);
         }
     }
@@ -68,7 +68,7 @@ public class JPASearchCoreValueProcessor {
     private static Object getValue(JPASearchOperatorFilter jpaSearchOperatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
 
         if (value instanceof Collection<?> coll) {
-            return coll.stream().map(el -> getValue(jpaSearchOperatorFilter, searchType, searchable, field, value, lower)).toList();
+            return coll.stream().map(el -> getValue(jpaSearchOperatorFilter, searchType, searchable, field, el, lower)).toList();
         }
 
         try {
@@ -104,7 +104,7 @@ public class JPASearchCoreValueProcessor {
         }
 
         number = loadNumber(field, number, searchType);
-        Number formattedNumber = null;
+        Number formattedNumber;
 
         switch (searchType) {
             case INTEGER -> formattedNumber = GenericUtils.parseInteger(field, number);
@@ -196,13 +196,16 @@ public class JPASearchCoreValueProcessor {
         };
     }
 
-    private static boolean matchRegex(JPASearchType JPASearchType, Object value, String regex) {
+    private static boolean matchRegex(JPASearchType searchType, JPASearchOperatorFilter filter, Object value, String regex) {
+
+        if (filter.isLike())
+            return true;
 
         if (value instanceof Collection<?> coll) {
-            return coll.stream().allMatch(v -> matchRegex(JPASearchType, v, regex));
+            return coll.stream().allMatch(v -> matchRegex(searchType, filter, v, regex));
         }
 
-        return switch (JPASearchType) {
+        return switch (searchType) {
             case STRING -> String.valueOf(value).matches(regex);
             default -> true;
         };

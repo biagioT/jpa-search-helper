@@ -34,6 +34,151 @@ public class JPASearchCoreTest {
     @Autowired
     private MyRepository myRepository;
 
+    @Test
+    public void simpleORCoreTest1() {
+        setUp();
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("or");
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("id");
+        ff1.setValue("1");
+        ff1.setOperator("eq");
+        root.getFilters().add(ff1);
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("id");
+        ff2.setValue("2");
+        ff2.setOperator("eq");
+        root.getFilters().add(ff2);
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(2, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L)));
+    }
+
+    @Test
+    public void simpleORCoreTest2() {
+        setUp();
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("or");
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("id");
+        ff1.setValue("1");
+        ff1.setOperator("eq");
+        root.getFilters().add(ff1);
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringMail");
+        ff2.setValue("email2@example.com");
+        ff2.setOperator("eq");
+        root.getFilters().add(ff2);
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(2, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L) && r.getEmail().equals("email2@example.com")));
+    }
+
+    @Test
+    public void complexTest1() {
+        setUp();
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(2, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L) && r.getEmail().equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L) && r.getEmail().equals("email2@example.com")));
+    }
+
+    @Test
+    public void complexTest2() {
+        setUp();
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+
+        var ff4 = new JPASearchInput.RootFilter();
+        ff4.setOperator("or");
+        ff4.setFilters(new ArrayList<>());
+        var ff41 = new JPASearchInput.FilterMultipleValues();
+        ff41.setKey("stringFalse");
+        ff41.setValues(List.of("StringFalse_1", "StringFalse_3"));
+        ff41.setOperator("in");
+        ff4.getFilters().add(ff41);
+        var ff42 = new JPASearchInput.FilterSingleValue();
+        ff42.setKey("stringFalse");
+        ff42.setValue("StringFalse_2");
+        ff42.setOperator("in");
+        ff42.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff42.getOptions().setNegate(true);
+        ff4.getFilters().add(ff42);
+        root.getFilters().add(ff4);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L) && r.getEmail().equals("email1@example.com")));
+    }
+
     private void setUp() {
         List<MyEntity> entities = new ArrayList<>();
 
@@ -110,58 +255,6 @@ public class JPASearchCoreTest {
         }
 
         myRepository.saveAll(entities);
-    }
-
-    @Test
-    public void simpleORCoreTest1() {
-        setUp();
-        var input = new JPASearchInput();
-        var root = new JPASearchInput.RootFilter();
-        root.setFilters(new ArrayList<>());
-        root.setOperator("or");
-        var ff1 = new JPASearchInput.FilterSingleValue();
-        ff1.setKey("id");
-        ff1.setValue("1");
-        ff1.setOperator("eq");
-        root.getFilters().add(ff1);
-        var ff2 = new JPASearchInput.FilterSingleValue();
-        ff2.setKey("id");
-        ff2.setValue("2");
-        ff2.setOperator("eq");
-        root.getFilters().add(ff2);
-        input.setFilter(root);
-        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
-        assertNotNull(res);
-        assertFalse(res.isEmpty());
-        assertEquals(2, res.size());
-        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
-        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L)));
-    }
-
-    @Test
-    public void simpleORCoreTest2() {
-        setUp();
-        var input = new JPASearchInput();
-        var root = new JPASearchInput.RootFilter();
-        root.setFilters(new ArrayList<>());
-        root.setOperator("or");
-        var ff1 = new JPASearchInput.FilterSingleValue();
-        ff1.setKey("id");
-        ff1.setValue("1");
-        ff1.setOperator("eq");
-        root.getFilters().add(ff1);
-        var ff2 = new JPASearchInput.FilterSingleValue();
-        ff2.setKey("stringMail");
-        ff2.setValue("email2@example.com");
-        ff2.setOperator("eq");
-        root.getFilters().add(ff2);
-        input.setFilter(root);
-        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
-        assertNotNull(res);
-        assertFalse(res.isEmpty());
-        assertEquals(2, res.size());
-        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
-        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L) && r.getEmail().equals("email2@example.com")));
     }
 
 }
