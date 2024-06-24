@@ -8,6 +8,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class MyModel {
@@ -97,6 +98,9 @@ public class MyModel {
     private String notSearchableTwo;
     private Long notSearchableThree;
 
+    @NestedSearchable
+    private List<MyOtherSubModel> list;
+
     @Data
     public static class MySubModel {
 
@@ -118,5 +122,12 @@ public class MyModel {
 
         private BigDecimal notSearchableNo;
 
+    }
+
+    @Data
+    public static class MyOtherSubModel {
+
+        @Searchable(entityFieldKey = "test1.entity6s.colTest6")
+        private String other;
     }
 }

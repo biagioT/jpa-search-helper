@@ -22,7 +22,7 @@ public class ReflectionUtilsTest {
         Map<String, Pair<Searchable, Class<?>>> searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
         assertNotNull(searchableFields);
         assertFalse(searchableFields.isEmpty());
-        assertEquals(27, searchableFields.size());
+        assertEquals(28, searchableFields.size());
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("id") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.LONG) && e.getValue().getValue().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("stringOne") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.UNTYPED) && e.getValue().getValue().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("stringTwo") && !e.getValue().getKey().sortable() && e.getValue().getValue().equals(String.class)));
@@ -50,6 +50,7 @@ public class ReflectionUtilsTest {
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("wrapperBoolean") && e.getValue().getKey().tags().length == 0 && e.getValue().getKey().minDigits() == -1 && e.getValue().getKey().maxDigits() == -1 && e.getValue().getKey().maxSize() == -1 && e.getValue().getKey().minSize() == -1 && e.getValue().getValue().equals(Boolean.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("mySubModel.searchMe") && e.getValue().getKey().tags().length == 0 && e.getValue().getKey().minDigits() == -1 && e.getValue().getKey().maxDigits() == -1 && e.getValue().getKey().maxSize() == -1 && e.getValue().getKey().minSize() == -1 && e.getValue().getValue().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("mySubModel.mySubSubModel.searchMeAgain") && e.getValue().getKey().entityFieldKey().equals("test1.colTest1") && e.getValue().getKey().tags().length == 0 && e.getValue().getKey().minDigits() == -1 && e.getValue().getKey().maxDigits() == -1 && e.getValue().getKey().maxSize() == -1 && e.getValue().getKey().minSize() == -1 && e.getValue().getValue().equals(String.class)));
+        assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("list.other") && e.getValue().getValue().equals(String.class)));
         assertFalse(searchableFields.containsKey("notSearchableOne"));
         assertFalse(searchableFields.containsKey("notSearchableTwo"));
         assertFalse(searchableFields.containsKey("notSearchableThree"));

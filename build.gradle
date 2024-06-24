@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '2.0.0'
+version = '2.0.1'
 
 java {
     sourceCompatibility = '17'
@@ -23,9 +23,6 @@ repositories {
 dependencies {
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api'
-
-    // Jackson
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     // Spring
     implementation 'org.springframework.data:spring-data-jpa'
@@ -55,7 +52,7 @@ publishing {
         maven(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "2.0.0"
+            version = "2.0.1"
             from components.java
             pom {
                 name = 'JPA Search Helper'
