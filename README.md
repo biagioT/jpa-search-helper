@@ -107,13 +107,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:2.0.1'
+implementation 'app.tozzi:jpa-search-helper:2.0.2'
 ```
 
 ## Usage
