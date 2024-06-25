@@ -10,7 +10,7 @@ public class FieldDescriptor {
 
     private String path;
     private Searchable searchable;
-    private JPASearchType JPASearchType;
+    private JPASearchType searchType;
     private String entityKey;
 
 }

@@ -48,14 +48,29 @@ public class JPASearchCore {
                          Map<String, Pair<Searchable, Class<?>>> searchableFields,
                          Map<String, String> entityFieldMap) {
 
-        if (options == null) {
-            return null;
+        return loadSort(options, searchableFields, entityFieldMap, false);
+
+    }
+
+    private static Sort loadSort(JPASearchInput.JPASearchOptions options,
+                                 Map<String, Pair<Searchable, Class<?>>> searchableFields,
+                                 Map<String, String> entityFieldMap, boolean nullable) {
+
+        if (options == null || options.getSortKey() == null) {
+
+            if (nullable)
+                return null;
+
+            throw new JPASearchException("Invalid sort key");
         }
 
         var des = JPASearchCoreFieldProcessor.processField(options.getSortKey(), entityFieldMap, searchableFields, true, true, true);
 
         if (des == null) {
-            return null;
+            if (nullable)
+                return null;
+
+            throw new JPASearchException("Invalid sort key");
         }
 
         var sort = Sort.by(des.getEntityKey());
@@ -74,7 +89,7 @@ public class JPASearchCore {
             result = result.withPage(options.getPageOffset());
         }
 
-        var sort = loadSort(options, searchableFields, entityFieldMap);
+        var sort = loadSort(options, searchableFields, entityFieldMap, true);
         if (sort != null) {
             result = result.withSort(sort);
         }
@@ -155,13 +170,13 @@ public class JPASearchCore {
             exps.add(exp != null ? exp : path);
 
             if (fieldFilter instanceof JPASearchInput.FilterSingleValue fsv) {
-                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getJPASearchType(), descriptor.getSearchable(), descriptor.getPath(), fsv.getValue(), ignoreCase);
+                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fsv.getValue(), ignoreCase);
                 if (valueExp != null) {
                     exps.add(cb.literal(valueExp));
                 }
 
             } else if (fieldFilter instanceof JPASearchInput.FilterMultipleValues fmv) {
-                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getJPASearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), ignoreCase);
+                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), ignoreCase);
                 if (valueExp != null) {
 
                     if (valueExp instanceof Collection<?> coll) {

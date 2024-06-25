@@ -22,28 +22,28 @@ public class JPASearchCoreFieldProcessorTest {
         assertNotNull(fd);
         assertEquals("stringOne", fd.getPath());
         assertEquals("stringOne", fd.getEntityKey());
-        assertEquals(JPASearchType.STRING, fd.getJPASearchType());
+        assertEquals(JPASearchType.STRING, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         fd = JPASearchCoreFieldProcessor.processField("stringOne", Map.of("stringOne", "stringOneReplaced"), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("stringOne", fd.getPath());
         assertEquals("stringOneReplaced", fd.getEntityKey());
-        assertEquals(JPASearchType.STRING, fd.getJPASearchType());
+        assertEquals(JPASearchType.STRING, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         fd = JPASearchCoreFieldProcessor.processField("id", Collections.emptyMap(), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("id", fd.getPath());
         assertEquals("id", fd.getEntityKey());
-        assertEquals(JPASearchType.LONG, fd.getJPASearchType());
+        assertEquals(JPASearchType.LONG, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         fd = JPASearchCoreFieldProcessor.processField("primitiveDouble", Collections.emptyMap(), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("primitiveDouble", fd.getPath());
         assertEquals("primitiveDoubleYes", fd.getEntityKey());
-        assertEquals(JPASearchType.DOUBLE, fd.getJPASearchType());
+        assertEquals(JPASearchType.DOUBLE, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         assertThrows(InvalidFieldException.class, () -> JPASearchCoreFieldProcessor.processField("wrapperLong", Collections.emptyMap(), searchableFields, true, false, false));
@@ -52,28 +52,28 @@ public class JPASearchCoreFieldProcessorTest {
         assertNotNull(fd);
         assertEquals("wrapperLong.one", fd.getPath());
         assertEquals("wrapperLong.one", fd.getEntityKey());
-        assertEquals(JPASearchType.LONG, fd.getJPASearchType());
+        assertEquals(JPASearchType.LONG, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         fd = JPASearchCoreFieldProcessor.processField("wrapperLong.two", Collections.emptyMap(), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("wrapperLong.two", fd.getPath());
         assertEquals("wrapperLongYes", fd.getEntityKey());
-        assertEquals(JPASearchType.LONG, fd.getJPASearchType());
+        assertEquals(JPASearchType.LONG, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         fd = JPASearchCoreFieldProcessor.processField("wrapperLong.two", Map.of("wrapperLong.two", "wrapperLong.replaced"), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("wrapperLong.two", fd.getPath());
         assertEquals("wrapperLong.replaced", fd.getEntityKey());
-        assertEquals(JPASearchType.LONG, fd.getJPASearchType());
+        assertEquals(JPASearchType.LONG, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         fd = JPASearchCoreFieldProcessor.processField("mySubModel.mySubSubModel.searchMeAgain", Collections.emptyMap(), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("mySubModel.mySubSubModel.searchMeAgain", fd.getPath());
         assertEquals("test1.colTest1", fd.getEntityKey());
-        assertEquals(JPASearchType.STRING, fd.getJPASearchType());
+        assertEquals(JPASearchType.STRING, fd.getSearchType());
         assertNotNull(fd.getSearchable());
 
         assertThrows(InvalidFieldException.class, () -> JPASearchCoreFieldProcessor.processField("test", Collections.emptyMap(), searchableFields, true, false, false));
