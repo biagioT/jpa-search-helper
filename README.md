@@ -471,7 +471,7 @@ or if you prefer to manage a JSON:
 ### Spring Boot Project example with HTTP Endpoint
 Note: This library does not expose any endpoints and therefore no controllers.
 
-An example project is available [here]("https://github.com/biagioT/jpa-search-helper-demo").
+An example project is available [here](https://github.com/biagioT/jpa-search-helper-demo).
 
 #### Mode 1
 
