@@ -50,6 +50,28 @@ Filter is changed to JSON expression format:
 }
 ```
 
+
+### Extendability
+
+You can extend library like this:
+
+```java
+        JPAFuncWithObjects<String> func = (root, query, cb, values, searchableFields) -> {
+            var nestedBean = root.join("nestedBean", JoinType.LEFT);
+            return cb.concat(nestedBean.get("string"), cb.literal((String)values[0]));
+        };
+
+        Operator.addOperator(new Operator("ownOper", func));
+```
+
+Then you can use your operator like this:
+
+```json
+    {"filter": ["eq", ["ownOper", "blah"], "nested2blah"]}
+```
+
+### See also
+
 See also [README](https://github.com/biagioT/jpa-search-helper/blob/main/README.md) from original project. Some features are implemented, some are not.
 
 TODO: write a full description how this thing works...
