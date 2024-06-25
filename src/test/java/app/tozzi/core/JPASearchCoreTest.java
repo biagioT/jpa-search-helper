@@ -4,6 +4,7 @@ import app.tozzi.entity.*;
 import app.tozzi.model.MyModel;
 import app.tozzi.model.input.JPASearchInput;
 import app.tozzi.repository.MyRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -34,9 +35,13 @@ public class JPASearchCoreTest {
     @Autowired
     private MyRepository myRepository;
 
+    @BeforeEach
+    void init() {
+        setUp();
+    }
+
     @Test
     public void simpleORCoreTest1() {
-        setUp();
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -62,7 +67,6 @@ public class JPASearchCoreTest {
 
     @Test
     public void simpleORCoreTest2() {
-        setUp();
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -88,7 +92,6 @@ public class JPASearchCoreTest {
 
     @Test
     public void complexTest1() {
-        setUp();
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -126,7 +129,6 @@ public class JPASearchCoreTest {
 
     @Test
     public void complexTest2() {
-        setUp();
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
