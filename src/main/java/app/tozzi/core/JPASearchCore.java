@@ -106,6 +106,11 @@ public class JPASearchCore {
     ) {
 
         if (filter instanceof JPASearchInput.RootFilter rootFilter) {
+
+            if (rootFilter.getFilters() == null || rootFilter.getFilters().isEmpty()) {
+                throw new JPASearchException("Invalid expression: empty filters");
+            }
+
             var operator = JPASearchOperatorGroup.load(rootFilter.getOperator());
             var arguments = new ArrayList<>();
             for (JPASearchInput.Filter f : rootFilter.getFilters()) {
@@ -178,7 +183,6 @@ public class JPASearchCore {
             } else if (fieldFilter instanceof JPASearchInput.FilterMultipleValues fmv) {
                 var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), ignoreCase);
                 if (valueExp != null) {
-
                     if (valueExp instanceof Collection<?> coll) {
                         coll.forEach(val ->  exps.add(cb.literal(val)));
 

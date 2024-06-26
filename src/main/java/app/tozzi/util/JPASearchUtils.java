@@ -10,10 +10,14 @@ import java.util.*;
 
 public class JPASearchUtils {
 
+    private static final String SEPARATOR = ",";
+    private static final String ESCAPE_SEPARATOR_CHAR = "\\";
+    private static final String IGNORE_CASE_OPTION_IDENTIFIER = "#i";
+    private static final String NEGATION_OPTION_IDENTIFIER = "#n";
+    private static final String TRIM_OPTION_IDENTIFIER = "#t";
+
     public static JPASearchInput toObject(Map<String, String> filters,
-                                          boolean processPaginationOptions, boolean processSortOption,
-                                          String separator, String escapeSeparatorChar, String ignoreCaseOptionIdentifier,
-                                          String negationOptionIdentifier
+                                          boolean processPaginationOptions, boolean processSortOption
     ) {
 
         var res = new JPASearchInput();
@@ -44,21 +48,27 @@ public class JPASearchUtils {
                     var field = e.getKey().contains("_") ? e.getKey().substring(0, e.getKey().lastIndexOf("_")) : e.getKey();
                     var operator = e.getKey().contains("_") ? e.getKey().substring(e.getKey().lastIndexOf("_") + 1) : JPASearchOperatorFilter.EQ.getValue();
                     var ignoreCase = false;
-                    if (operator.contains(ignoreCaseOptionIdentifier)) {
+                    if (operator.contains(IGNORE_CASE_OPTION_IDENTIFIER)) {
                         ignoreCase = true;
-                        operator = operator.replace(ignoreCaseOptionIdentifier, "");
+                        operator = operator.replace(IGNORE_CASE_OPTION_IDENTIFIER, "");
                     }
                     var negation = false;
-                    if (operator.contains(negationOptionIdentifier)) {
+                    if (operator.contains(NEGATION_OPTION_IDENTIFIER)) {
                         negation = true;
-                        operator = operator.replace(negationOptionIdentifier, "");
+                        operator = operator.replace(NEGATION_OPTION_IDENTIFIER, "");
+                    }
+
+                    var trim = false;
+                    if (operator.contains(TRIM_OPTION_IDENTIFIER)) {
+                        trim = true;
+                        operator = operator.replace(TRIM_OPTION_IDENTIFIER, "");
                     }
 
                     JPASearchInput.FieldFilter filter;
 
-                    if (GenericUtils.containsSeparator(e.getValue(), separator, escapeSeparatorChar)) {
+                    if (GenericUtils.containsSeparator(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)) {
                         filter = new JPASearchInput.FilterMultipleValues();
-                        ((JPASearchInput.FilterMultipleValues) filter).setValues(new ArrayList<>(GenericUtils.split(e.getValue(), separator, escapeSeparatorChar)));
+                        ((JPASearchInput.FilterMultipleValues) filter).setValues(new ArrayList<>(GenericUtils.split(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)));
 
                     } else {
                         filter = new JPASearchInput.FilterSingleValue();
@@ -67,10 +77,11 @@ public class JPASearchUtils {
 
                     filter.setKey(field);
                     filter.setOperator(operator);
-                    if (ignoreCase || negation) {
+                    if (ignoreCase || negation || trim) {
                         filter.setOptions(new JPASearchInput.JPASearchFilterOptions());
                         filter.getOptions().setIgnoreCase(ignoreCase);
                         filter.getOptions().setNegate(negation);
+                        filter.getOptions().setTrim(trim);
                     }
 
                     if (res.getFilter().getFilters() == null) {

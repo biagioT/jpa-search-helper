@@ -107,13 +107,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:2.0.2'
+implementation 'app.tozzi:jpa-search-helper:2.0.3'
 ```
 
 ## Usage
@@ -254,12 +254,12 @@ In your manager, or in your service, or wherever you want to use the repository:
 
     Map<String, String> filters = new HashMap<>();
     filters.put("firstName_eq", "Biagio");
-    filters.put("lastName_startsWith|i|", "Toz"); // ignore case
+    filters.put("lastName_startsWith#i", "Toz"); // ignore case
     filters.put("birthDate_gte", "19910101"); 
     filters.put("country_in", "IT,FR,DE");
-    filters.put("company.name_eq|n|", "Bad Company"); // negation
+    filters.put("company.name_eq#n", "Bad Company"); // negation
     filters.put("company.employees_between", "500,5000");
-    filters.put("fillerOne_null|n|", "true"); // not null
+    filters.put("fillerOne_null#n", "true"); // not null
     filters.put("fillerTwo_empty", "true"); // empty
     
     // Without pagination
@@ -332,6 +332,13 @@ Through mode 2 it is possible to manage complex filters with AND, OR and NOT (se
           ]
         },
         {
+          "operator": "empty",
+          "key": "fillerOne",
+          "options": {
+            "negate": true
+          }
+        },
+        {
           "operator": "between",
           "key" : "company.employees",
           "values": [500, 5000],
@@ -369,28 +376,29 @@ Through Mode 1, all filters compose exclusively an _AND_ search.
 To use the other operators, _OR_ and _NOT_, you must use Mode 2
 
 ### Managed search filter operators
-| Filter name               | Library Key | SQL                                | Supported modes |
-|---------------------------|-------------|------------------------------------|-----------------|
-| Equals                    | eq          | sql_col = val                      | 1,2 |
-| Contains                  | contains    | sql_col LIKE '%val%'               | 1,2 |
-| In                        | in          | sql_col IN (val1, val2, ..., valN) | 1,2 |
-| Starts With               | startsWith  | sql_col LIKE 'val%'                | 1,2 |
-| Ends With                 | endsWith    | sql_col LIKE '%val'                | 1,2 |
-| Greater Than              | gt          | sql_col > val                      | 1,2 |
-| Greater Than or Equal     | gte         | sql_col >= val                     | 1,2 |
-| Less Than                 | lt          | sql_col < val                      | 1,2 |
-| Less Than or Equal        | lte         | sql_col <= val                     | 1,2 |
-| Between                   | between     | sql_col BETWEEN val1 AND val2      | 1,2 |
-| Null                      | null        | sql_col IS NULL                    | 1,2 |
-| Empty                     | empty       | sql_coll_col IS NULL               | 1,2 |
+| Filter name               | Library Key | SQL                                | Supported modes | Value required |
+|---------------------------|-------------|------------------------------------|-----------------|----------------|
+| Equals                    | eq          | sql_col = val                      | 1,2 | yes            |
+| Contains                  | contains    | sql_col LIKE '%val%'               | 1,2 | yes            |
+| In                        | in          | sql_col IN (val1, val2, ..., valN) | 1,2 | yes            |
+| Starts With               | startsWith  | sql_col LIKE 'val%'                | 1,2 | yes            |
+| Ends With                 | endsWith    | sql_col LIKE '%val'                | 1,2 | yes            |
+| Greater Than              | gt          | sql_col > val                      | 1,2 | yes            |
+| Greater Than or Equal     | gte         | sql_col >= val                     | 1,2 | yes            |
+| Less Than                 | lt          | sql_col < val                      | 1,2 | yes            |
+| Less Than or Equal        | lte         | sql_col <= val                     | 1,2 | yes            |
+| Between                   | between     | sql_col BETWEEN val1 AND val2      | 1,2 | yes            |
+| Null                      | null        | sql_col IS NULL                    | 1,2 | no             |
+| Empty                     | empty       | sql_coll_col IS NULL               | 1,2 | no             |
 
 #### Options
-**Mode 1**: the option keys must be appended to the filter; e.g. _?firstName_eq|i|=Biagio_ or _?firstName_eq|i||n|=Biagio_
+**Mode 1**: the option keys must be appended to the filter; e.g. _?firstName_eq#i=Biagio_ or _?firstName_eq#i#n=Biagio_
 
 | Option description | Library Key |
-|------------------|-------------|
-| Ignore case      | \|i\|       |
-| Negation      | \|n\|       |
+|--------------------|-------------|
+| Ignore case        | #i          |
+| Negation           | #n          |
+| Trim               | #t          |
 
 **Mode 2**:
 

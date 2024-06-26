@@ -16,13 +16,15 @@ import java.util.Collections;
 public class JPASearchCoreValueProcessor {
 
     protected static Object processValue(JPASearchOperatorFilter operatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
-        var objValue = getValue(operatorFilter, searchType, searchable, field, value, lower);
-        searchableValidationsOnTargetValue(objValue, searchable, field, value, searchType, operatorFilter);
 
-        if (operatorFilter.getFixedValues() != null && operatorFilter.getFixedValues().contains(value)) {
+        if (operatorFilter.getAllowedValues() == 0)
             return null;
-        }
 
+        var objValue = getValue(operatorFilter, searchType, searchable, field, value, lower);
+        if (objValue == null) {
+            throw new InvalidValueException("Invalid value [" + value + "]", field, value);
+        }
+        searchableValidationsOnTargetValue(objValue, searchable, field, value, searchType, operatorFilter);
         filterValidations(operatorFilter, field, objValue, searchType);
         return objValue;
     }

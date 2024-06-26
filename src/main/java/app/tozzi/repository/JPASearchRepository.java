@@ -28,7 +28,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
         Specification<E> specification = JPASearchCore.specification(
-                JPASearchUtils.toObject(filters, false, false, ",", "\\", "|i|", "|n|").getFilter(),
+                JPASearchUtils.toObject(filters, false, false).getFilter(),
                 ReflectionUtils.getAllSearchableFields(type), null, null);
         return findAll(specification);
     }
@@ -57,7 +57,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
         Specification<E> specification = JPASearchCore.specification(
-                JPASearchUtils.toObject(filters, false, false, ",", "\\", "|i|", "|n|").getFilter(),
+                JPASearchUtils.toObject(filters, false, false).getFilter(),
                 ReflectionUtils.getAllSearchableFields(type), fetches, null);
         return findAll(specification);
     }
@@ -89,7 +89,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default List<E> findAll(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
         Specification<E> specification = JPASearchCore.specification(
-                JPASearchUtils.toObject(filters, false, false, ",", "\\", "|i|", "|n|").getFilter(),
+                JPASearchUtils.toObject(filters, false, false).getFilter(),
                 ReflectionUtils.getAllSearchableFields(type), fetches, entityFieldMap);
         return findAll(specification);
     }
@@ -120,7 +120,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
-        var input = JPASearchUtils.toObject(filters, false, true, ",", "\\", "|i|", "|n|");
+        var input = JPASearchUtils.toObject(filters, false, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
         Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
         return findAll(specification, sort);
@@ -152,7 +152,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
-        var input = JPASearchUtils.toObject(filters, false, true, ",", "\\", "|i|", "|n|");
+        var input = JPASearchUtils.toObject(filters, false, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, fetches, null);
         Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
         return findAll(specification, sort);
@@ -187,7 +187,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default List<E> findAllSorted(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
-        var input = JPASearchUtils.toObject(filters, false, true, ",", "\\", "|i|", "|n|");
+        var input = JPASearchUtils.toObject(filters, false, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, fetches, entityFieldMap);
         Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, entityFieldMap);
         return findAll(specification, sort);
@@ -221,7 +221,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default Page<E> findAllWithPaginationAndSorting(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
-        var input = JPASearchUtils.toObject(filters, true, true, ",", "\\", "|i|", "|n|");
+        var input = JPASearchUtils.toObject(filters, true, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
         PageRequest pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
         return findAll(specification, pageRequest);
@@ -255,7 +255,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     @Observed(contextualName = "jpa-search-repository")
     default Page<E> findAllWithPaginationAndSorting(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
-        var input = JPASearchUtils.toObject(filters, true, true, ",", "\\", "|i|", "|n|");
+        var input = JPASearchUtils.toObject(filters, true, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, entityFieldMap);
         PageRequest pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
         return findAll(specification, pageRequest);
@@ -288,7 +288,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      */
     @Observed(contextualName = "jpa-search-repository")
     default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type) {
-        Specification<E> specification = JPASearchCore.specification(JPASearchUtils.toObject(filters, false, false, ",", "\\", "|i|", "|n|").getFilter(),
+        Specification<E> specification = JPASearchCore.specification(JPASearchUtils.toObject(filters, false, false).getFilter(),
                 ReflectionUtils.getAllSearchableFields(type), null, null);
         return count(specification);
     }
@@ -317,7 +317,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      */
     @Observed(contextualName = "jpa-search-repository")
     default long count(@NonNull Map<String, String> filters, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
-        Specification<E> specification = JPASearchCore.specification(JPASearchUtils.toObject(filters, false, false, ",", "\\", "|i|", "|n|").getFilter(),
+        Specification<E> specification = JPASearchCore.specification(JPASearchUtils.toObject(filters, false, false).getFilter(),
                 ReflectionUtils.getAllSearchableFields(type), null, entityFieldMap);
         return count(specification);
     }

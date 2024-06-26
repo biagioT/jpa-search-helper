@@ -88,7 +88,7 @@ public class JPASearchUtilsTest {
         filters.put("_limit", "10");
         filters.put("_offset", "1");
         filters.put("id_sort", "ASC");
-        var input = JPASearchUtils.toObject(filters, true, true, ",", "\\", "|i|", "|n|");
+        var input = JPASearchUtils.toObject(filters, true, true);
         assertNotNull(input);
         assertNotNull(input.getOptions());
         assertEquals(1, input.getOptions().getPageOffset());
@@ -102,11 +102,11 @@ public class JPASearchUtilsTest {
         assertEquals(16, input.getFilter().getFilters().size());
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("id") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("id_eq")) && fsv.getOptions() == null));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringOne") && fsv.getOperator().equals("contains") && fsv.getValue().equals(filters.get("stringOne_contains")) && fsv.getOptions() == null));
-        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringThree") && fsv.getOperator().equals("startsWith") && fsv.getValue().equals(filters.get("stringThree_startsWith|i|")) && fsv.getOptions() != null && fsv.getOptions().isIgnoreCase()));
-        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringFalse") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("stringFalse_eq|n|")) && fsv.getOptions() != null && fsv.getOptions().isNegate()));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringThree") && fsv.getOperator().equals("startsWith") && fsv.getValue().equals(filters.get("stringThree_startsWith#i")) && fsv.getOptions() != null && fsv.getOptions().isIgnoreCase()));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringFalse") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("stringFalse_eq#n")) && fsv.getOptions() != null && fsv.getOptions().isNegate()));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterMultipleValues fsv && fsv.getKey().equals("stringTwo") && fsv.getOperator().equals("in") && fsv.getValues().contains("test1") && fsv.getValues().contains("test2,test3")));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterMultipleValues fsv && fsv.getKey().equals("primitiveFloat") && fsv.getOperator().equals("between") && fsv.getValues().contains("1.001") && fsv.getValues().contains("1.002")));
-        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("searchMeAgain") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("searchMeAgain_eq|i||n|")) && fsv.getOptions() != null && fsv.getOptions().isNegate() && fsv.getOptions().isIgnoreCase()));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("searchMeAgain") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("searchMeAgain_eq#i#n")) && fsv.getOptions() != null && fsv.getOptions().isNegate() && fsv.getOptions().isIgnoreCase()));
     }
 
     public static Map<String, String> generateRandomMap() {
@@ -114,8 +114,8 @@ public class JPASearchUtilsTest {
         resultMap.put("id_eq", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("stringOne_contains", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("stringTwo_in", "test1,test2\\,test3");
-        resultMap.put("stringThree_startsWith|i|", String.valueOf(generateRandomValue(String.class)));
-        resultMap.put("stringFalse_eq|n|", String.valueOf(generateRandomValue(String.class)));
+        resultMap.put("stringThree_startsWith#i", String.valueOf(generateRandomValue(String.class)));
+        resultMap.put("stringFalse_eq#n", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("email_eq", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("primitiveInteger_gt", String.valueOf(generateRandomValue(int.class)));
         resultMap.put("wrapperInteger_gte", String.valueOf(generateRandomValue(Integer.class)));
@@ -126,7 +126,7 @@ public class JPASearchUtilsTest {
         resultMap.put("primitiveFloat_between", "1.001,1.002");
         resultMap.put("wrapperFloat_null", "true");
         resultMap.put("searchMe_endsWith", String.valueOf(generateRandomValue(String.class)));
-        resultMap.put("searchMeAgain_eq|i||n|", String.valueOf(generateRandomValue(String.class)));
+        resultMap.put("searchMeAgain_eq#i#n", String.valueOf(generateRandomValue(String.class)));
         return resultMap;
     }
 

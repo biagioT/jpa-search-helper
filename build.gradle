@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '2.0.2'
+version = '2.0.3'
 
 java {
     sourceCompatibility = '17'
@@ -23,6 +23,12 @@ repositories {
 dependencies {
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api'
+
+    // Validation
+    implementation 'jakarta.validation:jakarta.validation-api'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
 
     // Spring
     implementation 'org.springframework.data:spring-data-jpa'
@@ -43,8 +49,7 @@ dependencies {
     testImplementation 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-
-
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 publishing {
@@ -52,7 +57,7 @@ publishing {
         maven(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "2.0.2"
+            version = "2.0.3"
             from components.java
             pom {
                 name = 'JPA Search Helper'
