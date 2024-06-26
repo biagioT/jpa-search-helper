@@ -3,7 +3,7 @@
 # JPA Search Helper
 
 ### Description
-Adapted from [jpa-search-helper](https://github.com/biagioT/jpa-search-helper).
+Adapted from [jpa-search-helper, version 1.0](https://github.com/biagioT/jpa-search-helper/tree/1.0.3).
 We liked the idea, but it was not general enough for our use case, so we needed to rewrite most of it. 
 Filter is changed to JSON expression format:
 
@@ -72,7 +72,8 @@ Then you can use your operator like this:
 
 ### See also
 
-See also [README](https://github.com/biagioT/jpa-search-helper/blob/main/README.md) from original project. Some features are implemented, some are not.
+See also [README](https://github.com/biagioT/jpa-search-helper/blob/1.0.3/README.md) from original project. 
+Some features are implemented, some are not.
 
 TODO: write a full description how this thing works...
 
