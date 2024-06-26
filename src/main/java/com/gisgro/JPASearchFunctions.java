@@ -50,18 +50,18 @@ public class JPASearchFunctions {
 
     public static final JPAFuncWithExpressions<String, String> LOWER = (cb, values) -> cb.lower(values[0]);
 
-    public static final JPAFuncWithObjects<Date> DATE = (cb, values, entityClass) -> {
+    public static final JPAFuncWithObjects<Date> DATE = (root, query, cb, values, entityClass) -> {
         var dateStr = ZonedDateTime.parse((String)values[0]).withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         return cb.function("STR_TO_DATE", java.sql.Date.class, cb.literal(dateStr), cb.literal("%Y-%m-%dT%H:%i:%sZ"));
     };
 
-    public static final JPAFuncWithObjects<BigDecimal> BIG_DECIMAL = (cb, values, searchableFields) -> cb.literal(new BigDecimal((String)values[0]));
+    public static final JPAFuncWithObjects<BigDecimal> BIG_DECIMAL = (root, query, cb, values, searchableFields) -> cb.literal(new BigDecimal((String)values[0]));
 
-    public static final JPAFuncWithObjects<Period> PERIOD = (cb, values, searchableFields) -> cb.literal(Period.parse((String)values[0]));
+    public static final JPAFuncWithObjects<Period> PERIOD = (root, query, cb, values, searchableFields) -> cb.literal(Period.parse((String)values[0]));
 
     public static final JPAFuncWithExpressions<?, ?> FIELD = (cb, values) -> values[0]; // no-op, handled in processValue
 
-    public static final JPAFuncWithObjects<Enum> ENUM = (cb, values, searchableFields) -> {
+    public static final JPAFuncWithObjects<Enum> ENUM = (root, query, cb, values, searchableFields) -> {
         var className = (String)values[0];
         var valueName = (String)values[1];
         var cls = (Class<Enum>) searchableFields.values()

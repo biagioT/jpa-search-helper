@@ -52,13 +52,12 @@ public class JPASearchCore {
 
         return (root, query, criteriaBuilder) -> {
             fetchManagement(fetchMap, root);
-
             var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
-
             var expr = processExpression(
                 filterExpression,
                 criteriaBuilder,
                 root,
+                query,
                 entityClass,
                 throwsIfNotExistsOrNotSearchable,
                 entityFieldMap,
@@ -77,6 +76,7 @@ public class JPASearchCore {
         JsonNode node,
         CriteriaBuilder cb,
         Root<?> root,
+        CriteriaQuery<?> query,
         Class<T> entityClass,
         boolean throwsIfNotExistsOrNotSearchable,
         Map<String, String> entityFieldMap,
@@ -84,7 +84,7 @@ public class JPASearchCore {
     ) {
         if (node.isTextual()) {
             var text = node.asText();
-            if (op == Operator.FIELD) {
+            if (Objects.equals(op.getName(), "field")) {
                 var descriptor = loadDescriptor(
                     text,
                     throwsIfNotExistsOrNotSearchable,
@@ -115,7 +115,7 @@ public class JPASearchCore {
         } else if (node.isBoolean()) {
             return cb.literal(node.asBoolean());
         } else if (node.isArray()) {
-            return processExpression(node, cb, root, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap, searchableFields);
+            return processExpression(node, cb, root, query, entityClass, throwsIfNotExistsOrNotSearchable, entityFieldMap, searchableFields);
         } else if (node.isNull()) {
             return cb.nullLiteral(entityClass);
         } else {
@@ -127,6 +127,7 @@ public class JPASearchCore {
         JsonNode node,
         CriteriaBuilder cb,
         Root<?> root,
+        CriteriaQuery<?> query,
         Class<?> entityClass,
         boolean throwsIfNotExistsOrNotSearchable,
         Map<String, String> entityFieldMap,
@@ -147,6 +148,7 @@ public class JPASearchCore {
                     child,
                     cb,
                     root,
+                    query,
                     entityClass,
                     throwsIfNotExistsOrNotSearchable,
                     entityFieldMap,
@@ -157,7 +159,7 @@ public class JPASearchCore {
         if (op.isEvaluateStrings()) {
             return op.getExprFunction().apply(cb, arguments.toArray(new Expression[0]));
         } else {
-            return op.getObjFunction().apply(cb, arguments.toArray(), searchableFields);
+            return op.getObjFunction().apply(root, query, cb, arguments.toArray(), searchableFields);
         }
     }
 

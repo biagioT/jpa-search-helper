@@ -2,6 +2,8 @@ package com.gisgro;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gisgro.model.Operator;
+import com.gisgro.utils.JPAFuncWithObjects;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 
+import javax.persistence.criteria.JoinType;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Calendar;
@@ -419,5 +422,47 @@ public class JpaSearchTests {
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testOwnBooleanOperator() {
+        setup2();
+
+        JPAFuncWithObjects<Boolean> func = (root, query, cb, values, searchableFields) -> {
+            var nestedBean = root.join("nestedBean", JoinType.LEFT);
+            return cb.equal(nestedBean.get("string"), values[0]);
+        };
+
+        Operator.addOperator(new Operator("ownFunc", func));
+
+        var filterString = """
+          {"filter": ["ownFunc", "nested2"]}
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        assertThat(result.get(0).getPrimitiveInteger()).isEqualTo(7);
+    }
+
+    @SneakyThrows
+    @Test
+    public void testOwnStringOperator() {
+        setup2();
+
+        JPAFuncWithObjects<String> func = (root, query, cb, values, searchableFields) -> {
+            var nestedBean = root.join("nestedBean", JoinType.LEFT);
+            return cb.concat(nestedBean.get("string"), cb.literal((String)values[0]));
+        };
+
+        Operator.addOperator(new Operator("ownFunc2", func));
+
+        var filterString = """
+          {"filter": ["eq", ["ownFunc2", "blah"], "nested2blah"]}
+          """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        assertThat(result.get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 }
