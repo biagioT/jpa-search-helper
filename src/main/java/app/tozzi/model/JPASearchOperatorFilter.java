@@ -15,7 +15,7 @@ public enum JPASearchOperatorFilter {
     CONTAINS("contains", JPASearchFunctions.CONTAINS, true, 1, true),
     IN("in", JPASearchFunctions.IN, true, -1, false),
     STARTS_WITH("startsWith", JPASearchFunctions.STARTSWITH, false, 1, true),
-    ENDS_WITH("endsWith", JPASearchFunctions.ENDSWITH, false, 1, true),
+    ENDS_WITH("endsWith", JPASearchFunctions.ENDSWITH, true, 1, true),
     GT("gt", JPASearchFunctions.GT, false, 1, false),
     GTE("gte", JPASearchFunctions.GTE, false, 1, false),
     LT("lt", JPASearchFunctions.LT, false, 1, false),
