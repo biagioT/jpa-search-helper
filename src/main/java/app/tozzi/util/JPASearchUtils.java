@@ -70,6 +70,10 @@ public class JPASearchUtils {
                         filter = new JPASearchInput.FilterMultipleValues();
                         ((JPASearchInput.FilterMultipleValues) filter).setValues(new ArrayList<>(GenericUtils.split(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)));
 
+                    } else if (GenericUtils.containsSeparatorWithEscape(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)) {
+                        filter = new JPASearchInput.FilterSingleValue();
+                        ((JPASearchInput.FilterSingleValue) filter).setValue(e.getValue().replace(ESCAPE_SEPARATOR_CHAR, ""));
+
                     } else {
                         filter = new JPASearchInput.FilterSingleValue();
                         ((JPASearchInput.FilterSingleValue) filter).setValue(e.getValue());

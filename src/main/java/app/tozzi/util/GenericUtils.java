@@ -19,6 +19,10 @@ public class GenericUtils {
         return escapeSeparatorChar != null ? Pattern.compile("(?<!" + Pattern.quote(escapeSeparatorChar) + ")" + Pattern.quote(separator)).matcher(string).find() : string.contains(separator);
     }
 
+    public static boolean containsSeparatorWithEscape(String string, String separator, String escapeSeparatorChar) {
+        return string.contains(escapeSeparatorChar + separator);
+    }
+
     public static Integer loadInt(String value, int defaultInt) {
         try {
             return Integer.parseInt(value);
