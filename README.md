@@ -472,7 +472,7 @@ or if you prefer to manage a JSON:
 
 ### Other (only for Mode 1)
 - Separator for array values: `,`; e.g. _?myField_in=test1,test2_ --> values: ["test1", "test2"]
-- To escape separator: `\,`; e.g. _?myField_in=test1,test2\\,test3_ --> values: ["test1", "test2,test3"]
+- To escape separator: `/,`; e.g. _?myField_in=test1,test2/,test3_ --> values: ["test1", "test2,test3"]
 
 
 ---

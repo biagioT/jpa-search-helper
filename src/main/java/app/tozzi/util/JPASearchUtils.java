@@ -11,7 +11,7 @@ import java.util.*;
 public class JPASearchUtils {
 
     private static final String SEPARATOR = ",";
-    private static final String ESCAPE_SEPARATOR_CHAR = "\\";
+    private static final String ESCAPE_SEPARATOR_CHAR = "/";
     private static final String IGNORE_CASE_OPTION_IDENTIFIER = "#i";
     private static final String NEGATION_OPTION_IDENTIFIER = "#n";
     private static final String TRIM_OPTION_IDENTIFIER = "#t";

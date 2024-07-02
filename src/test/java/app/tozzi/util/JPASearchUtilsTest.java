@@ -113,7 +113,7 @@ public class JPASearchUtilsTest {
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("id_eq", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("stringOne_contains", String.valueOf(generateRandomValue(String.class)));
-        resultMap.put("stringTwo_in", "test1,test2\\,test3");
+        resultMap.put("stringTwo_in", "test1,test2/,test3");
         resultMap.put("stringThree_startsWith#i", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("stringFalse_eq#n", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("email_eq", String.valueOf(generateRandomValue(String.class)));

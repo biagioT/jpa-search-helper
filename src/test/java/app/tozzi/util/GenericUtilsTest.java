@@ -19,15 +19,15 @@ public class GenericUtilsTest {
     @Test
     public void containsSeparatorTest() {
         assertTrue(GenericUtils.containsSeparator("test1,test2", ",", null));
-        assertTrue(GenericUtils.containsSeparator("test1,test2", ",", "\\"));
-        assertTrue(GenericUtils.containsSeparator("test1,test2\\,test3", ",", "\\"));
+        assertTrue(GenericUtils.containsSeparator("test1,test2", ",", "/"));
+        assertTrue(GenericUtils.containsSeparator("test1,test2/,test3", ",", "/"));
         assertTrue(GenericUtils.containsSeparator("test1,test2|,test3", ",", "|"));
     }
 
     @Test
     public void notContainsSeparatorTest() {
         assertFalse(GenericUtils.containsSeparator("test1,test2", ";", null));
-        assertFalse(GenericUtils.containsSeparator("test1\\,test2", ",", "\\"));
+        assertFalse(GenericUtils.containsSeparator("test1/,test2", ",", "/"));
         assertFalse(GenericUtils.containsSeparator("test1;,test2", ",", ";"));
     }
 
@@ -47,7 +47,7 @@ public class GenericUtilsTest {
         assertEquals("test1", splitted.getFirst());
         assertEquals("test2", splitted.getLast());
 
-        splitted = GenericUtils.split("test1,test2\\,test3", ",", "\\");
+        splitted = GenericUtils.split("test1,test2/,test3", ",", "/");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(2, splitted.size());
@@ -67,7 +67,7 @@ public class GenericUtilsTest {
         assertEquals(1, splitted.size());
         assertEquals("test1,test2", splitted.getFirst());
 
-        splitted = GenericUtils.split("test1\\,test2", ",", "\\");
+        splitted = GenericUtils.split("test1/,test2", ",", "/");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(1, splitted.size());
@@ -87,7 +87,7 @@ public class GenericUtilsTest {
         assertEquals("test2", splitted.get(1));
         assertEquals("", splitted.getLast());
 
-        splitted = GenericUtils.split("test1\\,test2,test3,", ",", "\\");
+        splitted = GenericUtils.split("test1/,test2,test3,", ",", "/");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(3, splitted.size());
