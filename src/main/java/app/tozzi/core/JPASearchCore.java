@@ -124,7 +124,7 @@ public class JPASearchCore {
                 throw new JPASearchException("Invalid expression");
             }
 
-            return operator.getFunction().apply(cb, arguments.toArray(new Expression[0]));
+            return operator.getFunction().apply(cb, arguments.toArray(new Expression[0]), new Object[]{});
 
         }
 
@@ -174,28 +174,29 @@ public class JPASearchCore {
 
             exps.add(exp != null ? exp : path);
 
+            var obj = new ArrayList<>();
             if (fieldFilter instanceof JPASearchInput.FilterSingleValue fsv) {
                 var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fsv.getValue(), ignoreCase);
                 if (valueExp != null) {
-                    exps.add(cb.literal(valueExp));
+                    obj.add(valueExp);
                 }
 
             } else if (fieldFilter instanceof JPASearchInput.FilterMultipleValues fmv) {
                 var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), ignoreCase);
                 if (valueExp != null) {
                     if (valueExp instanceof Collection<?> coll) {
-                        coll.forEach(val ->  exps.add(cb.literal(val)));
+                        obj.addAll(coll);
 
                     } else {
-                        exps.add(cb.literal(valueExp));
+                        obj.add(valueExp);
                     }
                 }
             }
 
             return fieldFilter.getOptions() != null
                     && fieldFilter.getOptions().isNegate()
-                    ? JPASearchOperatorGroup.NOT.getFunction().apply(cb, new Expression[] {searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]))})
-                    : searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]));
+                    ? JPASearchOperatorGroup.NOT.getFunction().apply(cb, new Expression[] {searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]), obj.toArray(new Object[0]))}, new Object[] {})
+                    : searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]), obj.toArray(new Object[0]));
         }
 
         throw new JPASearchException("Invalid expression");

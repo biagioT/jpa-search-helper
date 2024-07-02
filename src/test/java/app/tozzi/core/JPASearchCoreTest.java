@@ -119,6 +119,7 @@ public class JPASearchCoreTest {
         ff3.setOperator("in");
         root.getFilters().add(ff3);
         input.setFilter(root);
+
         List<MyEntity> res = myRepository.findAll(input, MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
