@@ -17,7 +17,7 @@ curl -X GET \
   &lastName_startsWith=Toz
   &birthDate_gte=19910101
   &country_in=IT,FR,DE
-  &address_eq=Via Roma 1,Via Milano\,1,20 West\,34th Street
+  &address_eq=Via Roma 1,Via Milano/,1,20 West/,34th Street
   &company.name_in=Microsoft,Apple,Google
   &company.employees_between=500,5000'
 ```
@@ -518,7 +518,7 @@ public class PersonManager {
 ```
 Curl:
 ```bash
-curl - X GET \
+curl - X GET 
 'http://localhost:8080/persons?
 firstName=Biagio
 &lastName_startsWith=Toz
@@ -714,7 +714,7 @@ public class CoupleDTO {
 ```
 
 ```bash
-curl - request GET \
+curl - request GET 
  - url 'https://www.myexampledomain.com/couples?
 p1.firstName_iEq=Romeo
 &p2.firstName_iEq=Giulietta'
