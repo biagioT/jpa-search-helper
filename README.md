@@ -639,6 +639,7 @@ curl -X POST -H "Content-type: application/json" -d '{
 }' 'http://localhost:8080/persons'
 ```
 
+---
 ### Join Fetch
 It is possible to force joins with fetch to allow Hibernate to execute a single query for the relationships defined on the entity. **This is only possible without pagination**:
 ```java
