@@ -118,7 +118,9 @@ implementation 'app.tozzi:jpa-search-helper:2.1.0'
 
 ## Usage
 ### 1. `@Searchable` annotation
-Start by applying the `@Searchable` annotation to the fields in your DTO/Domain model, or alternatively your JPA entity, **that you want to make available for search**.
+Start by applying the `@Searchable` annotation to the fields in your DTO/Domain model, or alternatively your JPA entity, **that you want to make available for search**. 
+If you have fields that you want to make searchable within other objects then annotate these with `@NestedSearchable`.
+
 ```java
 @Data
 public class PersonDTO {
@@ -243,7 +245,7 @@ public interface PersonRepository extends JpaRepository<PersonEntity, Long>, JPA
 ### 3. Search implementation
 In your manager, or in your service, or wherever you want to use the repository:
 
-**Mode 1**: define a map _<filter_key|options|, value>_:
+**Mode 1**: define a map _<filter_key#options, value>_:
 ```java
 // ...
 
