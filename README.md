@@ -279,7 +279,7 @@ In your manager, or in your service, or wherever you want to use the repository:
 // ...
 ```
 
-**Mode 2**: you will need to use `JPASearchInput`, which I will show here, for simplicity, in JSON format:
+**Mode 2**: instead of a map, you will need to use [`JPASearchInput`](https://github.com/biagioT/jpa-search-helper/blob/main/src/main/java/app/tozzi/model/input/JPASearchInput.java), which I will show here, for simplicity, in JSON format:
 Through mode 2 it is possible to manage complex filters with AND, OR and NOT (see later).
 ```json
 {
