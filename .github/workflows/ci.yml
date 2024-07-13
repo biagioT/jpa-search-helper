@@ -61,7 +61,7 @@ jobs:
           cat <(echo -e "${{ secrets.GPG_SIGNING_KEY }}") | gpg --batch --import
 
       - name: Publish to Maven Central
-        run: ./gradlew -Psigning.gnupg.passphrase=${{ secrets.GPG_SIGNING_PASSWORD }} publish closeAndReleaseStagingRepository
+        run: ./gradlew -Psigning.gnupg.passphrase=${{ secrets.GPG_SIGNING_PASSWORD }} publish closeAndReleaseStagingRepositories
         env:
           SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
           SONATYPE_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
