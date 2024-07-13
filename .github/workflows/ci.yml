@@ -58,9 +58,8 @@ jobs:
 
       - name: Import GPG key
         run: |
-          echo "${{ secrets.GPG_SIGNING_KEY }}" > private.key
-          gpg --batch --import private.key
-          rm private.key
+          cat <(echo -e "${{ secrets.GPG_SIGNING_KEY }}") | gpg --batch --import 
+          gpg --list-secret-keys --keyid-format LONG
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
