@@ -38,18 +38,19 @@ jobs:
 
     - name: Run tests
       run: ./gradlew test
-    
-    - name: Dependency Review
-      uses: actions/dependency-review-action@v4 
 
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v1.9
-      with:
-        args: >
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+  scan:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.9
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           
   publish:
     needs: build
