@@ -44,13 +44,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1.9
+        uses: SonarSource/sonarcloud-github-action@v2.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          args: >
+          args:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          projectBaseDir: .
           
   publish:
     needs: build
