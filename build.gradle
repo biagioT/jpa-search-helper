@@ -104,9 +104,6 @@ publishing {
 
 signing {
     useGpgCmd()
-    gpg {
-        keyName = System.getenv("GPG_KEY_ID")
-    }
     sign publishing.publications.maven
 }
 
