@@ -44,56 +44,56 @@ public class GenericUtilsTest {
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(2, splitted.size());
-        assertEquals("test1", splitted.getFirst());
-        assertEquals("test2", splitted.getLast());
+        assertEquals("test1", splitted.get(0));
+        assertEquals("test2", splitted.get(1));
 
         splitted = GenericUtils.split("test1,test2/,test3", ",", "/");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(2, splitted.size());
-        assertEquals("test1", splitted.getFirst());
-        assertEquals("test2,test3", splitted.getLast());
+        assertEquals("test1", splitted.get(0));
+        assertEquals("test2,test3", splitted.get(1));
 
         splitted = GenericUtils.split("test1,test2|,test3", ",", "|");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(2, splitted.size());
-        assertEquals("test1", splitted.getFirst());
-        assertEquals("test2,test3", splitted.getLast());
+        assertEquals("test1", splitted.get(0));
+        assertEquals("test2,test3", splitted.get(1));
 
         splitted = GenericUtils.split("test1,test2", ";", null);
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(1, splitted.size());
-        assertEquals("test1,test2", splitted.getFirst());
+        assertEquals("test1,test2", splitted.get(0));
 
         splitted = GenericUtils.split("test1/,test2", ",", "/");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(1, splitted.size());
-        assertEquals("test1,test2", splitted.getFirst());
+        assertEquals("test1,test2", splitted.get(0));
 
         splitted = GenericUtils.split("test1;,test2", ",", ";");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(1, splitted.size());
-        assertEquals("test1,test2", splitted.getFirst());
+        assertEquals("test1,test2", splitted.get(0));
 
         splitted = GenericUtils.split("test1,test2,", ",", null);
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(3, splitted.size());
-        assertEquals("test1", splitted.getFirst());
+        assertEquals("test1", splitted.get(0));
         assertEquals("test2", splitted.get(1));
-        assertEquals("", splitted.getLast());
+        assertEquals("", splitted.get(2));
 
         splitted = GenericUtils.split("test1/,test2,test3,", ",", "/");
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
         assertEquals(3, splitted.size());
-        assertEquals("test1,test2", splitted.getFirst());
+        assertEquals("test1,test2", splitted.get(0));
         assertEquals("test3", splitted.get(1));
-        assertEquals("", splitted.getLast());
+        assertEquals("", splitted.get(2));
     }
 
     @Test

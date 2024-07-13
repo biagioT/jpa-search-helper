@@ -45,10 +45,10 @@ public class JPASearchUtilsTest {
         assertTrue(root.getFetches().stream().anyMatch(f -> f.getAttribute().getName().equals("test1") && f.getJoinType().equals(JoinType.LEFT)));
         assertTrue(root.getFetches().stream().anyMatch(f -> f.getAttribute().getName().equals("test2") && f.getJoinType().equals(JoinType.INNER)
                 && f.getFetches() != null && !f.getFetches().isEmpty() && f.getFetches().size() == 1
-                && f.getFetches().stream().toList().getFirst().getAttribute().getName().equals("entities4")
-                && f.getFetches().stream().toList().getFirst().getJoinType().equals(JoinType.LEFT)
-                && f.getFetches().stream().toList().getFirst().getFetches().iterator().next().getAttribute().getName().equals("entity5")
-                && f.getFetches().stream().toList().getFirst().getFetches().iterator().next().getJoinType().equals(JoinType.LEFT)
+                && f.getFetches().stream().toList().get(0).getAttribute().getName().equals("entities4")
+                && f.getFetches().stream().toList().get(0).getJoinType().equals(JoinType.LEFT)
+                && f.getFetches().stream().toList().get(0).getFetches().iterator().next().getAttribute().getName().equals("entity5")
+                && f.getFetches().stream().toList().get(0).getFetches().iterator().next().getJoinType().equals(JoinType.LEFT)
         ));
         assertTrue(root.getFetches().stream().anyMatch(f -> f.getAttribute().getName().equals("test3") && f.getJoinType().equals(JoinType.RIGHT)
                 && f.getFetches() != null && !f.getFetches().isEmpty() && f.getFetches().size() == 1

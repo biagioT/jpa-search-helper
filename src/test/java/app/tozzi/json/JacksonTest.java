@@ -72,8 +72,8 @@ public class JacksonTest {
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterMultipleValues fsv && fsv.getOperator().equals("in") && fsv.getValues().contains("1034567890123456") && fsv.getValues().contains("1234567890123456") && fsv.getKey().equals("isbn")));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getOperator().equals("null") && fsv.getValue() == null && fsv.getOptions() != null && fsv.getOptions().isNegate() && fsv.getKey().equals("isbn")));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.RootFilter rf && rf.getOperator().equals("and") && rf.getFilters() != null && rf.getFilters().size() == 2
-                && rf.getFilters().getFirst() instanceof JPASearchInput.FilterSingleValue fsvSub1 && fsvSub1.getOperator().equals("null") && fsvSub1.getKey().equals("title") && fsvSub1.getValue() == null && fsvSub1.getOptions() != null && fsvSub1.getOptions().isNegate()
-                && rf.getFilters().getLast() instanceof JPASearchInput.FilterSingleValue fsvSub2 && fsvSub2.getOperator().equals("gte") && fsvSub2.getKey().equals("pages") && fsvSub2.getValue() instanceof Integer i  && i == 10
+                && rf.getFilters().get(0) instanceof JPASearchInput.FilterSingleValue fsvSub1 && fsvSub1.getOperator().equals("null") && fsvSub1.getKey().equals("title") && fsvSub1.getValue() == null && fsvSub1.getOptions() != null && fsvSub1.getOptions().isNegate()
+                && rf.getFilters().get(1) instanceof JPASearchInput.FilterSingleValue fsvSub2 && fsvSub2.getOperator().equals("gte") && fsvSub2.getKey().equals("pages") && fsvSub2.getValue() instanceof Integer i  && i == 10
         ));
 
     }
