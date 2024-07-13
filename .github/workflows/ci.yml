@@ -34,7 +34,7 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
 
     - name: Run tests
       run: ./gradlew test
@@ -56,11 +56,20 @@ jobs:
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
 
+    - name: Set up GPG
+      run: |
+        echo ${{ secrets.SIGN_KEYID }} | gpg --batch --import
+        echo -e "use-agent\npinentry-mode loopback" > ~/.gnupg/gpg.conf
+      env:
+        SIGN_KEYID: ${{ secrets.SIGN_KEYID }}
+    
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
 
     - name: Publish to Maven Central
       run: ./gradlew publish
       env:
         MAVEN_USERNAME: ${{ secrets.SONATYPE_USER }}
-        MAVEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN }}  
+        MAVEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN }}
+        SIGN_KEYID: ${{ secrets.SIGN_KEYID }}
+        SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}
