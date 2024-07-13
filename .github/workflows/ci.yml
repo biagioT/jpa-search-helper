@@ -56,10 +56,17 @@ jobs:
           server-username: SONATYPE_USER
           server-password: SONATYPE_TOKEN
 
-      - name: Setup GPG
+      - name: Import GPG key
         run: |
-          cat <(echo -e "${{ secrets.GPG_SIGNING_KEY }}") | gpg --batch --import
+          echo "${{ secrets.GPG_SIGNING_KEY }}" > private.key
+          gpg --batch --import private.key
+          rm private.key
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
+      - name: Setup GPG config
+        run: echo "use-agent\npinentry-mode loopback" >> $HOME/.gnupg/gpg.conf
+      
       - name: Publish to Maven Central
         run: ./gradlew -Psigning.gnupg.passphrase=${{ secrets.GPG_SIGNING_PASSWORD }} -Psigning.gnupg.keyName=${{ secrets.GPG_SIGNING_KEY_ID }} publish closeAndReleaseStagingRepositories
         env:
