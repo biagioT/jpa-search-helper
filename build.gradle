@@ -91,17 +91,18 @@ publishing {
 
     repositories {
         maven {
-            name "OSSRH"
+            name "ossrh"
             url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
-                username = "$sonatypeUsername"
-                password = "$sonatypePassword"
+                username = project.findProperty("sonatypeUsername") ?: System.getenv("SONATYPE_USER")
+                password = project.findProperty("sonatypePassword") ?: System.getenv("SONATYPE_TOKEN")
             }
         }
     }
 }
 
 signing {
+    useInMemoryPgpKeys(System.getenv("SIGN_KEYID"), System.getenv("SIGN_PASSWORD"))
     sign publishing.publications.maven
 }
 
