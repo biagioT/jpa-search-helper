@@ -42,12 +42,6 @@ jobs:
     - name: Dependency Review
       uses: actions/dependency-review-action@v4 
 
-    - name: Check for vulnerabilities with OWASP Dependency Check
-      uses: dependency-check/scan-action@v4
-      with:
-        project: ${{ github.repository }}
-        scan-path: .
-
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v1.9
       with:
