@@ -97,9 +97,16 @@ curl -X POST -H "Content-type: application/json" -d '{
 
 .. how you do it? Read this readme!
 
-## Prerequisites
+## Compatibility Matrix
+
+#### Minimum requirements
 - Java 17 or later
 - Spring Boot 3.2.x or later
+
+| JPA Search Helper | Spring Boot | Java      |
+|------------------|-----------|-----------|
+| [v0.0.1 - v2.1.1] | 3.2.x     | [17 - 22] |
+| [v3.0.0]         | 3.3.x     | [17 - 22] |
 
 ## Project dependency
 #### Maven
@@ -107,13 +114,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>
     <groupId>app.tozzi</groupId>
     <artifactId>jpa-search-helper</artifactId>
-    <version>2.1.1</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
 #### Gradle
 ```
-implementation 'app.tozzi:jpa-search-helper:2.1.1'
+implementation 'app.tozzi:jpa-search-helper:3.0.0'
 ```
 
 ## Usage
@@ -640,6 +647,7 @@ curl -X POST -H "Content-type: application/json" -d '{
 ```
 
 ---
+## Advanced Settings
 ### Join Fetch
 It is possible to force joins with fetch to allow Hibernate to execute a single query for the relationships defined on the entity. **This is only possible without pagination**:
 ```java
