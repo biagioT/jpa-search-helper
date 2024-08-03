@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '3.0.0'
+version = '3.0.1'
 
 java {
     sourceCompatibility = '17'
@@ -40,7 +40,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // Utils
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.apache.commons:commons-lang3:3.15.0'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -58,7 +58,7 @@ publishing {
         maven(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "3.0.0"
+            version = "3.0.1"
             from components.java
             pom {
                 name = 'JPA Search Helper'
