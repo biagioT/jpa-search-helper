@@ -106,7 +106,7 @@ curl -X POST -H "Content-type: application/json" -d '{
 | JPA Search Helper | Spring Boot | Java      |
 |------------------|-----------|-----------|
 | [v0.0.1 - v2.1.1] | 3.2.x     | [17 - 22] |
-| [v3.0.0]         | 3.3.x     | [17 - 22] |
+| [v3.0.0 - latest]         | 3.3.x     | [17 - 22] |
 
 ## Project dependency
 #### Maven
