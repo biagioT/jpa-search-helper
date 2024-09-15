@@ -38,7 +38,7 @@ public class JPASearchUtils {
                             case OFFSET -> res.getOptions().setPageOffset(GenericUtils.loadInt(e.getValue(), 0));
                             case SORT -> {
                                 res.getOptions().setSortKey(e.getKey().substring(0, e.getKey().lastIndexOf("_")));
-                                res.getOptions().setSortDesc(Boolean.parseBoolean(e.getValue()));
+                                res.getOptions().setSortDesc(e.getValue().equalsIgnoreCase("DESC"));
                             }
                         }
 
