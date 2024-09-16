@@ -3,6 +3,7 @@ package app.tozzi.util;
 import app.tozzi.model.JPASearchOperatorFilter;
 import app.tozzi.model.JPASearchOperatorGroup;
 import app.tozzi.model.JPASearchPaginationFilter;
+import app.tozzi.model.JPASearchSortType;
 import app.tozzi.model.input.JPASearchInput;
 import jakarta.persistence.criteria.*;
 
@@ -34,11 +35,12 @@ public class JPASearchUtils {
 
                         var paginationFilter = e.getKey().endsWith("_" + JPASearchPaginationFilter.SORT.getValue()) ? JPASearchPaginationFilter.SORT : JPASearchPaginationFilter.load(e.getKey().substring(1));
                         switch (paginationFilter) {
-                            case LIMIT -> res.getOptions().setPageSize(GenericUtils.loadInt(e.getValue(), processPaginationOptions ? 0 : -1));
+                            case LIMIT ->
+                                    res.getOptions().setPageSize(GenericUtils.loadInt(e.getValue(), processPaginationOptions ? 0 : -1));
                             case OFFSET -> res.getOptions().setPageOffset(GenericUtils.loadInt(e.getValue(), 0));
                             case SORT -> {
                                 res.getOptions().setSortKey(e.getKey().substring(0, e.getKey().lastIndexOf("_")));
-                                res.getOptions().setSortDesc(e.getValue().equalsIgnoreCase("DESC"));
+                                res.getOptions().setSortDesc(JPASearchSortType.DESC.name().equalsIgnoreCase(e.getValue()));
                             }
                         }
 
@@ -101,7 +103,7 @@ public class JPASearchUtils {
 
     public static Predicate[] toPredicates(Expression<Boolean>[] values) {
         Predicate[] predicates = new Predicate[values.length];
-        for(int i = 0; i < values.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             predicates[i] = (Predicate) values[i];
         }
         return predicates;
