@@ -83,6 +83,34 @@ public class JPASearchUtilsTest {
     }
 
     @Test
+    public void filtersMapToInputObjectDescendingTest() {
+        Map<String, String> filters = generateRandomMap();
+        filters.put("_limit", "10");
+        filters.put("_offset", "1");
+        filters.put("id_sort", "DESC");
+        var input = JPASearchUtils.toObject(filters, true, true);
+        assertNotNull(input);
+        assertNotNull(input.getOptions());
+        assertEquals(1, input.getOptions().getPageOffset());
+        assertEquals(10, input.getOptions().getPageSize());
+        assertEquals("id", input.getOptions().getSortKey());
+        assertEquals(true, input.getOptions().getSortDesc());
+        assertNotNull(input.getFilter());
+        assertEquals("and", input.getFilter().getOperator());
+        assertNotNull(input.getFilter().getFilters());
+        assertFalse(input.getFilter().getFilters().isEmpty());
+        assertEquals(17, input.getFilter().getFilters().size());
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("id") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("id_eq")) && fsv.getOptions() == null));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringOne") && fsv.getOperator().equals("contains") && fsv.getValue().equals(filters.get("stringOne_contains")) && fsv.getOptions() == null));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringThree") && fsv.getOperator().equals("startsWith") && fsv.getValue().equals(filters.get("stringThree_startsWith#i")) && fsv.getOptions() != null && fsv.getOptions().isIgnoreCase()));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringFalse") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("stringFalse_eq#n")) && fsv.getOptions() != null && fsv.getOptions().isNegate()));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterMultipleValues fsv && fsv.getKey().equals("stringTwo") && fsv.getOperator().equals("in") && fsv.getValues().contains("test1") && fsv.getValues().contains("test2,test3")));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterMultipleValues fsv && fsv.getKey().equals("primitiveFloat") && fsv.getOperator().equals("between") && fsv.getValues().contains("1.001") && fsv.getValues().contains("1.002")));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("searchMeAgain") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("searchMeAgain_eq#i#n")) && fsv.getOptions() != null && fsv.getOptions().isNegate() && fsv.getOptions().isIgnoreCase()));
+        assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringTwo") && fsv.getOperator().equals("eq") && fsv.getValue().equals("Via Roma,1")));
+    }
+
+    @Test
     public void filtersMapToInputObjectTest() {
         Map<String, String> filters = generateRandomMap();
         filters.put("_limit", "10");
