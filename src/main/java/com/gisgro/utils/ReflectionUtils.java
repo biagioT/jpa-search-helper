@@ -7,14 +7,21 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class ReflectionUtils {
+    private static final ConcurrentHashMap<Class<?>, Map<String,Pair<Searchable, Class<?>>>> cache = new ConcurrentHashMap<>();
 
     public static Map<String, Pair<Searchable, Class<?>>> getAllSearchableFields(Class<?> beanClass) {
-        Map<String, Pair<Searchable, Class<?>>> res = new HashMap<>();
-        getAllSearchableFields(new StringBuilder(), beanClass, res);
-        return res;
+        if (cache.containsKey(beanClass)) {
+            return cache.get(beanClass);
+        } else {
+            Map<String, Pair<Searchable, Class<?>>> res = new HashMap<>();
+            getAllSearchableFields(new StringBuilder(), beanClass, res);
+            cache.put(beanClass, res);
+            return res;
+        }
     }
 
     private static void getAllSearchableFields(final StringBuilder root, Class<?> beanClass, Map<String, Pair<Searchable, Class<?>>> res) {
