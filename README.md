@@ -151,7 +151,7 @@ public class PersonDTO {
   private String fillerTwo;
 
   @NestedSearchable
-  private Company company;
+  private CompanyDTO company;
 
   @Data
   public static class CompanyDTO {
