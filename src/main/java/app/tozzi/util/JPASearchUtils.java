@@ -7,7 +7,10 @@ import app.tozzi.model.JPASearchSortType;
 import app.tozzi.model.input.JPASearchInput;
 import jakarta.persistence.criteria.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class JPASearchUtils {
 
@@ -102,25 +105,25 @@ public class JPASearchUtils {
     }
 
     public static Predicate[] toPredicates(Expression<Boolean>[] values) {
-        Predicate[] predicates = new Predicate[values.length];
-        for (int i = 0; i < values.length; i++) {
+        var predicates = new Predicate[values.length];
+        for (var i = 0; i < values.length; i++) {
             predicates[i] = (Predicate) values[i];
         }
         return predicates;
     }
 
-    public static void fetchManagement(Map<String, JoinType> fetchMap, Root<?> root) {
+    public static <E> Root<E> fetchManagement(Map<String, JoinType> fetchMap, Root<E> root) {
 
         if (fetchMap != null) {
             fetchMap = new TreeMap<>(fetchMap);
-            List<String> doneFetches = new ArrayList<>();
+            var doneFetches = new ArrayList<>();
 
             fetchMap.forEach((k, v) -> {
                 if (k.contains(".")) {
-                    Iterator<String> it = Arrays.stream(k.split("\\.")).iterator();
+                    var it = Arrays.stream(k.split("\\.")).iterator();
                     Fetch<?, ?> fetch;
-                    String f = it.next();
-                    StringBuilder tempPath = new StringBuilder(f);
+                    var f = it.next();
+                    var tempPath = new StringBuilder(f);
 
                     if (!doneFetches.contains(f)) {
                         fetch = root.fetch(f, v);
@@ -131,7 +134,7 @@ public class JPASearchUtils {
                     }
 
                     while (it.hasNext()) {
-                        String f1 = it.next();
+                        var f1 = it.next();
                         tempPath.append(".").append(f1);
 
                         if (!doneFetches.contains(tempPath.toString())) {
@@ -149,6 +152,8 @@ public class JPASearchUtils {
                 }
             });
         }
+
+        return root;
     }
 
     public static <T> Expression<T> getPath(Root<?> root, String k) {
@@ -157,7 +162,7 @@ public class JPASearchUtils {
 
             Path<T> path = null;
 
-            for (String f : k.split("\\.")) {
+            for (var f : k.split("\\.")) {
                 path = path == null ? root.get(f) : path.get(f);
             }
 

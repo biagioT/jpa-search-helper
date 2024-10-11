@@ -59,7 +59,7 @@ public class JPASearchCoreValueProcessor {
 
     private static void filterValidations(JPASearchOperatorFilter searchOperatorFilter, String field, Object valueObj, JPASearchType searchType) {
         var isCollection = Collection.class.isAssignableFrom(valueObj.getClass());
-        Collection<?> collection = isCollection ? (Collection<?>) valueObj : null;
+        var collection = isCollection ? (Collection<?>) valueObj : null;
         var values = isCollection ? collection.size() : 1;
 
         if (searchOperatorFilter.getAllowedValues() != -1 && searchOperatorFilter.getAllowedValues() != values) {
@@ -83,7 +83,8 @@ public class JPASearchCoreValueProcessor {
                 case OFFSETDATETIME -> GenericUtils.parseOffsetDateTime(field, value, searchable.datePattern());
                 case OFFSETTIME -> GenericUtils.parseOffsetTime(field, value, searchable.datePattern());
                 case BOOLEAN -> GenericUtils.parseBoolean(field, value);
-                case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL -> formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
+                case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL ->
+                        formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
                 case ZONEDDATETIME -> GenericUtils.parseZonedDateTime(field, value, searchable.datePattern());
                 case UNTYPED -> throw new IllegalArgumentException();
             };

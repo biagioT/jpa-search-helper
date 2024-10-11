@@ -28,11 +28,10 @@ public class JPASearchCore {
 
 
         return (root, query, criteriaBuilder) -> {
-            JPASearchUtils.fetchManagement(fetchMap, root);
             var expr = processExpression(
                     filter,
                     criteriaBuilder,
-                    root,
+                    JPASearchUtils.fetchManagement(fetchMap, root),
                     searchableFields,
                     entityFieldMap
             );

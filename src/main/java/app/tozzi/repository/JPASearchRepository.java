@@ -8,8 +8,6 @@ import io.micrometer.observation.annotation.Observed;
 import jakarta.persistence.criteria.JoinType;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -122,7 +120,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         var input = JPASearchUtils.toObject(filters, false, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
-        Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
+        var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
         return findAll(specification, sort);
     }
 
@@ -137,7 +135,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     default List<E> findAllSorted(@NonNull JPASearchInput input, @NonNull Class<?> type) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
-        Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
+        var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
         return findAll(specification, sort);
     }
 
@@ -154,7 +152,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         var input = JPASearchUtils.toObject(filters, false, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, fetches, null);
-        Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
+        var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
         return findAll(specification, sort);
     }
 
@@ -170,7 +168,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     default List<E> findAllSorted(@NonNull JPASearchInput input, @NonNull Class<?> type, Map<String, JoinType> fetches) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, fetches, null);
-        Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
+        var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, null);
         return findAll(specification, sort);
     }
 
@@ -189,7 +187,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         var input = JPASearchUtils.toObject(filters, false, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, fetches, entityFieldMap);
-        Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, entityFieldMap);
+        var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, entityFieldMap);
         return findAll(specification, sort);
     }
 
@@ -207,7 +205,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     default List<E> findAllSorted(@NonNull JPASearchInput input, @NonNull Class<?> type, Map<String, JoinType> fetches, Map<String, String> entityFieldMap) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, fetches, entityFieldMap);
-        Sort sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, entityFieldMap);
+        var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, entityFieldMap);
         return findAll(specification, sort);
     }
 
@@ -223,7 +221,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         var input = JPASearchUtils.toObject(filters, true, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
-        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
         return findAll(specification, pageRequest);
     }
 
@@ -238,7 +236,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     default Page<E> findAllWithPaginationAndSorting(@NonNull JPASearchInput input, @NonNull Class<?> type) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
-        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
         return findAll(specification, pageRequest);
     }
 
@@ -257,7 +255,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         var input = JPASearchUtils.toObject(filters, true, true);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, entityFieldMap);
-        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
         return findAll(specification, pageRequest);
     }
 
@@ -275,7 +273,7 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     default Page<E> findAllWithPaginationAndSorting(@NonNull JPASearchInput input, @NonNull Class<?> type, Map<String, String> entityFieldMap) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(type);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, entityFieldMap);
-        PageRequest pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
         return findAll(specification, pageRequest);
     }
 

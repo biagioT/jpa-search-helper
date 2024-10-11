@@ -38,7 +38,7 @@ public class JPASearchUtilsTest {
         Map<String, JoinType> fetches =
                 Map.of("test1", JoinType.LEFT, "test2.entities4.entity5", JoinType.LEFT, "test2", JoinType.INNER, "test3.entities5", JoinType.RIGHT);
 
-        JPASearchUtils.fetchManagement(fetches, root);
+        root = JPASearchUtils.fetchManagement(fetches, root);
         assertNotNull(root.getFetches());
         assertFalse(root.getFetches().isEmpty());
         assertEquals(3, root.getFetches().size());

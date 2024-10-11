@@ -68,7 +68,7 @@ public class GenericUtils {
             return Float.parseFloat(fl);
         }
 
-        throw new InvalidValueException("Invalid float " + value, field, value);
+        throw new InvalidValueException("Invalid float number [" + value + "]", field, value);
     }
 
     public static Long parseLong(String field, Object value) {
@@ -81,7 +81,7 @@ public class GenericUtils {
             return Long.parseLong(ln);
         }
 
-        throw new InvalidValueException("Invalid long number " + value, field, value);
+        throw new InvalidValueException("Invalid long number [" + value + "]", field, value);
     }
 
     public static Integer parseInteger(String field, Object value) {
@@ -94,7 +94,7 @@ public class GenericUtils {
             return Integer.parseInt(in);
         }
 
-        throw new InvalidValueException("Invalid number " + value, field, value);
+        throw new InvalidValueException("Invalid number [" + value + "]", field, value);
     }
 
     public static Double parseDouble(String field, Object value) {
@@ -107,7 +107,7 @@ public class GenericUtils {
             return Double.parseDouble(db);
         }
 
-        throw new InvalidValueException("Invalid double number " + value, field, value);
+        throw new InvalidValueException("Invalid double number [" + value + "]", field, value);
     }
 
     public static BigDecimal parseBigDecimal(String field, Object value) {
@@ -120,7 +120,7 @@ public class GenericUtils {
             return new BigDecimal(db);
         }
 
-        throw new InvalidValueException("Invalid big decimal number " + value, field, value);
+        throw new InvalidValueException("Invalid big decimal number [" + value + "]", field, value);
     }
 
     public static boolean containsOnlyDigits(Object number) {
@@ -146,8 +146,8 @@ public class GenericUtils {
 
     public static Date parseDate(String field, Object value, String pattern) throws ParseException {
 
-        if (value instanceof Date) {
-            return (Date) value;
+        if (value instanceof Date d) {
+            return d;
         }
 
         if (value instanceof String str) {
@@ -159,8 +159,8 @@ public class GenericUtils {
 
     public static LocalDate parseLocalDate(String field, Object value, String pattern) {
 
-        if (value instanceof LocalDate) {
-            return (LocalDate) value;
+        if (value instanceof LocalDate ld) {
+            return ld;
         }
 
         if (value instanceof String str) {
@@ -172,8 +172,8 @@ public class GenericUtils {
 
     public static LocalTime parseLocalTime(String field, Object value, String pattern) {
 
-        if (value instanceof LocalTime) {
-            return (LocalTime) value;
+        if (value instanceof LocalTime lt) {
+            return lt;
         }
 
         if (value instanceof String str) {
@@ -185,8 +185,8 @@ public class GenericUtils {
 
     public static LocalDateTime parseLocalDateTime(String field, Object value, String pattern) {
 
-        if (value instanceof LocalDateTime) {
-            return (LocalDateTime) value;
+        if (value instanceof LocalDateTime ldt) {
+            return ldt;
         }
 
         if (value instanceof String str) {
@@ -198,8 +198,8 @@ public class GenericUtils {
 
     public static OffsetTime parseOffsetTime(String field, Object value, String pattern) {
 
-        if (value instanceof OffsetTime) {
-            return (OffsetTime) value;
+        if (value instanceof OffsetTime ot) {
+            return ot;
         }
 
         if (value instanceof String str) {
@@ -211,8 +211,8 @@ public class GenericUtils {
 
     public static OffsetDateTime parseOffsetDateTime(String field, Object value, String pattern) {
 
-        if (value instanceof OffsetDateTime) {
-            return (OffsetDateTime) value;
+        if (value instanceof OffsetDateTime odt) {
+            return odt;
         }
 
         if (value instanceof String str) {
@@ -224,8 +224,8 @@ public class GenericUtils {
 
     public static ZonedDateTime parseZonedDateTime(String field, Object value, String pattern) {
 
-        if (value instanceof ZonedDateTime) {
-            return (ZonedDateTime) value;
+        if (value instanceof ZonedDateTime zdt) {
+            return zdt;
         }
 
         if (value instanceof String str) {
