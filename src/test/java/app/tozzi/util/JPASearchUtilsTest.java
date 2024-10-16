@@ -1,6 +1,7 @@
 package app.tozzi.util;
 
 import app.tozzi.entity.MyEntity;
+import app.tozzi.exception.JPASearchException;
 import app.tozzi.model.input.JPASearchInput;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
@@ -14,10 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.time.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -136,6 +134,26 @@ public class JPASearchUtilsTest {
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterMultipleValues fsv && fsv.getKey().equals("primitiveFloat") && fsv.getOperator().equals("between") && fsv.getValues().contains("1.001") && fsv.getValues().contains("1.002")));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("searchMeAgain") && fsv.getOperator().equals("eq") && fsv.getValue().equals(filters.get("searchMeAgain_eq#i#n")) && fsv.getOptions() != null && fsv.getOptions().isNegate() && fsv.getOptions().isIgnoreCase()));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getKey().equals("stringTwo") && fsv.getOperator().equals("eq") && fsv.getValue().equals("Via Roma,1")));
+    }
+
+    @Test
+    public void emptyFiltersTest1() {
+        var empty1 = JPASearchUtils.toObject(null, false, false);
+        assertNotNull(empty1);
+        assertNull(empty1.getFilter());
+        var empty2 = JPASearchUtils.toObject(Collections.emptyMap(), false, false);
+        assertNotNull(empty2);
+        assertNull(empty2.getFilter());
+    }
+
+    @Test
+    public void emptyFiltersTest2() {
+        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(null, true, true));
+        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(null, false, true));
+        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(null, true, false));
+        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(Collections.emptyMap(), true, true));
+        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(Collections.emptyMap(), false, true));
+        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(Collections.emptyMap(), true, false));
     }
 
     public static Map<String, String> generateRandomMap() {

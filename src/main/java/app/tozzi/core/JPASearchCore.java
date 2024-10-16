@@ -22,10 +22,13 @@ import java.util.Map;
 public class JPASearchCore {
 
     public static <R> Specification<R> specification(JPASearchInput.RootFilter filter,
-                                              Map<String, Pair<Searchable, Class<?>>> searchableFields,
-                                              Map<String, JoinType> fetchMap,
-                                              Map<String, String> entityFieldMap) {
+                                                     Map<String, Pair<Searchable, Class<?>>> searchableFields,
+                                                     Map<String, JoinType> fetchMap,
+                                                     Map<String, String> entityFieldMap) {
 
+        if (filter == null) {
+            return null;
+        }
 
         return (root, query, criteriaBuilder) -> {
             var expr = processExpression(
@@ -44,8 +47,8 @@ public class JPASearchCore {
     }
 
     public static Sort loadSort(JPASearchInput.JPASearchOptions options,
-                         Map<String, Pair<Searchable, Class<?>>> searchableFields,
-                         Map<String, String> entityFieldMap) {
+                                Map<String, Pair<Searchable, Class<?>>> searchableFields,
+                                Map<String, String> entityFieldMap) {
 
         return loadSort(options, searchableFields, entityFieldMap, false);
 
@@ -194,7 +197,7 @@ public class JPASearchCore {
 
             return fieldFilter.getOptions() != null
                     && fieldFilter.getOptions().isNegate()
-                    ? JPASearchOperatorGroup.NOT.getFunction().apply(cb, new Expression[] {searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]), obj.toArray(new Object[0]))}, new Object[] {})
+                    ? JPASearchOperatorGroup.NOT.getFunction().apply(cb, new Expression[]{searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]), obj.toArray(new Object[0]))}, new Object[]{})
                     : searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]), obj.toArray(new Object[0]));
         }
 

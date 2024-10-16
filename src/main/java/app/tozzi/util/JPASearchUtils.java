@@ -1,5 +1,6 @@
 package app.tozzi.util;
 
+import app.tozzi.exception.JPASearchException;
 import app.tozzi.model.JPASearchOperatorFilter;
 import app.tozzi.model.JPASearchOperatorGroup;
 import app.tozzi.model.JPASearchPaginationFilter;
@@ -14,6 +15,8 @@ import java.util.TreeMap;
 
 public class JPASearchUtils {
 
+    public static JPASearchInput EMPTY_INPUT = new JPASearchInput();
+
     private static final String SEPARATOR = ",";
     private static final String ESCAPE_SEPARATOR_CHAR = "/";
     private static final String IGNORE_CASE_OPTION_IDENTIFIER = "#i";
@@ -23,6 +26,19 @@ public class JPASearchUtils {
     public static JPASearchInput toObject(Map<String, String> filters,
                                           boolean processPaginationOptions, boolean processSortOption
     ) {
+
+        if (filters == null || filters.isEmpty()) {
+
+            if (processSortOption) {
+                throw new JPASearchException("Invalid sort filters");
+            }
+
+            if (processPaginationOptions) {
+                throw new JPASearchException("Invalid pagination filters");
+            }
+
+            return JPASearchUtils.EMPTY_INPUT;
+        }
 
         var res = new JPASearchInput();
         res.setFilter(new JPASearchInput.RootFilter());

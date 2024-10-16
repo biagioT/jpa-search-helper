@@ -182,6 +182,14 @@ public class JPASearchCoreTest {
         assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L) && r.getEmail().equals("email1@example.com")));
     }
 
+    @Test
+    public void emptyFiltersTestMode1() {
+        List<MyEntity> res = myRepository.findAll(Collections.emptyMap(), MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.size());
+    }
+
     private void setUp() {
         List<MyEntity> entities = new ArrayList<>();
 
