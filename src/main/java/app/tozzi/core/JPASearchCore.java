@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -38,11 +39,13 @@ public class JPASearchCore {
                     searchableFields,
                     entityFieldMap
             );
-
-            if (expr instanceof Predicate predicate)
+            if (expr == null) {
+                return null;
+            } else if (expr instanceof Predicate predicate) {
                 return predicate;
+            }
 
-            throw new JPASearchException("Not resulting a predicate" + expr);
+            throw new JPASearchException("Not resulting a predicate " + expr);
         };
     }
 
@@ -110,7 +113,7 @@ public class JPASearchCore {
         if (filter instanceof JPASearchInput.RootFilter rootFilter) {
 
             if (rootFilter.getFilters() == null || rootFilter.getFilters().isEmpty()) {
-                throw new JPASearchException("Invalid expression: empty filters");
+                return null;
             }
 
             var operator = JPASearchOperatorGroup.load(rootFilter.getOperator());
