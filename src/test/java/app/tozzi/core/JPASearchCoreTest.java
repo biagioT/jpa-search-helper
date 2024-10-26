@@ -1,6 +1,7 @@
 package app.tozzi.core;
 
 import app.tozzi.entity.*;
+import app.tozzi.exception.JPASearchException;
 import app.tozzi.model.MyModel;
 import app.tozzi.model.input.JPASearchInput;
 import app.tozzi.repository.MyRepository;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -185,7 +187,7 @@ public class JPASearchCoreTest {
 
     @Test
     public void emptyFiltersTestMode1() {
-        List<MyEntity> res = myRepository.findAll(Collections.emptyMap(), MyModel.class);
+        List<MyEntity> res = myRepository.findAll(emptyMap(), MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
         assertEquals(8, res.size());
@@ -210,9 +212,9 @@ public class JPASearchCoreTest {
     @Test
     void paginationAndSortingTestMode1() {
         Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(Map.of("stringOne_sort", "DESC",
-                                                                             "_limit", "50",
-                                                                             "_offset", "0"),
-                                                                          MyModel.class);
+                        "_limit", "50",
+                        "_offset", "0"),
+                MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
         assertEquals(8, res.getNumberOfElements());
@@ -260,6 +262,28 @@ public class JPASearchCoreTest {
         assertNotNull(res);
         assertFalse(res.isEmpty());
         assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
+    void invalidPaginationMode1() {
+        assertThrows(JPASearchException.class, () -> myRepository.findAllWithPaginationAndSorting(emptyMap(), MyModel.class));
+    }
+
+    @Test
+    void invalidSortMode1() {
+        assertThrows(JPASearchException.class, () -> myRepository.findAllSorted(emptyMap(), MyModel.class));
+    }
+
+    @Test
+    void invalidPaginationMode2() {
+        var input = new JPASearchInput();
+        assertThrows(JPASearchException.class, () -> myRepository.findAllWithPaginationAndSorting(input, MyModel.class));
+    }
+
+    @Test
+    void invalidSortMode2() {
+        var input = new JPASearchInput();
+        assertThrows(JPASearchException.class, () -> myRepository.findAllSorted(input, MyModel.class));
     }
 
     private void setUp() {
