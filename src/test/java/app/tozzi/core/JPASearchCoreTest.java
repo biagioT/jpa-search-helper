@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -188,6 +189,77 @@ public class JPASearchCoreTest {
         assertNotNull(res);
         assertFalse(res.isEmpty());
         assertEquals(8, res.size());
+    }
+
+    @Test
+    void onlyPaginationTestMode1() {
+        Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(Map.of("_limit", "50", "_offset", "0"), MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
+    void onlySortingTestMode1() {
+        List<MyEntity> res = myRepository.findAllSorted(Map.of("stringOne_sort", "DESC"), MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.size());
+    }
+
+    @Test
+    void paginationAndSortingTestMode1() {
+        Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(Map.of("stringOne_sort", "DESC",
+                                                                             "_limit", "50",
+                                                                             "_offset", "0"),
+                                                                          MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
+    void onlyPaginationTestMode2() {
+        var options = new JPASearchInput.JPASearchOptions();
+        options.setPageOffset(0);
+        options.setPageSize(50);
+        var input = new JPASearchInput();
+        input.setOptions(options);
+
+        Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
+    void onlySortingTestMode2() {
+        var options = new JPASearchInput.JPASearchOptions();
+        options.setSortKey("stringOne");
+        options.setSortDesc(true);
+        var input = new JPASearchInput();
+        input.setOptions(options);
+
+        List<MyEntity> res = myRepository.findAllSorted(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.size());
+    }
+
+    @Test
+    void paginationAndSortingTestMode2() {
+        var options = new JPASearchInput.JPASearchOptions();
+        options.setPageOffset(0);
+        options.setPageSize(50);
+        options.setSortKey("stringOne");
+        options.setSortDesc(true);
+        var input = new JPASearchInput();
+        input.setOptions(options);
+
+        Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
     }
 
     private void setUp() {
