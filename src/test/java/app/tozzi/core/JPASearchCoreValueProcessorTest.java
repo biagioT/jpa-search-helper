@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JPASearchCoreValueProcessorTest {
 
     @Test
-    public void processValueTest() {
+    public void processValue() {
 
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
         var res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("id").getKey(), "id", "12345", false);

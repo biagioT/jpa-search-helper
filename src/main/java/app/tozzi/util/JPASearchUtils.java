@@ -22,9 +22,10 @@ public class JPASearchUtils {
     private static final String IGNORE_CASE_OPTION_IDENTIFIER = "#i";
     private static final String NEGATION_OPTION_IDENTIFIER = "#n";
     private static final String TRIM_OPTION_IDENTIFIER = "#t";
+    private static final String PROJECTION_KEY = "selections";
 
     public static JPASearchInput toObject(Map<String, String> filters,
-                                          boolean processPaginationOptions, boolean processSortOption
+                                          boolean processPaginationOptions, boolean processSortOption, boolean processProjection
     ) {
 
         if (filters == null || filters.isEmpty()) {
@@ -35,6 +36,10 @@ public class JPASearchUtils {
 
             if (processPaginationOptions) {
                 throw new JPASearchException("Invalid pagination filters");
+            }
+
+            if (processProjection) {
+                throw new JPASearchException("Invalid projection selection");
             }
 
             return JPASearchUtils.EMPTY_INPUT;
@@ -63,6 +68,15 @@ public class JPASearchUtils {
                             }
                         }
 
+                        return;
+                    }
+
+                    if (processProjection && e.getKey().equals(PROJECTION_KEY)) {
+                        if (res.getOptions() == null) {
+                            res.setOptions(new JPASearchInput.JPASearchOptions());
+                        }
+
+                        res.getOptions().setSelections(GenericUtils.split(e.getValue(), ",", null));
                         return;
                     }
 

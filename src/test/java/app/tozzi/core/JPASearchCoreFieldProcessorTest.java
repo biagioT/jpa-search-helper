@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JPASearchCoreFieldProcessorTest {
 
     @Test
-    public void processFieldTest() {
+    public void processField() {
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
 
         FieldDescriptor fd = JPASearchCoreFieldProcessor.processField("stringOne", Collections.emptyMap(), searchableFields, true, false, false);

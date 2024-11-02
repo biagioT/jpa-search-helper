@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class JPASearchSortTypeTest {
 
     @Test
-    public void loadSortTypeTest() {
+    public void loadSortType() {
         assertEquals(JPASearchSortType.ASC, JPASearchSortType.load("asc", null));
         assertEquals(JPASearchSortType.ASC, JPASearchSortType.load("ASC", null));
         assertEquals(JPASearchSortType.ASC, JPASearchSortType.load("asc", JPASearchSortType.ASC));

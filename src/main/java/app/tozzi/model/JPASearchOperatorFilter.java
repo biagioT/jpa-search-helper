@@ -5,6 +5,7 @@ import app.tozzi.function.JPASearchFunctions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Getter
@@ -33,6 +34,10 @@ public enum JPASearchOperatorFilter {
     public static JPASearchOperatorFilter load(String name) {
         return Stream.of(JPASearchOperatorFilter.values()).filter(f -> f.getValue().equals(name)).findAny()
                 .orElseThrow(() -> new JPASearchException("Unknown operator: " + name));
+    }
+
+    public static List<String> getAllValues() {
+        return Stream.of(JPASearchOperatorFilter.values()).map(v -> v.value).toList();
     }
 
 }

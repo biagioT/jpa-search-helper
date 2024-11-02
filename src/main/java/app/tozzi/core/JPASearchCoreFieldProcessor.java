@@ -7,14 +7,15 @@ import app.tozzi.model.FieldDescriptor;
 import app.tozzi.model.JPASearchType;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 public class JPASearchCoreFieldProcessor {
 
-    protected static FieldDescriptor processField(String field, Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Class<?>>> searchableFields, boolean throwIfFieldNotExists, boolean throwsIfNotSortable, boolean checkSortable) {
-        Map<String, Pair<Pair<Searchable, Class<?>>, Tag>> tagMap = new HashMap<>();
+    protected static FieldDescriptor processField(String field, Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields, boolean throwIfFieldNotExists, boolean throwsIfNotSortable, boolean checkSortable) {
+        Map<String, Pair<Pair<Searchable, Field>, Tag>> tagMap = new HashMap<>();
         searchableFields.entrySet().stream().filter(e -> e.getValue().getKey().tags() != null && e.getValue().getKey().tags().length > 0)
                 .forEach(e -> Stream.of(e.getValue().getKey().tags()).forEach(t -> {
                     tagMap.put(t.fieldKey(), Pair.of(e.getValue(), t));
@@ -37,7 +38,7 @@ public class JPASearchCoreFieldProcessor {
         }
 
         var searchable = searchableFields.containsKey(field) ? searchableFields.get(field).getKey() : tagMap.get(field).getKey().getKey();
-        var type = searchableFields.containsKey(field) ? searchableFields.get(field).getValue() : tagMap.get(field).getKey().getValue();
+        var type = searchableFields.containsKey(field) ? searchableFields.get(field).getValue().getType() : tagMap.get(field).getKey().getValue().getType();
 
         if (checkSortable && !searchable.sortable()) {
             if (throwsIfNotSortable) {

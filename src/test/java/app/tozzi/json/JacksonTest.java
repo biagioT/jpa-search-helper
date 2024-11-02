@@ -14,7 +14,6 @@ public class JacksonTest {
 
         String json = """
                 {
-                                
                     "filter" : {
                         "operator" : "or",
                         "filters" : [
@@ -55,9 +54,13 @@ public class JacksonTest {
                         ]
                     },
                     "options" : {
-                        "pageSize": 4
+                        "pageSize": 4,
+                        "selections" : [
+                            "sel1",
+                            "sel2"
+                        ]
                     }
-                                
+                
                 }
                 """;
 
@@ -73,8 +76,12 @@ public class JacksonTest {
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.FilterSingleValue fsv && fsv.getOperator().equals("null") && fsv.getValue() == null && fsv.getOptions() != null && fsv.getOptions().isNegate() && fsv.getKey().equals("isbn")));
         assertTrue(input.getFilter().getFilters().stream().anyMatch(f -> f instanceof JPASearchInput.RootFilter rf && rf.getOperator().equals("and") && rf.getFilters() != null && rf.getFilters().size() == 2
                 && rf.getFilters().get(0) instanceof JPASearchInput.FilterSingleValue fsvSub1 && fsvSub1.getOperator().equals("null") && fsvSub1.getKey().equals("title") && fsvSub1.getValue() == null && fsvSub1.getOptions() != null && fsvSub1.getOptions().isNegate()
-                && rf.getFilters().get(1) instanceof JPASearchInput.FilterSingleValue fsvSub2 && fsvSub2.getOperator().equals("gte") && fsvSub2.getKey().equals("pages") && fsvSub2.getValue() instanceof Integer i  && i == 10
+                && rf.getFilters().get(1) instanceof JPASearchInput.FilterSingleValue fsvSub2 && fsvSub2.getOperator().equals("gte") && fsvSub2.getKey().equals("pages") && fsvSub2.getValue() instanceof Integer i && i == 10
         ));
+        assertNotNull(input.getOptions());
+        assertEquals(4, input.getOptions().getPageSize());
+        assertNotNull(input.getOptions().getSelections());
+        assertEquals(2, input.getOptions().getSelections().size());
 
     }
 

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GenericUtilsTest {
 
     @Test
-    public void containsSeparatorTest() {
+    public void containsSeparator_1() {
         assertTrue(GenericUtils.containsSeparator("test1,test2", ",", null));
         assertTrue(GenericUtils.containsSeparator("test1,test2", ",", "/"));
         assertTrue(GenericUtils.containsSeparator("test1,test2/,test3", ",", "/"));
@@ -25,21 +25,21 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void notContainsSeparatorTest() {
+    public void containsSeparator_2() {
         assertFalse(GenericUtils.containsSeparator("test1,test2", ";", null));
         assertFalse(GenericUtils.containsSeparator("test1/,test2", ",", "/"));
         assertFalse(GenericUtils.containsSeparator("test1;,test2", ",", ";"));
     }
 
     @Test
-    public void loadIntTest() {
+    public void loadInt() {
         assertEquals(10, GenericUtils.loadInt("10", 1));
         assertEquals(1, GenericUtils.loadInt("10a", 1));
-        assertEquals(10, GenericUtils.loadInt( String.valueOf(Long.MAX_VALUE), 10));
+        assertEquals(10, GenericUtils.loadInt(String.valueOf(Long.MAX_VALUE), 10));
     }
 
     @Test
-    public void splitTest() {
+    public void split() {
         List<String> splitted = GenericUtils.split("test1,test2", ",", null);
         assertNotNull(splitted);
         assertFalse(splitted.isEmpty());
@@ -97,7 +97,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void formatNumberTest() throws ParseException {
+    public void formatNumber() throws ParseException {
         Number res = GenericUtils.formatNumber(10.0f, "#.000", false);
         assertNotNull(res);
         assertEquals(10.000f, res.floatValue(), 0.0001);
@@ -124,7 +124,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseFloatTest() {
+    public void parseFloat() {
         Float fl = GenericUtils.parseFloat("field", 10f);
         assertEquals(10f, fl);
 
@@ -138,7 +138,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseLongTest() {
+    public void parseLong() {
         Long ln = GenericUtils.parseLong("field", 10L);
         assertEquals(10L, ln);
 
@@ -152,7 +152,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseDoubleTest() {
+    public void parseDouble() {
         Double db = GenericUtils.parseDouble("field", 10d);
         assertEquals(10d, db);
 
@@ -166,7 +166,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseIntegerTest() {
+    public void parseInteger() {
         Integer i = GenericUtils.parseInteger("field", 10);
         assertEquals(10, i);
 
@@ -180,7 +180,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseBigDecimalTest() {
+    public void parseBigDecimal() {
         BigDecimal bd = GenericUtils.parseBigDecimal("field", new BigDecimal(10));
         assertEquals(new BigDecimal(10), bd);
 
@@ -194,7 +194,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void containsOnlyDigitsTest() {
+    public void containsOnlyDigits() {
         assertTrue(GenericUtils.containsOnlyDigits("01234"));
         assertTrue(GenericUtils.containsOnlyDigits("1"));
         assertTrue(GenericUtils.containsOnlyDigits("1234"));
@@ -204,7 +204,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseBooleanTest() {
+    public void parseBoolean() {
         assertTrue(GenericUtils.parseBoolean("test", true));
         assertTrue(GenericUtils.parseBoolean("test", "true"));
         assertTrue(GenericUtils.parseBoolean("test", Boolean.TRUE));
@@ -217,7 +217,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseDateTest() throws ParseException {
+    public void parseDate() throws ParseException {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseDate("field", 20240622, "yyyy-MM-dd"));
         assertThrows(ParseException.class, () -> GenericUtils.parseDate("field", "22/06/2024", "yyyyMMdd"));
 
@@ -265,7 +265,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseLocalDateTest() {
+    public void parseLocalDate() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDate("field", 20240622, "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDate("field", "22/06/2024", "yyyy-MM-dd"));
 
@@ -299,7 +299,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseLocalDateTimeTest() {
+    public void parseLocalDateTime() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDateTime("field", 20240622152200L, "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDateTime("field", "2024-06-22", "yyyy-MM-dd"));
@@ -329,7 +329,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseOffsetDateTime() {
+    public void parseOffsetDate() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", 20240622152200L, "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22", "yyyy-MM-dd"));
@@ -399,7 +399,7 @@ public class GenericUtilsTest {
     }
 
     @Test
-    public void parseLocalTimeTest() {
+    public void parseLocalTime() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalTime("field", 20240622152200L, "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
         assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalTime("field", "2024-06-22", "yyyy-MM-dd"));

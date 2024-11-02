@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JPASearchPaginationFilterTest {
 
     @Test
-    public void loadPaginationFilterTest() {
+    public void loadPaginationFilter() {
         assertEquals(JPASearchPaginationFilter.SORT, JPASearchPaginationFilter.load("sort"));
         assertEquals(JPASearchPaginationFilter.LIMIT, JPASearchPaginationFilter.load("limit"));
         assertEquals(JPASearchPaginationFilter.OFFSET, JPASearchPaginationFilter.load("offset"));
@@ -19,7 +19,7 @@ public class JPASearchPaginationFilterTest {
     }
 
     @Test
-    public void loadKeysTest() {
+    public void loadKeys() {
         List<String> keys = JPASearchPaginationFilter.keys();
         assertNotNull(keys);
         assertFalse(keys.isEmpty());

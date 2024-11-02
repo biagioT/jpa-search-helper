@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -21,8 +22,18 @@ import java.util.Map;
 @AllArgsConstructor
 public class JPASearchCore {
 
+    /**
+     * Generates a {@link Specification} from the search filters
+     *
+     * @param filter
+     * @param searchableFields
+     * @param fetchMap
+     * @param entityFieldMap
+     * @param <R>
+     * @return
+     */
     public static <R> Specification<R> specification(JPASearchInput.RootFilter filter,
-                                                     Map<String, Pair<Searchable, Class<?>>> searchableFields,
+                                                     Map<String, Pair<Searchable, Field>> searchableFields,
                                                      Map<String, JoinType> fetchMap,
                                                      Map<String, String> entityFieldMap) {
 
@@ -48,16 +59,51 @@ public class JPASearchCore {
         };
     }
 
+    /**
+     * Generate sorting parameters
+     *
+     * @param options
+     * @param searchableFields
+     * @param entityFieldMap
+     * @return
+     */
     public static Sort loadSort(JPASearchInput.JPASearchOptions options,
-                                Map<String, Pair<Searchable, Class<?>>> searchableFields,
+                                Map<String, Pair<Searchable, Field>> searchableFields,
                                 Map<String, String> entityFieldMap) {
 
         return loadSort(options, searchableFields, entityFieldMap, false);
 
     }
 
+    /**
+     * Generate pagination parameters
+     *
+     * @param options
+     * @param searchableFields
+     * @param entityFieldMap
+     * @return
+     */
+    public static PageRequest loadSortAndPagination(JPASearchInput.JPASearchOptions options, Map<String, Pair<Searchable, Field>> searchableFields, Map<String, String> entityFieldMap) {
+
+        if (options == null || options.getPageSize() == null || options.getPageSize() <= 0) {
+            throw new JPASearchException("Invalid or not present page size value");
+        }
+
+        var result = PageRequest.ofSize(options.getPageSize());
+        if (options.getPageOffset() != null && options.getPageOffset() >= 0) {
+            result = result.withPage(options.getPageOffset());
+        }
+
+        var sort = loadSort(options, searchableFields, entityFieldMap, true);
+        if (sort != null) {
+            result = result.withSort(sort);
+        }
+
+        return result;
+    }
+
     private static Sort loadSort(JPASearchInput.JPASearchOptions options,
-                                 Map<String, Pair<Searchable, Class<?>>> searchableFields,
+                                 Map<String, Pair<Searchable, Field>> searchableFields,
                                  Map<String, String> entityFieldMap, boolean nullable) {
 
         if (options == null || options.getSortKey() == null) {
@@ -82,30 +128,11 @@ public class JPASearchCore {
         return sort;
     }
 
-    public static PageRequest loadSortAndPagination(JPASearchInput.JPASearchOptions options, Map<String, Pair<Searchable, Class<?>>> searchableFields, Map<String, String> entityFieldMap) {
-
-        if (options == null || options.getPageSize() == null || options.getPageSize() <= 0) {
-            throw new JPASearchException("Invalid or not present page size value");
-        }
-
-        var result = PageRequest.ofSize(options.getPageSize());
-        if (options.getPageOffset() != null && options.getPageOffset() >= 0) {
-            result = result.withPage(options.getPageOffset());
-        }
-
-        var sort = loadSort(options, searchableFields, entityFieldMap, true);
-        if (sort != null) {
-            result = result.withSort(sort);
-        }
-
-        return result;
-    }
-
     private static Expression<?> processExpression(
             JPASearchInput.Filter filter,
             CriteriaBuilder cb,
             Root<?> root,
-            Map<String, Pair<Searchable, Class<?>>> searchableFields,
+            Map<String, Pair<Searchable, Field>> searchableFields,
             Map<String, String> entityFieldMap
     ) {
 
@@ -140,7 +167,7 @@ public class JPASearchCore {
             CriteriaBuilder cb,
             Root<?> root,
             Map<String, String> entityFieldMap,
-            Map<String, Pair<Searchable, Class<?>>> searchableFields
+            Map<String, Pair<Searchable, Field>> searchableFields
     ) {
 
         if (filter instanceof JPASearchInput.RootFilter) {

@@ -13,9 +13,4 @@ public class InvalidFieldException extends JPASearchException {
         this.field = field;
     }
 
-    public InvalidFieldException(String message, Throwable cause, String field) {
-        super(message, cause);
-        this.field = field;
-    }
-
 }

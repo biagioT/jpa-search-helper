@@ -44,7 +44,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    public void simpleORCoreTest1() {
+    public void mode2_1() {
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -69,7 +69,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    public void simpleORCoreTest2() {
+    public void mode2_2() {
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -94,7 +94,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    public void complexTest1() {
+    public void mode2_3() {
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -132,7 +132,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    public void complexTest2() {
+    public void mode2_4() {
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
@@ -186,7 +186,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    public void emptyFiltersTestMode1() {
+    public void mode1_emptyFilters() {
         List<MyEntity> res = myRepository.findAll(emptyMap(), MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
@@ -194,7 +194,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void onlyPaginationTestMode1() {
+    void mode1_onlyPaginationWithoutFilters() {
         Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(Map.of("_limit", "50", "_offset", "0"), MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
@@ -202,7 +202,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void onlySortingTestMode1() {
+    void mode1_onlySortingWithoutFilters() {
         List<MyEntity> res = myRepository.findAllSorted(Map.of("stringOne_sort", "DESC"), MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
@@ -210,7 +210,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void paginationAndSortingTestMode1() {
+    void mode1_paginationAndSortingWithoutFilters() {
         Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(Map.of("stringOne_sort", "DESC",
                         "_limit", "50",
                         "_offset", "0"),
@@ -221,7 +221,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void onlyPaginationTestMode2() {
+    void mode2_onlyPaginationWithoutFilters() {
         var options = new JPASearchInput.JPASearchOptions();
         options.setPageOffset(0);
         options.setPageSize(50);
@@ -235,7 +235,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void onlySortingTestMode2() {
+    void mode2_onlySortingWithoutFilters() {
         var options = new JPASearchInput.JPASearchOptions();
         options.setSortKey("stringOne");
         options.setSortDesc(true);
@@ -249,7 +249,7 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void paginationAndSortingTestMode2() {
+    void mode2_paginationAndSortingWithoutFilters() {
         var options = new JPASearchInput.JPASearchOptions();
         options.setPageOffset(0);
         options.setPageSize(50);
@@ -265,25 +265,371 @@ public class JPASearchCoreTest {
     }
 
     @Test
-    void invalidPaginationMode1() {
+    void mode1_invalidPagination() {
         assertThrows(JPASearchException.class, () -> myRepository.findAllWithPaginationAndSorting(emptyMap(), MyModel.class));
     }
 
     @Test
-    void invalidSortMode1() {
+    void mode1_invalidSort() {
         assertThrows(JPASearchException.class, () -> myRepository.findAllSorted(emptyMap(), MyModel.class));
     }
 
     @Test
-    void invalidPaginationMode2() {
+    void mode2_invalidPagination() {
         var input = new JPASearchInput();
         assertThrows(JPASearchException.class, () -> myRepository.findAllWithPaginationAndSorting(input, MyModel.class));
     }
 
     @Test
-    void invalidSortMode2() {
+    void mode2_invalidSort() {
         var input = new JPASearchInput();
         assertThrows(JPASearchException.class, () -> myRepository.findAllSorted(input, MyModel.class));
+    }
+
+    @Test
+    void mode2_projection() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+
+        var ff4 = new JPASearchInput.RootFilter();
+        ff4.setOperator("or");
+        ff4.setFilters(new ArrayList<>());
+        var ff41 = new JPASearchInput.FilterMultipleValues();
+        ff41.setKey("stringFalse");
+        ff41.setValues(List.of("StringFalse_1", "StringFalse_3"));
+        ff41.setOperator("in");
+        ff4.getFilters().add(ff41);
+        var ff42 = new JPASearchInput.FilterSingleValue();
+        ff42.setKey("stringFalse");
+        ff42.setValue("StringFalse_2");
+        ff42.setOperator("in");
+        ff42.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff42.getOptions().setNegate(true);
+        ff4.getFilters().add(ff42);
+        root.getFilters().add(ff4);
+
+        input.setOptions(new JPASearchInput.JPASearchOptions());
+        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
+
+        input.setFilter(root);
+        List<Map<String, Object>> res = myRepository.projection(input, MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+    }
+
+    @Test
+    public void mode2_projectionWithSorting() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+        input.setFilter(root);
+
+        input.setOptions(new JPASearchInput.JPASearchOptions());
+        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
+        input.getOptions().setSortKey("stringMail");
+        input.getOptions().setSortDesc(true);
+
+        List<Map<String, Object>> res = myRepository.projectionWithSorting(input, MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(2, res.size());
+
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email2@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(2L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+        assertTrue(
+                res.stream()
+                        .findFirst()
+                        .filter(m -> m.containsKey("email") && m.get("email").equals("email2@example.com"))
+                        .isPresent()
+        );
+    }
+
+    @Test
+    public void mode2_projectionWithSorting_2() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+        input.setFilter(root);
+
+        input.setOptions(new JPASearchInput.JPASearchOptions());
+        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
+        input.getOptions().setSortKey("stringMail");
+        input.getOptions().setSortDesc(false);
+
+        List<Map<String, Object>> res = myRepository.projectionWithSorting(input, MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(2, res.size());
+
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email2@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(2L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+        assertTrue(
+                res.stream()
+                        .findFirst()
+                        .filter(m -> m.containsKey("email") && m.get("email").equals("email1@example.com"))
+                        .isPresent()
+        );
+    }
+
+    @Test
+    public void mode2_projectionWithSortingAndPagination_1() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+        input.setFilter(root);
+
+        input.setOptions(new JPASearchInput.JPASearchOptions());
+        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
+        input.getOptions().setSortKey("stringMail");
+        input.getOptions().setSortDesc(false);
+        input.getOptions().setPageSize(1);
+
+        List<Map<String, Object>> res = myRepository.projectionPaginated(input, MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+        assertTrue(
+                res.stream()
+                        .findFirst()
+                        .filter(m -> m.containsKey("email") && m.get("email").equals("email1@example.com"))
+                        .isPresent()
+        );
+    }
+
+    @Test
+    public void mode2_projectionWithSortingAndPagination_2() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+        input.setFilter(root);
+
+        input.setOptions(new JPASearchInput.JPASearchOptions());
+        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
+        input.getOptions().setSortKey("stringMail");
+        input.getOptions().setSortDesc(false);
+        input.getOptions().setPageSize(1);
+        input.getOptions().setPageOffset(1);
+
+        List<Map<String, Object>> res = myRepository.projectionPaginated(input, MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email2@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(2L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+        assertTrue(
+                res.stream()
+                        .findFirst()
+                        .filter(m -> m.containsKey("email") && m.get("email").equals("email2@example.com"))
+                        .isPresent()
+        );
+    }
+
+    @Test
+    void mode1_projection() {
+        List<Map<String, Object>> res = myRepository.projection(Map.of("id_eq", "1", "selections", "stringMail,mySubModel.searchMe"), MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+    }
+
+    @Test
+    void mode1_projection_2() {
+        List<Map<String, Object>> res = myRepository.projection(Map.of("selections", "stringMail,mySubModel.searchMe"), MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.size());
+    }
+
+    @Test
+    void mode2_projection_2() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("stringOne");
+        ff1.setValue("stringone");
+        ff1.setOperator("startsWith");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringTwo");
+        ff2.setValue("two");
+        ff2.setOperator("contains");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        var ff3 = new JPASearchInput.FilterMultipleValues();
+        ff3.setKey("stringMail");
+        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
+        ff3.setOperator("in");
+        root.getFilters().add(ff3);
+
+        var ff4 = new JPASearchInput.RootFilter();
+        ff4.setOperator("or");
+        ff4.setFilters(new ArrayList<>());
+        var ff41 = new JPASearchInput.FilterMultipleValues();
+        ff41.setKey("stringFalse");
+        ff41.setValues(List.of("StringFalse_1", "StringFalse_3"));
+        ff41.setOperator("in");
+        ff4.getFilters().add(ff41);
+        var ff42 = new JPASearchInput.FilterSingleValue();
+        ff42.setKey("stringFalse");
+        ff42.setValue("StringFalse_2");
+        ff42.setOperator("in");
+        ff42.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff42.getOptions().setNegate(true);
+        ff4.getFilters().add(ff42);
+        root.getFilters().add(ff4);
+
+        input.setOptions(new JPASearchInput.JPASearchOptions());
+        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe", "list.other"));
+
+        input.setFilter(root);
+        List<Map<String, Object>> res = myRepository.projection(input, MyModel.class, MyEntity.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
+        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
     }
 
     private void setUp() {

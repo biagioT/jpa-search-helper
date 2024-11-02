@@ -1,8 +1,6 @@
 package app.tozzi.model;
 
-import app.tozzi.annotation.NestedSearchable;
-import app.tozzi.annotation.Searchable;
-import app.tozzi.annotation.Tag;
+import app.tozzi.annotation.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,6 +11,7 @@ import java.util.List;
 @Data
 public class MyModel {
 
+    @Projectable
     @Searchable(targetType = JPASearchType.LONG)
     private String id;
 
@@ -28,6 +27,7 @@ public class MyModel {
     @Searchable(allowLikeFilters = false)
     private String stringFalse;
 
+    @Projectable(entityFieldKey = "email")
     @Searchable(regexPattern = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$", entityFieldKey = "email")
     private String stringMail;
 
@@ -91,6 +91,7 @@ public class MyModel {
     @Searchable
     private Boolean wrapperBoolean;
 
+    @NestedProjectable
     @NestedSearchable
     private MySubModel mySubModel;
 
@@ -98,12 +99,14 @@ public class MyModel {
     private String notSearchableTwo;
     private Long notSearchableThree;
 
+    @NestedProjectable
     @NestedSearchable
     private List<MyOtherSubModel> list;
 
     @Data
     public static class MySubModel {
 
+        @Projectable(entityFieldKey = "test2.colTest2")
         @Searchable(entityFieldKey = "test2.colTest2")
         private String searchMe;
 
@@ -127,6 +130,7 @@ public class MyModel {
     @Data
     public static class MyOtherSubModel {
 
+        @Projectable(entityFieldKey = "test1.entity6s.colTest6")
         @Searchable(entityFieldKey = "test1.entity6s.colTest6")
         private String other;
     }

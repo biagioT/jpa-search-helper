@@ -29,7 +29,7 @@ public class JPASearchUtilsTest {
     private EntityManager entityManager;
 
     @Test
-    public void fetchManagementTest() {
+    public void fetchManagement() {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<MyEntity> criteriaQuery = criteriaBuilder.createQuery(MyEntity.class);
         Root<MyEntity> root = criteriaQuery.from(MyEntity.class);
@@ -55,7 +55,7 @@ public class JPASearchUtilsTest {
     }
 
     @Test
-    public void getPathTest() {
+    public void getPath() {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<MyEntity> criteriaQuery = criteriaBuilder.createQuery(MyEntity.class);
         Root<MyEntity> root = criteriaQuery.from(MyEntity.class);
@@ -81,12 +81,12 @@ public class JPASearchUtilsTest {
     }
 
     @Test
-    public void filtersMapToInputObjectDescendingTest() {
+    public void mode1ToMode2_1() {
         Map<String, String> filters = generateRandomMap();
         filters.put("_limit", "10");
         filters.put("_offset", "1");
         filters.put("id_sort", "DESC");
-        var input = JPASearchUtils.toObject(filters, true, true);
+        var input = JPASearchUtils.toObject(filters, true, true, false);
         assertNotNull(input);
         assertNotNull(input.getOptions());
         assertEquals(1, input.getOptions().getPageOffset());
@@ -109,12 +109,12 @@ public class JPASearchUtilsTest {
     }
 
     @Test
-    public void filtersMapToInputObjectTest() {
+    public void mode1ToMode2_2() {
         Map<String, String> filters = generateRandomMap();
         filters.put("_limit", "10");
         filters.put("_offset", "1");
         filters.put("id_sort", "ASC");
-        var input = JPASearchUtils.toObject(filters, true, true);
+        var input = JPASearchUtils.toObject(filters, true, true, false);
         assertNotNull(input);
         assertNotNull(input.getOptions());
         assertEquals(1, input.getOptions().getPageOffset());
@@ -137,26 +137,26 @@ public class JPASearchUtilsTest {
     }
 
     @Test
-    public void emptyFiltersTest1() {
-        var empty1 = JPASearchUtils.toObject(null, false, false);
+    public void emptyFilters_1() {
+        var empty1 = JPASearchUtils.toObject(null, false, false, false);
         assertNotNull(empty1);
         assertNull(empty1.getFilter());
-        var empty2 = JPASearchUtils.toObject(Collections.emptyMap(), false, false);
+        var empty2 = JPASearchUtils.toObject(Collections.emptyMap(), false, false, false);
         assertNotNull(empty2);
         assertNull(empty2.getFilter());
     }
 
     @Test
-    public void emptyFiltersTest2() {
-        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(null, true, true));
-        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(null, false, true));
-        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(null, true, false));
-        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(Collections.emptyMap(), true, true));
-        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(Collections.emptyMap(), false, true));
-        assertThrows(JPASearchException.class, ()  -> JPASearchUtils.toObject(Collections.emptyMap(), true, false));
+    public void emptyFilters_2() {
+        assertThrows(JPASearchException.class, () -> JPASearchUtils.toObject(null, true, true, false));
+        assertThrows(JPASearchException.class, () -> JPASearchUtils.toObject(null, false, true, false));
+        assertThrows(JPASearchException.class, () -> JPASearchUtils.toObject(null, true, false, false));
+        assertThrows(JPASearchException.class, () -> JPASearchUtils.toObject(Collections.emptyMap(), true, true, false));
+        assertThrows(JPASearchException.class, () -> JPASearchUtils.toObject(Collections.emptyMap(), false, true, false));
+        assertThrows(JPASearchException.class, () -> JPASearchUtils.toObject(Collections.emptyMap(), true, false, false));
     }
 
-    public static Map<String, String> generateRandomMap() {
+    private static Map<String, String> generateRandomMap() {
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("id_eq", String.valueOf(generateRandomValue(String.class)));
         resultMap.put("stringOne_contains", String.valueOf(generateRandomValue(String.class)));

@@ -27,6 +27,7 @@ public class JPASearchInput {
         private Boolean sortDesc = false;
         private Integer pageSize;
         private Integer pageOffset;
+        private List<String> selections;
     }
 
     @JsonTypeInfo(
