@@ -72,7 +72,7 @@ public class JPAProjectionProcessorTest {
         input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
         var idFields = ReflectionUtils.getIdFields(MyEntity.class);
-        var query = JPAProjectionProcessor.getQuery(input, MyModel.class, MyEntity.class, entityManager.getCriteriaBuilder(), idFields, false, false, null, null, searchableFields);
+        var query = JPAProjectionProcessor.getQuery(input, MyModel.class, MyEntity.class, entityManager.getCriteriaBuilder(), idFields, false, null, null, searchableFields);
         assertEquals(4, query.getSelections().size());
     }
 
@@ -80,7 +80,7 @@ public class JPAProjectionProcessorTest {
     public void getQuery_mode1() {
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
         var idFields = ReflectionUtils.getIdFields(MyEntity.class);
-        var query = JPAProjectionProcessor.getQuery(Map.of("id_eq", "1", "selections", "stringMail,mySubModel.searchMe"), MyModel.class, MyEntity.class, entityManager.getCriteriaBuilder(), idFields, false, false, null, null, searchableFields);
+        var query = JPAProjectionProcessor.getQuery(Map.of("id_eq", "1", "selections", "stringMail,mySubModel.searchMe"), MyModel.class, MyEntity.class, entityManager.getCriteriaBuilder(), idFields, false, null, null, searchableFields);
         assertEquals(4, query.getSelections().size());
     }
 

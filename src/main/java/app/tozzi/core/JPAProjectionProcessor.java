@@ -10,15 +10,11 @@ import app.tozzi.model.input.JPASearchInput;
 import app.tozzi.util.JPASearchUtils;
 import app.tozzi.util.ReflectionUtils;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 
@@ -28,16 +24,8 @@ import java.util.stream.Collectors;
 
 public class JPAProjectionProcessor {
 
-    public static CriteriaQuery<Tuple> applySort(@NotNull CriteriaQuery<Tuple> criteriaQuery, @NotNull Sort sort, @NotNull Root<?> root, @NotNull CriteriaBuilder criteriaBuilder) {
-        return criteriaQuery.orderBy(QueryUtils.toOrders(sort, root, criteriaBuilder));
-    }
-
-    public static TypedQuery<Tuple> applyPagination(@NotNull TypedQuery<Tuple> typedQuery, @NotNull PageRequest pageRequest) {
-        return typedQuery.setFirstResult(pageRequest.getPageNumber()).setMaxResults(pageRequest.getPageSize());
-    }
-
     public static <E> ProjectionDescriptor getQuery(@NonNull JPASearchInput input, @NonNull Class<?> type, @NonNull Class<E> entityClass,
-                                                    @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields, boolean processPaginationOptions, boolean processSortOptions, Map<String, JoinType> fetchMap,
+                                                    @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields, boolean processSortOptions, Map<String, JoinType> fetchMap,
                                                     Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields, boolean overrideJoins, Map<String, JoinType> overrideJoinTypes) {
         Specification<E> specification = JPASearchCore.specification(
                 input.getFilter(),
@@ -52,7 +40,7 @@ public class JPAProjectionProcessor {
             criteriaQuery = query.where(predicate);
         }
 
-        if (!processPaginationOptions && processSortOptions) {
+        if (processSortOptions) {
             var sort = JPASearchCore.loadSort(input.getOptions(), searchableFields, entityFieldMap);
             criteriaQuery = criteriaQuery.orderBy(QueryUtils.toOrders(sort, root, criteriaBuilder));
         }
@@ -61,28 +49,28 @@ public class JPAProjectionProcessor {
     }
 
     public static <E> ProjectionDescriptor getQuery(@NonNull JPASearchInput input, @NonNull Class<?> type, @NonNull Class<E> entityClass,
-                                                    @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields, boolean processPaginationOptions, boolean processSortOptions, Map<String, JoinType> fetchMap,
+                                                    @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields, boolean processSortOptions, Map<String, JoinType> fetchMap,
                                                     Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields) {
 
-        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processPaginationOptions, processSortOptions, fetchMap, entityFieldMap, searchableFields, false, null);
+        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processSortOptions, fetchMap, entityFieldMap, searchableFields, false, null);
     }
 
     public static <E> ProjectionDescriptor getQuery(@NonNull Map<String, String> filters, @NonNull Class<?> type,
                                                     @NonNull Class<E> entityClass, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields,
-                                                    boolean processPaginationOptions, boolean processSortOptions, Map<String, JoinType> fetchMap,
+                                                    boolean processSortOptions, Map<String, JoinType> fetchMap,
                                                     Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields) {
 
-        var input = JPASearchUtils.toObject(filters, processPaginationOptions, processSortOptions, true);
-        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processPaginationOptions, processSortOptions, fetchMap, entityFieldMap, searchableFields);
+        var input = JPASearchUtils.toObject(filters, false, processSortOptions, true);
+        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processSortOptions, fetchMap, entityFieldMap, searchableFields);
     }
 
     public static <E> ProjectionDescriptor getQuery(@NonNull Map<String, String> filters, @NonNull Class<?> type,
                                                     @NonNull Class<E> entityClass, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields,
-                                                    boolean processPaginationOptions, boolean processSortOptions, Map<String, JoinType> fetchMap,
+                                                    boolean processSortOptions, Map<String, JoinType> fetchMap,
                                                     Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields, boolean overrideJoins, Map<String, JoinType> overrideJoinTypes) {
 
-        var input = JPASearchUtils.toObject(filters, processPaginationOptions, processSortOptions, true);
-        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processPaginationOptions, processSortOptions, fetchMap, entityFieldMap, searchableFields, overrideJoins, overrideJoinTypes);
+        var input = JPASearchUtils.toObject(filters, false, processSortOptions, true);
+        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processSortOptions, fetchMap, entityFieldMap, searchableFields, overrideJoins, overrideJoinTypes);
     }
 
     public static List<Selection<?>> loadSelection(List<String> fields, Root<?> root, Class<?> entityClass,
