@@ -292,39 +292,6 @@ public class JPAProjectionProcessor {
         private JPAEntityId id;
     }
 
-//    private static void setValue(Map<String, Object> map, Object value, Selection<?> selection, Class<?> entityClass, Map<Class<?>, Map<String, Field>> idFields) throws NoSuchFieldException {
-//
-//        var path = selection.getAlias().split("\\.");
-//        var currentMap = map;
-//
-//        for (int i = 0; i < path.length; i++) {
-//            var currentPath = path[i];
-//            var field = entityClass.getDeclaredField(currentPath);
-//            field.setAccessible(true);
-//
-//            if (i == path.length - 1) {
-//                if (Collection.class.isAssignableFrom(field.getType())) {
-//                    ((Collection<Object>) currentMap.computeIfAbsent(currentPath, k -> createCollection(field))).add(value);
-//                } else {
-//                    currentMap.put(currentPath, value);
-//                }
-//
-//            } else {
-//                if (Collection.class.isAssignableFrom(field.getType())) {
-//                    var collection = (Collection<Object>) currentMap.computeIfAbsent(currentPath, k -> createCollection(field));
-//                    currentMap = new LinkedHashMap<>();
-//                    collection.add(currentMap);
-//
-//                } else {
-//                    var nestedMap = (Map<String, Object>) currentMap.computeIfAbsent(currentPath, k -> new LinkedHashMap<>());
-//                    currentMap = nestedMap;
-//                }
-//            }
-//
-//            entityClass = ReflectionUtils.getType(field);
-//        }
-//    }
-
     private static Collection<Object> createCollection(Field field) {
 
         if (List.class.isAssignableFrom(field.getType())) {
