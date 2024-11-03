@@ -571,7 +571,7 @@ In your manager, or in your service, or wherever you want to use the repository:
 
   public List<Person> advancedSearch() {
   
-	// Pure example, in real use case it is expected that these filters can be passed directly by the controller
+    // Pure example, in real use case it is expected that these filters can be passed directly by the controller
     Map<String, String> filters = new HashMap<>();
     filters.put("firstName_eq", "Biagio");
     filters.put("lastName_startsWith#i", "Toz"); // ignore case
@@ -582,18 +582,16 @@ In your manager, or in your service, or wherever you want to use the repository:
     filters.put("fillerOne_null#n", "true"); // not null
     filters.put("fillerTwo_empty", "true"); // empty
 
-	// Selections
-	filters.put("selections", "lastName,birthDate,company.employees");
+    // Selections
+    filters.put("selections", "lastName,birthDate,company.employees");
     
-    // Without pagination
+    // Without sorting
     List<Map<String, Object>> result = personRepository.projection(filters, Person.class, PersonEntity.class);
   
     filters.put("birthDate_sort" : "ASC"); // sorting key and sorting order
-    filters.put("_limit", "10"); // page size
-    filters.put("_offset", "0"); // page offset
     
-    // With pagination
-    List<Map<String, Object>> sortedAndPaginatedSearch = personRepository.projectionPaginated(filters, Person.class, PersonEntity.class);
+    // With sorting
+    List<Map<String, Object>> sortedAndPaginatedSearch = personRepository.projectionWithSorting(filters, Person.class, PersonEntity.class);
     
     // ... convert the list of maps into your model
   }
@@ -825,7 +823,7 @@ public class PersonManager {
   }
   
   public List<Person> projection(Map<String, String> filters) {
-    return personRepository.projectionPaginated(filters, Person.class, PersonEntity.class).stream().map(this::toModel).toList();
+    return personRepository.projection(filters, Person.class, PersonEntity.class).stream().map(this::toModel).toList();
   }
 
   private static Person toModel(PersonEntity personEntity) {
@@ -902,7 +900,7 @@ public class PersonManager {
   }
   
   public List<Person> find(JPASearchInput input) {
-    return personRepository.projectionPaginated(input, Person.class, PersonEntity.class).stream().map(this::toModel).toList();
+    return personRepository.projection(input, Person.class, PersonEntity.class).stream().map(this::toModel).toList();
   }
 
   private static PersonDTO toModel(PersonEntity entity) {
