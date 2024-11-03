@@ -1,3 +1,4 @@
+
 # JPA Search Helper
 
 Library for building and running advanced and dynamic queries using JPA in Spring Boot.
@@ -560,7 +561,7 @@ In your manager, or in your service, or wherever you want to use the repository:
 
 **Mode 1**: define (or add to the map used for the Mode 1 search) a map:
 
-- key: 'selections'
+- key: *selections*
 - value: the only fields that you want to extract separated by commas `,`
 
 ```java
@@ -690,6 +691,10 @@ Note 1:
 
 Note 2:
 > Projection, regardless of whether you want it or not, will always extract the fields that represent the primary keys of an entity (or related entities)
+
+Note 3:
+
+> Pagination is not supported
 
 #### Exceptions:
 - If a field does not exist, is not searchable, is not sortable or is not projectable, you will receive an `InvalidFieldException`.
