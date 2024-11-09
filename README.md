@@ -824,7 +824,7 @@ public class PersonManager {
   private PersonRepository personRepository;
 
   public List<Person> find(Map<String, String> filters) {
-    return personRepository.findAllWithPaginationAndSorting(filters, PersonDTO.class).stream().map(this::toModel).toList();
+    return personRepository.findAllWithPaginationAndSorting(filters, Person.class).stream().map(this::toModel).toList();
   }
   
   public List<Person> projection(Map<String, String> filters) {
@@ -901,18 +901,18 @@ public class PersonManager {
   private PersonRepository personRepository;
 
   public List<Person> find(JPASearchInput input) {
-    return personRepository.findAllWithPaginationAndSorting(input, PersonDTO.class).stream().map(this::toModel).toList();
+    return personRepository.findAllWithPaginationAndSorting(input, Person.class).stream().map(this::toModel).toList();
   }
   
   public List<Person> find(JPASearchInput input) {
     return personRepository.projection(input, Person.class, PersonEntity.class).stream().map(this::toModel).toList();
   }
 
-  private static PersonDTO toModel(PersonEntity entity) {
+  private static Person toModel(PersonEntity entity) {
     // ...
   }
   
-  private static PersonDTO toModel(Map<String, Object> entityMap) {
+  private static Person toModel(Map<String, Object> entityMap) {
     // ...
   }
 
@@ -1054,8 +1054,6 @@ curl -X POST -H "Content-type: application/json" -d '{
       ]
   },
   "options": {
-    "pageSize": 10,
-    "pageOffset": 0,
     "sortKey": "birthDate",
     "sortDesc": false,
     "selections" : [
