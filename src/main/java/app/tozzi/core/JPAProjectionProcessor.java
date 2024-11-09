@@ -48,31 +48,6 @@ public class JPAProjectionProcessor {
         return new ProjectionDescriptor(criteriaQuery, selections, input, root);
     }
 
-    public static <E> ProjectionDescriptor getQuery(@NonNull JPASearchInput input, @NonNull Class<?> type, @NonNull Class<E> entityClass,
-                                                    @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields, boolean processSortOptions, Map<String, JoinType> fetchMap,
-                                                    Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields) {
-
-        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processSortOptions, fetchMap, entityFieldMap, searchableFields, false, null);
-    }
-
-    public static <E> ProjectionDescriptor getQuery(@NonNull Map<String, String> filters, @NonNull Class<?> type,
-                                                    @NonNull Class<E> entityClass, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields,
-                                                    boolean processSortOptions, Map<String, JoinType> fetchMap,
-                                                    Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields) {
-
-        var input = JPASearchUtils.toObject(filters, false, processSortOptions, true);
-        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processSortOptions, fetchMap, entityFieldMap, searchableFields);
-    }
-
-    public static <E> ProjectionDescriptor getQuery(@NonNull Map<String, String> filters, @NonNull Class<?> type,
-                                                    @NonNull Class<E> entityClass, @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields,
-                                                    boolean processSortOptions, Map<String, JoinType> fetchMap,
-                                                    Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields, boolean overrideJoins, Map<String, JoinType> overrideJoinTypes) {
-
-        var input = JPASearchUtils.toObject(filters, false, processSortOptions, true);
-        return getQuery(input, type, entityClass, criteriaBuilder, idFields, processSortOptions, fetchMap, entityFieldMap, searchableFields, overrideJoins, overrideJoinTypes);
-    }
-
     public static List<Selection<?>> loadSelection(List<String> fields, Root<?> root, Class<?> entityClass,
                                                    Map<String, Pair<Projectable, Field>> projectableFields, Map<Class<?>, Map<String, Field>> idFields, boolean throwsIfNotExists, boolean overrideJoins, Map<String, JoinType> overrideJoinTypes) {
 
@@ -277,11 +252,7 @@ public class JPAProjectionProcessor {
 
     public static List<Map<String, Object>> toMap(List<Tuple> tuple, Class<?> entityClass, List<Selection<?>> selections, Map<Class<?>, Map<String, Field>> idFields) {
         Map<ClassID, Map<String, Object>> map = new LinkedHashMap<>();
-
-        for (var t : tuple) {
-            toMap(t, map, entityClass, selections, idFields);
-        }
-
+        tuple.forEach(t -> toMap(t, map, entityClass, selections, idFields));
         return map.entrySet().stream().filter(e -> e.getKey().getClazz().equals(entityClass)).map(Map.Entry::getValue).toList();
     }
 
@@ -296,11 +267,13 @@ public class JPAProjectionProcessor {
 
         if (List.class.isAssignableFrom(field.getType())) {
             return new ArrayList<>();
+        }
 
-        } else if (Set.class.isAssignableFrom(field.getType())) {
+        if (Set.class.isAssignableFrom(field.getType())) {
             return new HashSet<>();
+        }
 
-        } else if (Queue.class.isAssignableFrom(field.getType())) {
+        if (Queue.class.isAssignableFrom(field.getType())) {
             return new LinkedList<>();
         }
 

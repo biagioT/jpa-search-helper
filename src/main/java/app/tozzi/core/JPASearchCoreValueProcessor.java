@@ -83,8 +83,7 @@ public class JPASearchCoreValueProcessor {
                 case OFFSETDATETIME -> GenericUtils.parseOffsetDateTime(field, value, searchable.datePattern());
                 case OFFSETTIME -> GenericUtils.parseOffsetTime(field, value, searchable.datePattern());
                 case BOOLEAN -> GenericUtils.parseBoolean(field, value);
-                case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL ->
-                        formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
+                case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL -> formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
                 case ZONEDDATETIME -> GenericUtils.parseZonedDateTime(field, value, searchable.datePattern());
                 case UNTYPED -> throw new IllegalArgumentException();
             };

@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 @AllArgsConstructor
 public class JPASearchCore {
@@ -38,7 +39,7 @@ public class JPASearchCore {
                                                      Map<String, String> entityFieldMap) {
 
         if (filter == null) {
-            return null;
+            return Specification.where(null);
         }
 
         return (root, query, criteriaBuilder) -> {
@@ -49,13 +50,16 @@ public class JPASearchCore {
                     searchableFields,
                     entityFieldMap
             );
+
             if (expr == null) {
-                return null;
-            } else if (expr instanceof Predicate predicate) {
+                return criteriaBuilder.conjunction();
+            }
+
+            if (expr instanceof Predicate predicate) {
                 return predicate;
             }
 
-            throw new JPASearchException("Not resulting a predicate " + expr);
+            throw new JPASearchException("Not resulting a predicate: " + expr);
         };
     }
 
@@ -89,17 +93,12 @@ public class JPASearchCore {
             throw new JPASearchException("Invalid or not present page size value");
         }
 
-        var result = PageRequest.ofSize(options.getPageSize());
-        if (options.getPageOffset() != null && options.getPageOffset() >= 0) {
-            result = result.withPage(options.getPageOffset());
-        }
-
+        var result = PageRequest.ofSize(options.getPageSize()).withPage(options.getPageOffset() != null && options.getPageOffset() >= 0 ? options.getPageOffset() : 0);
         var sort = loadSort(options, searchableFields, entityFieldMap, true);
-        if (sort != null) {
-            result = result.withSort(sort);
-        }
 
-        return result;
+        return sort != null
+                ? result.withSort(sort)
+                : result;
     }
 
     private static Sort loadSort(JPASearchInput.JPASearchOptions options,
@@ -124,8 +123,7 @@ public class JPASearchCore {
         }
 
         var sort = Sort.by(des.getEntityKey());
-        sort = Boolean.TRUE.equals(options.getSortDesc()) ? sort.descending() : sort.ascending();
-        return sort;
+        return Boolean.TRUE.equals(options.getSortDesc()) ? sort.descending() : sort.ascending();
     }
 
     private static Expression<?> processExpression(
@@ -143,13 +141,10 @@ public class JPASearchCore {
             }
 
             var operator = JPASearchOperatorGroup.load(rootFilter.getOperator());
-            var arguments = new ArrayList<>();
-            for (JPASearchInput.Filter f : rootFilter.getFilters()) {
-                var ex = process(f, cb, root, entityFieldMap, searchableFields);
-                if (ex != null) {
-                    arguments.add(ex);
-                }
-            }
+            var arguments = rootFilter.getFilters().stream()
+                    .map(f -> process(f, cb, root, entityFieldMap, searchableFields))
+                    .filter(Objects::nonNull)
+                    .toList();
 
             if (arguments.isEmpty()) {
                 throw new JPASearchException("Invalid expression");
@@ -172,8 +167,9 @@ public class JPASearchCore {
 
         if (filter instanceof JPASearchInput.RootFilter) {
             return processExpression(filter, cb, root, searchableFields, entityFieldMap);
+        }
 
-        } else if (filter instanceof JPASearchInput.FieldFilter fieldFilter) {
+        if (filter instanceof JPASearchInput.FieldFilter fieldFilter) {
             var exps = new ArrayList<>();
             var searchFilter = JPASearchOperatorFilter.load(fieldFilter.getOperator());
             var descriptor = JPASearchCoreFieldProcessor.processField(fieldFilter.getKey(), entityFieldMap, searchableFields, true, true, false);
@@ -189,18 +185,21 @@ public class JPASearchCore {
             var trim = false;
             var ignoreCase = false;
 
-            if (descriptor.getSearchable().trim()) { // TODO  && SearchType.STRING.equals(descriptor.getSearchType())
+            if (descriptor.getSearchable().trim()) {
                 exp = cb.trim(path.as(String.class));
                 trim = true;
             }
 
-            if (!trim && fieldFilter.getOptions() != null && fieldFilter.getOptions().isTrim()) { // TODO  && SearchType.STRING.equals(descriptor.getSearchType())
-                exp = cb.trim(path.as(String.class));
-            }
+            if (fieldFilter.getOptions() != null) {
 
-            if (fieldFilter.getOptions() != null && fieldFilter.getOptions().isIgnoreCase()) { // TODO  && SearchType.STRING.equals(descriptor.getSearchType())
-                ignoreCase = true;
-                exp = exp != null ? cb.lower(exp.as(String.class)) : cb.lower(path.as(String.class));
+                if (!trim && fieldFilter.getOptions().isTrim()) {
+                    exp = cb.trim(path.as(String.class));
+                }
+
+                if (fieldFilter.getOptions().isIgnoreCase()) {
+                    ignoreCase = true;
+                    exp = exp != null ? cb.lower(exp.as(String.class)) : cb.lower(path.as(String.class));
+                }
             }
 
             exps.add(exp != null ? exp : path);

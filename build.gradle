@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '3.2.1'
+version = '3.2.2'
 
 java {
     sourceCompatibility = '17'
@@ -58,7 +58,7 @@ publishing {
         maven(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "3.2.1"
+            version = "3.2.2"
             from components.java
             pom {
                 name = 'JPA Search Helper'

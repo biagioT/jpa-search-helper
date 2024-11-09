@@ -59,8 +59,7 @@ public class JPASearchUtils {
 
                         var paginationFilter = e.getKey().endsWith("_" + JPASearchPaginationFilter.SORT.getValue()) ? JPASearchPaginationFilter.SORT : JPASearchPaginationFilter.load(e.getKey().substring(1));
                         switch (paginationFilter) {
-                            case LIMIT ->
-                                    res.getOptions().setPageSize(GenericUtils.loadInt(e.getValue(), processPaginationOptions ? 0 : -1));
+                            case LIMIT -> res.getOptions().setPageSize(GenericUtils.loadInt(e.getValue(), processPaginationOptions ? 0 : -1));
                             case OFFSET -> res.getOptions().setPageOffset(GenericUtils.loadInt(e.getValue(), 0));
                             case SORT -> {
                                 res.getOptions().setSortKey(e.getKey().substring(0, e.getKey().lastIndexOf("_")));
