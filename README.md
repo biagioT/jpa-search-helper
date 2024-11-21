@@ -110,9 +110,10 @@ curl -X POST -H "Content-type: application/json" -d '{
 - Spring Boot 3.2.x or later
 
 | JPA Search Helper | Spring Boot | Java      |  
-|------------------|-----------|-----------|  
-| [v0.0.1 - v2.1.1] | 3.2.x     | [17 - 22] |  
-| [v3.0.0 - latest] | 3.3.x     | [17 - 22] |  
+|-------------------|-------------|-----------|  
+| [v0.0.1 - v2.1.1] | 3.2.x       | [17 - 23] |  
+| [v3.0.0 - v3.2.2] | 3.3.x       | [17 - 23] |  
+| [v3.3.0 - latest] | 3.4.x       | [17 - 23] |  
 
 ## Project dependency
 #### Maven
@@ -120,13 +121,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.2.2</version>
+ <version>3.3.0</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.2.2  
+implementation 'app.tozzi:jpa-search-helper:3.3.0
 ```
 
 ## Queries - Usage
