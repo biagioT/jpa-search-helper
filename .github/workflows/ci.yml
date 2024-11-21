@@ -52,9 +52,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: JReleaser Check
-        run: ./gradlew jreleaserConfig
-
       - name: Clean
         run: ./gradlew clean
 
