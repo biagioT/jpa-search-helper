@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'org.jreleaser' version '1.15.0'
     id 'signing'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
@@ -89,18 +90,26 @@ publishing {
             }
         }
     }
+}
 
-    repositories {
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
         maven {
-            name "ossrh"
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = project.findProperty("sonatypeUsername") ?: System.getenv("SONATYPE_USER")
-                password = project.findProperty("sonatypePassword") ?: System.getenv("SONATYPE_TOKEN")
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('target/staging-deploy')
+                }
             }
         }
     }
 }
+
 
 signing {
     useGpgCmd()
