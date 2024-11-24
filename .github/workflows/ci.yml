@@ -68,7 +68,7 @@ jobs:
       - name: Run JReleaser
         uses: jreleaser/release-action@v2
         with:
-          arguments: full-releases
+          arguments: full-release
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
 
