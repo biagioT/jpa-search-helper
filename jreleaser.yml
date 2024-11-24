@@ -1,8 +1,9 @@
 project:
   name: jpa-search-helper
-  description: Helper library for building advanced and dynamic queries using JPA in Spring
+  description: Library for building and running advanced and dynamic queries using JPA in Spring Boot
   longDescription: |
-    Helper library for building advanced and dynamic queries using JPA in Spring
+    Library for building and running advanced and dynamic queries using JPA in Spring Boot
+  inceptionYear: '2024'
   links:
     homepage: https://tozzi.app
     documentation: https://tozzi.app
@@ -29,3 +30,8 @@ deploy:
         url: https://central.sonatype.com/api/v1/publisher
         stagingRepositories:
           - target/staging-deploy
+        sign: true
+        checksums: true
+        sourceJar: true
+        javadocJar: true
+        applyMavenCentralRules: true

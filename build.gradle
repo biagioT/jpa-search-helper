@@ -63,7 +63,7 @@ publishing {
             from components.java
             pom {
                 name = 'JPA Search Helper'
-                description = 'Helper library for building advanced and dynamic queries using JPA in Spring'
+                description = 'Library for building and running advanced and dynamic queries using JPA in Spring Boot.'
                 url = 'https://www.tozzi.app'
 
                 licenses {
