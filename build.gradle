@@ -90,6 +90,12 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
 }
 
 jreleaser {
@@ -103,7 +109,7 @@ jreleaser {
                 sonatype {
                     active = 'ALWAYS'
                     url = 'https://central.sonatype.com/api/v1/publisher'
-                    stagingRepository('target/central-staging')
+                    stagingRepository('target/staging-deploy')
                 }
             }
         }
