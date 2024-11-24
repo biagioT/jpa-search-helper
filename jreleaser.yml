@@ -9,7 +9,7 @@ project:
     license: https://github.com/biagioT/jpa-search-helper/blob/main/LICENSE
   authors:
     - Biagio Placido Tozzi
-  license: MIT
+  license: MPL-2.0
   tags:
     - java
     - jpa
