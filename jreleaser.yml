@@ -16,6 +16,7 @@ project:
     - jpa
   java:
     groupId: app.tozzi
+    artifactId: jpa-search-helper
     version: '17'
 
 signing:
@@ -23,6 +24,11 @@ signing:
   armored: true
   mode: MEMORY
   checksums: false
+
+release:
+  github:
+    skipRelease: true
+    skipTag: true
 
 deploy:
   maven:

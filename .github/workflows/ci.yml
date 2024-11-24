@@ -55,12 +55,6 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_CENTRAL_TOKEN
 
-      - name: Import GPG key
-        run: |
-          cat <(echo -e "${{ secrets.GPG_SIGNING_KEY }}") | gpg --batch --import
-        env:
-          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-
       - name: Publish
         run: |
           ./gradlew publish
