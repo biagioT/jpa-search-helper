@@ -16,6 +16,9 @@ java {
     targetCompatibility = '17'
     withSourcesJar()
     withJavadocJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {

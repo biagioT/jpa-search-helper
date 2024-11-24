@@ -21,6 +21,8 @@ project:
 signing:
   active: ALWAYS
   armored: true
+  mode: MEMORY
+  checksums: false
 
 deploy:
   maven:
