@@ -1,0 +1,31 @@
+project:
+  name: jpa-search-helper
+  description: Helper library for building advanced and dynamic queries using JPA in Spring
+  longDescription: |
+    Helper library for building advanced and dynamic queries using JPA in Spring
+  links:
+    homepage: https://tozzi.app
+    documentation: https://tozzi.app
+    license: https://github.com/biagioT/jpa-search-helper/blob/main/LICENSE
+  authors:
+    - Biagio Placido Tozzi
+  license: MIT
+  tags:
+    - java
+    - jpa
+  java:
+    groupId: app.tozzi
+    version: '17'
+
+signing:
+  active: ALWAYS
+  armored: true
+
+deploy:
+  maven:
+    mavenCentral:
+      sonatype:
+        active: ALWAYS
+        url: https://central.sonatype.com/api/v1/publisher
+        stagingRepositories:
+          - target/staging-deploy
