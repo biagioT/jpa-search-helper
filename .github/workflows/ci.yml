@@ -71,8 +71,6 @@ jobs:
 
       - name: Release
         uses: jreleaser/release-action@v2
-        with:
-          arguments: full-release
         env:
           JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
           JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
