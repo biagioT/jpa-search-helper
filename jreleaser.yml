@@ -20,9 +20,7 @@ project:
 
 signing:
   active: ALWAYS
-  mode: MEMORY
   armored: true
-  checksums: false
 
 deploy:
   maven:
@@ -33,6 +31,10 @@ deploy:
         stagingRepositories:
           - build/staging-deploy
         sign: true
+        checksums: true
         sourceJar: true
         javadocJar: true
         applyMavenCentralRules: true
+
+checksum:
+  individual: true
