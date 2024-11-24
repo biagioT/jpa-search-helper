@@ -63,7 +63,7 @@ jobs:
 
       - name: Publish
         run: |
-          ./gradlew -Psigning.gnupg.passphrase=${{ secrets.GPG_SIGNING_PASSWORD }} -Psigning.gnupg.keyName=${{ secrets.GPG_SIGNING_KEY_ID }} publish
+          ./gradlew publish
         env:
           MAVEN_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
           MAVEN_CENTRAL_TOKEN: ${{ secrets.JRELEASER_MAVENCENTRAL_PASSWORD }}
