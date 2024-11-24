@@ -31,7 +31,6 @@ deploy:
         stagingRepositories:
           - build/staging-deploy
         sign: true
-        checksums: true
         sourceJar: true
         javadocJar: true
         applyMavenCentralRules: true
