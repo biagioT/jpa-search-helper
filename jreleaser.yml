@@ -38,5 +38,4 @@ deploy:
         javadocJar: true
         applyMavenCentralRules: true
 
-checksum:
-  individual: true
+
