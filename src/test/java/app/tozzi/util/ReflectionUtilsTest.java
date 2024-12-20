@@ -3,6 +3,7 @@ package app.tozzi.util;
 import app.tozzi.model.JPASearchOperatorFilter;
 import app.tozzi.model.JPASearchType;
 import app.tozzi.model.MyModel;
+import app.tozzi.model.RecursiveModel;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -13,37 +14,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReflectionUtilsTest {
-
-//    @Test
-//    public void getIdFields() {
-//        var map = ReflectionUtils.getIdFields(MyEntity.class);
-//        assertNotNull(map);
-//        assertEquals(1, map.size());
-//        assertTrue(map.containsKey("id"));
-//        assertEquals(Long.class, map.get("id").getType());
-//    }
-//
-//    @Test
-//    public void getIdFields_embedded() {
-//        var map = ReflectionUtils.getIdFields(MyEntity2.class);
-//        assertNotNull(map);
-//        assertEquals(2, map.size());
-//        assertTrue(map.containsKey("embeddedID.testId1"));
-//        assertTrue(map.containsKey("embeddedID.testId2"));
-//        assertEquals(String.class, map.get("embeddedID.testId1").getType());
-//        assertEquals(String.class, map.get("embeddedID.testId2").getType());
-//    }
-//
-//    @Test
-//    public void getIdFields_idClass() {
-//        var map = ReflectionUtils.getIdFields(MyEntity3.class);
-//        assertNotNull(map);
-//        assertEquals(2, map.size());
-//        assertTrue(map.containsKey("testID1"));
-//        assertTrue(map.containsKey("testID2"));
-//        assertEquals(String.class, map.get("testID1").getType());
-//        assertEquals(String.class, map.get("testID2").getType());
-//    }
 
     @Test
     public void getAllProjectableFields() {
@@ -93,5 +63,14 @@ public class ReflectionUtilsTest {
         assertFalse(searchableFields.containsKey("mySubModel.notSearchable"));
         assertFalse(searchableFields.containsKey("mySubModel.mySubSubModel"));
         assertFalse(searchableFields.containsKey("mySubModel.mySubSubModel.notSearchableNo"));
+    }
+
+    @Test
+    public void recursiveModelTest() {
+       var map = ReflectionUtils.getAllSearchableFields(RecursiveModel.class);
+       assertNotNull(map);
+       assertTrue(map.containsKey("name"));
+       assertTrue(map.containsKey("predecessor.name"));
+       assertEquals(30, map.size());
     }
 }

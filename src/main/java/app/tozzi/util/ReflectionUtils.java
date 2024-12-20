@@ -55,7 +55,7 @@ public class ReflectionUtils {
 
         return SEARCHABLE_CACHE.computeIfAbsent(beanClass, key -> {
             Map<String, Pair<Searchable, Field>> res = new HashMap<>();
-            getFields(new StringBuilder(), beanClass, Searchable.class, NestedSearchable.class, res);
+            getFields(new StringBuilder(), beanClass, Searchable.class, NestedSearchable.class, res, true);
             return res;
         });
 
@@ -65,13 +65,13 @@ public class ReflectionUtils {
 
         return PROJECTABLE_CACHE.computeIfAbsent(beanClass, key -> {
             Map<String, Pair<Projectable, Field>> res = new HashMap<>();
-            getFields(new StringBuilder(), beanClass, Projectable.class, NestedProjectable.class, res);
+            getFields(new StringBuilder(), beanClass, Projectable.class, NestedProjectable.class, res, true);
             return res;
         });
 
     }
 
-    private static <A extends Annotation, N extends Annotation> void getFields(final StringBuilder root, Class<?> beanClass, Class<A> annotationClass, Class<N> nestedAnnotationClass, Map<String, Pair<A, Field>> res) {
+    private static <A extends Annotation, N extends Annotation> void getFields(final StringBuilder root, Class<?> beanClass, Class<A> annotationClass, Class<N> nestedAnnotationClass, Map<String, Pair<A, Field>> res, boolean evaluateNested) {
 
         Stream.of(BeanUtils.getPropertyDescriptors(beanClass)).flatMap(pd -> Stream.of(pd.getReadMethod().getDeclaringClass().getDeclaredFields()))
                 .forEach(f -> {
@@ -80,12 +80,13 @@ public class ReflectionUtils {
                         res.putIfAbsent(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(annotationClass), f));
                     }
 
-                    if (f.isAnnotationPresent(nestedAnnotationClass)) {
+                    if (evaluateNested && f.isAnnotationPresent(nestedAnnotationClass)) {
                         if (!root.isEmpty()) {
                             root.append(".");
                         }
                         root.append(f.getName());
-                        getFields(root, getType(f), annotationClass, nestedAnnotationClass, res);
+                        var type = getType(f);
+                        getFields(root, type, annotationClass, nestedAnnotationClass, res, !type.equals(beanClass));
 
                         if (root.indexOf(".") != -1) {
                             root.delete(root.lastIndexOf("."), root.length());
