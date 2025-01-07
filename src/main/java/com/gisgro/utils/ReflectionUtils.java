@@ -22,8 +22,7 @@ public class ReflectionUtils {
     }
 
     private static void getAllSearchableFields(final StringBuilder root, Class<?> beanClass, Map<String, Pair<Searchable, Class<?>>> res) {
-
-        Stream.of(BeanUtils.getPropertyDescriptors(beanClass)).flatMap(pd -> Stream.of(pd.getReadMethod().getDeclaringClass().getDeclaredFields()))
+        Stream.of(beanClass.getDeclaredFields())
             .forEach(f -> {
                 if (f.isAnnotationPresent(Searchable.class)) {
                     res.putIfAbsent(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
