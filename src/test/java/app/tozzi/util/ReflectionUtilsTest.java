@@ -1,9 +1,6 @@
 package app.tozzi.util;
 
-import app.tozzi.model.JPASearchOperatorFilter;
-import app.tozzi.model.JPASearchType;
-import app.tozzi.model.MyModel;
-import app.tozzi.model.RecursiveModel;
+import app.tozzi.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -72,5 +69,16 @@ public class ReflectionUtilsTest {
        assertTrue(map.containsKey("name"));
        assertTrue(map.containsKey("predecessor.name"));
        assertEquals(30, map.size());
+    }
+
+    @Test
+    public void inheritanceTest() {
+        var map = ReflectionUtils.getAllSearchableFields(ModelB.class);
+        assertNotNull(map);
+        assertTrue(map.containsKey("modelBID"));
+        assertTrue(map.containsKey("modelBField"));
+        assertTrue(map.containsKey("modelAID"));
+        assertTrue(map.containsKey("modelAField"));
+        assertEquals(4, map.size());
     }
 }

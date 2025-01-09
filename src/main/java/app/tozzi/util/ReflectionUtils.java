@@ -6,8 +6,8 @@ import app.tozzi.annotation.Projectable;
 import app.tozzi.annotation.Searchable;
 import app.tozzi.exception.JPASearchException;
 import jakarta.persistence.*;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.BeanUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -73,7 +73,7 @@ public class ReflectionUtils {
 
     private static <A extends Annotation, N extends Annotation> void getFields(final StringBuilder root, Class<?> beanClass, Class<A> annotationClass, Class<N> nestedAnnotationClass, Map<String, Pair<A, Field>> res, boolean evaluateNested) {
 
-        Stream.of(BeanUtils.getPropertyDescriptors(beanClass)).flatMap(pd -> Stream.of(pd.getReadMethod().getDeclaringClass().getDeclaredFields()))
+        Stream.of(FieldUtils.getAllFields(beanClass))
                 .forEach(f -> {
 
                     if (f.isAnnotationPresent(annotationClass)) {
