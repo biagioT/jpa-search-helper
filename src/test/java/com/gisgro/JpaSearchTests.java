@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-
 import javax.persistence.criteria.JoinType;
 import java.math.BigDecimal;
 import java.time.*;
@@ -36,6 +35,7 @@ public class JpaSearchTests {
     ObjectMapper mapper = new ObjectMapper();
     @Autowired private TestEntityRepository testEntityRepository;
     @Autowired private TestEntity2Repository testEntity2Repository;
+    @Autowired private TestEntity3Repository testEntity3Repository;
 
     private void setup() {
         var ent2 = new TestEntity2(
@@ -75,6 +75,7 @@ public class JpaSearchTests {
         );
         testEntityRepository.save(ent);
     }
+
     private void setup2() {
         var ent2a = new TestEntity2(
             0L,
@@ -148,6 +149,30 @@ public class JpaSearchTests {
         );
         testEntityRepository.save(ent);
     }
+
+    private void setup3() {
+        var foo = testEntity3Repository.save(new TestEntity3(0L, "foo", null));
+        testEntity3Repository.save(new TestEntity3(0L, "bar", foo));
+    }
+
+    @SneakyThrows
+    @Test
+    public void testLinked() {
+        setup3();
+
+        var filterString = """
+            {"filter":
+                ["and",
+                 ["eq", ["field", "payload"], "bar"],
+                 ["eq", ["field", "previous.payload"], "foo"]
+                ]}
+        """;
+
+        JsonNode filters = mapper.readTree(filterString);
+        List<TestEntity3> result = testEntity3Repository.findAll(filters, TestEntity3.class);
+        assertThat(result).hasSize(1);
+    }
+
     @SneakyThrows
     @Test
     public void testAllFilters() {
