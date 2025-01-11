@@ -1066,3 +1066,6 @@ curl -X POST -H "Content-type: application/json" -d '{
   
 }' 'http://localhost:8080/persons/projection'
 ```
+---  
+## Links
+- Presentation article (version 0.0.1) on [Medium](https://medium.com/@biagio.tozzi/advanced-and-dynamic-searching-with-spring-data-jpa-e322e0f40b4b).
