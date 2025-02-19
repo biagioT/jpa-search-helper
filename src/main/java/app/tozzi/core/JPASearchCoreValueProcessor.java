@@ -67,6 +67,10 @@ public class JPASearchCoreValueProcessor {
         }
     }
 
+    public JPASearchCoreValueProcessor() {
+        super();
+    }
+
     private static Object getValue(JPASearchOperatorFilter jpaSearchOperatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
 
         if (value instanceof Collection<?> coll) {
@@ -85,6 +89,7 @@ public class JPASearchCoreValueProcessor {
                 case BOOLEAN -> GenericUtils.parseBoolean(field, value);
                 case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL -> formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
                 case ZONEDDATETIME -> GenericUtils.parseZonedDateTime(field, value, searchable.datePattern());
+                case UUID -> GenericUtils.parseUUID(field, value);
                 case UNTYPED -> throw new IllegalArgumentException();
             };
 

@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class GenericUtils {
@@ -233,6 +234,19 @@ public class GenericUtils {
         }
 
         throw new InvalidValueException("Invalid zoned date time value [" + value + "]", field, value);
+    }
+
+    public static UUID parseUUID(String field, Object value) {
+
+        if (value instanceof UUID uuid) {
+            return uuid;
+        }
+
+        if (value instanceof String str) {
+            return UUID.fromString(str);
+        }
+
+        throw new InvalidValueException("Invalid UUID value [" + value + "]", field, value);
     }
 
 }

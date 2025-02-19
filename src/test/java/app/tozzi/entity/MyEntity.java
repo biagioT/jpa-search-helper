@@ -8,10 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -23,6 +25,8 @@ public class MyEntity {
     @Id
     private Long id;
 
+    @UuidGenerator
+    private UUID uuid;
     private String stringOne;
     private String stringTwo;
     private String stringThree;

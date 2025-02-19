@@ -18,7 +18,7 @@ public class JPASearchCoreFieldProcessorTest {
     public void processField() {
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
 
-        FieldDescriptor fd = JPASearchCoreFieldProcessor.processField("stringOne", Collections.emptyMap(), searchableFields, true, false, false);
+        var fd = JPASearchCoreFieldProcessor.processField("stringOne", Collections.emptyMap(), searchableFields, true, false, false);
         assertNotNull(fd);
         assertEquals("stringOne", fd.getPath());
         assertEquals("stringOne", fd.getEntityKey());

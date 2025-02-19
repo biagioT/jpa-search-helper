@@ -8,6 +8,7 @@ import java.time.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @AllArgsConstructor
@@ -28,7 +29,8 @@ public enum JPASearchType {
     FLOAT(List.of(Float.class, float.class)),
     DOUBLE(List.of(Double.class, double.class)),
     BIGDECIMAL(List.of(BigDecimal.class)),
-    BOOLEAN(List.of(Boolean.class, boolean.class));
+    BOOLEAN(List.of(Boolean.class, boolean.class)),
+    UUID(List.of(java.util.UUID.class));
 
     private final List<Class<?>> defaultClasses;
 

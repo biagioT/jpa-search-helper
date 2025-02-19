@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +26,10 @@ public class JPASearchCoreValueProcessorTest {
         res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("id").getKey(), "id", 12345L, false);
         assertNotNull(res);
         assertEquals(12345L, res);
+
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.UUID, searchableFields.get("uuid").getKey(), "uuid", "7409d9e4-ee9d-11ef-9ff1-83157c916723", false);
+        assertNotNull(res);
+        assertEquals(UUID.fromString("7409d9e4-ee9d-11ef-9ff1-83157c916723"), res);
 
         res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringOne").getKey(), "stringOne", "test", false);
         assertNotNull(res);

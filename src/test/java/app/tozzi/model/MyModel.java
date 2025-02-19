@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class MyModel {
@@ -14,6 +15,10 @@ public class MyModel {
     @Projectable
     @Searchable(targetType = JPASearchType.LONG)
     private String id;
+
+    @Searchable
+    @Projectable
+    private UUID uuid;
 
     @Searchable
     private String stringOne;
