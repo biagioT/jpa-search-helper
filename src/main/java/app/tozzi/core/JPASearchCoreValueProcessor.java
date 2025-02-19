@@ -67,10 +67,6 @@ public class JPASearchCoreValueProcessor {
         }
     }
 
-    public JPASearchCoreValueProcessor() {
-        super();
-    }
-
     private static Object getValue(JPASearchOperatorFilter jpaSearchOperatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
 
         if (value instanceof Collection<?> coll) {

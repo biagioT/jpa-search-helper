@@ -1,7 +1,6 @@
 package app.tozzi.core;
 
 import app.tozzi.exception.InvalidFieldException;
-import app.tozzi.model.FieldDescriptor;
 import app.tozzi.model.JPASearchType;
 import app.tozzi.model.MyModel;
 import app.tozzi.util.ReflectionUtils;
