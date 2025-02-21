@@ -14,10 +14,27 @@ project:
   tags:
     - java
     - jpa
-  java:
-    groupId: app.tozzi
-    artifactId: jpa-search-helper
-    version: '17'
+    - spring-boot
+    - springboot
+    - spring
+    - spring
+    - hibernate
+    - search-engine
+    - rdbms
+    - query-engine
+    - dynamic-queries
+    - advanced-search
+    - persistence-api
+    - dynamic-query
+    - query-builder
+    - query-tool
+    - sql
+    - projection
+  languages:
+    java:
+      groupId: app.tozzi
+      artifactId: jpa-search-helper
+      version: '17'
 
 signing:
   active: ALWAYS
