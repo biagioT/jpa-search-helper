@@ -1,8 +1,11 @@
 package app.tozzi.util;
 
+import app.tozzi.exception.InvalidFieldException;
 import app.tozzi.exception.InvalidValueException;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -247,6 +250,83 @@ public class GenericUtils {
         }
 
         throw new InvalidValueException("Invalid UUID value [" + value + "]", field, value);
+    }
+
+    public static Instant parseInstant(String field, Object value, String pattern) {
+
+        if (value instanceof Instant i) {
+            return i;
+        }
+
+        if (value instanceof String str) {
+            return pattern != null && !pattern.isBlank() ? Instant.from(DateTimeFormatter.ofPattern(pattern).parse(str)) : Instant.parse(str);
+        }
+
+        throw new InvalidValueException("Invalid Instant value [" + value + "]", field, value);
+    }
+
+    public static java.sql.Date parseSQLDate(String field, Object value, String pattern) throws ParseException {
+
+        if (value instanceof java.sql.Date d) {
+            return d;
+        }
+
+        return new java.sql.Date(parseDate(field, value, pattern).getTime());
+    }
+
+    public static Time parseSQLTime(String field, Object value, String pattern) throws ParseException {
+
+        if (value instanceof Time t) {
+            return t;
+        }
+
+        return new Time(parseDate(field, value, pattern).getTime());
+    }
+
+    public static Timestamp parseSQLTimestamp(String field, Object value, String pattern) throws ParseException {
+
+        if (value instanceof Timestamp t) {
+            return t;
+        }
+
+        return new Timestamp(parseDate(field, value, pattern).getTime());
+    }
+
+    public static <E extends Enum<E>> E parseEnum(String field, Object value, boolean ordinal, Class<?> enumClass) {
+
+        if (!enumClass.isEnum()) {
+            throw new InvalidFieldException("Invalid enum class [" + enumClass + "]", field);
+        }
+
+        if (enumClass.isInstance(value)) {
+            return (E) enumClass.cast(value);
+        }
+
+        if (ordinal && isInteger(value)) {
+            var enumConstants = enumClass.getEnumConstants();
+            return (E) enumConstants[parseInteger(field, value)];
+        }
+
+        if (value instanceof String str) {
+            try {
+                return Enum.valueOf((Class<E>) enumClass, str);
+
+            } catch (IllegalArgumentException e) {
+                throw new InvalidValueException("Invalid enum value [" + value + "]", field, value);
+            }
+        }
+
+        throw new InvalidValueException("Invalid enum value [" + value + "]", field, value);
+
+    }
+
+    private static boolean isInteger(Object obj) {
+
+        if (obj instanceof String str) {
+            return str.matches("\\d+");
+        }
+
+        return obj instanceof Integer;
     }
 
 }

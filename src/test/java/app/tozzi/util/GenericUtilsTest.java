@@ -4,13 +4,12 @@ import app.tozzi.exception.InvalidValueException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -455,6 +454,57 @@ public class GenericUtilsTest {
         assertEquals(0, date.getSecond());
         assertEquals(234000000, date.getNano());
         assertEquals(ZoneOffset.of("+01:00"), date.getOffset());
+    }
+
+    @Test
+    void testParseUUID() {
+        var uuid = UUID.randomUUID();
+        assertEquals(uuid, GenericUtils.parseUUID("testField", uuid));
+        assertEquals(uuid, GenericUtils.parseUUID("testField", uuid.toString()));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseUUID("testField", 123));
+    }
+
+    @Test
+    void testParseInstant() {
+        Instant now = Instant.now();
+        assertEquals(now, GenericUtils.parseInstant("testField", now, null));
+        assertEquals(Instant.parse("2023-02-20T10:15:30Z"), GenericUtils.parseInstant("testField", "2023-02-20T10:15:30Z", null));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseInstant("testField", 123, null));
+    }
+
+    @Test
+    void testParseSQLDate() throws ParseException {
+        var now = new Date(System.currentTimeMillis());
+        assertEquals(now, GenericUtils.parseSQLDate("testField", now, null));
+        assertNotNull(GenericUtils.parseSQLDate("testField", "2023-02-20", "yyyy-MM-dd"));
+        assertThrows(ParseException.class, () -> GenericUtils.parseSQLDate("testField", "invalid-date", "yyyy-MM-dd"));
+    }
+
+    @Test
+    void testParseSQLTime() throws ParseException {
+        var now = new Time(System.currentTimeMillis());
+        assertEquals(now, GenericUtils.parseSQLTime("testField", now, null));
+        assertNotNull(GenericUtils.parseSQLTime("testField", "12:30:45", "HH:mm:ss"));
+        assertThrows(ParseException.class, () -> GenericUtils.parseSQLTime("testField", "invalid-time", "HH:mm:ss"));
+    }
+
+    @Test
+    void testParseSQLTimestamp() throws ParseException {
+        var now = new Timestamp(System.currentTimeMillis());
+        assertEquals(now, GenericUtils.parseSQLTimestamp("testField", now, null));
+        assertNotNull(GenericUtils.parseSQLTimestamp("testField", "2023-02-20 10:15:30", "yyyy-MM-dd HH:mm:ss"));
+        assertThrows(ParseException.class, () -> GenericUtils.parseSQLTimestamp("testField", "invalid-timestamp", "yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Test
+    void testParseEnum() {
+        assertEquals(TestEnum.VALUE_ONE, GenericUtils.parseEnum("testField", "VALUE_ONE", false, TestEnum.class));
+        assertEquals(TestEnum.VALUE_TWO, GenericUtils.parseEnum("testField", 1, true, TestEnum.class));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseEnum("testField", "INVALID", false, TestEnum.class));
+    }
+
+    enum TestEnum {
+        VALUE_ONE, VALUE_TWO
     }
 
 }

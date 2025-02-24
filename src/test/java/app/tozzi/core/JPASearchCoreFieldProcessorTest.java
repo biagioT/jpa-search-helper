@@ -2,6 +2,7 @@ package app.tozzi.core;
 
 import app.tozzi.exception.InvalidFieldException;
 import app.tozzi.model.JPASearchType;
+import app.tozzi.model.MyEnum;
 import app.tozzi.model.MyModel;
 import app.tozzi.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,14 @@ public class JPASearchCoreFieldProcessorTest {
         assertEquals("mySubModel.mySubSubModel.searchMeAgain", fd.getPath());
         assertEquals("test1.colTest1", fd.getEntityKey());
         assertEquals(JPASearchType.STRING, fd.getSearchType());
+        assertNotNull(fd.getSearchable());
+
+        fd = JPASearchCoreFieldProcessor.processField("myEnum", Collections.emptyMap(), searchableFields, true, false, false);
+        assertNotNull(fd);
+        assertEquals("myEnum", fd.getPath());
+        assertEquals("myEnum", fd.getEntityKey());
+        assertEquals(JPASearchType.ENUM, fd.getSearchType());
+        assertEquals(MyEnum.class, fd.getType());
         assertNotNull(fd.getSearchable());
 
         assertThrows(InvalidFieldException.class, () -> JPASearchCoreFieldProcessor.processField("test", Collections.emptyMap(), searchableFields, true, false, false));

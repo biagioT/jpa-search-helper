@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.*;
 import java.util.Collections;
 import java.util.Date;
@@ -29,7 +31,12 @@ public enum JPASearchType {
     DOUBLE(List.of(Double.class, double.class)),
     BIGDECIMAL(List.of(BigDecimal.class)),
     BOOLEAN(List.of(Boolean.class, boolean.class)),
-    UUID(List.of(java.util.UUID.class));
+    UUID(List.of(java.util.UUID.class)),
+    INSTANT(List.of(Instant.class)),
+    DATE_SQL(List.of(java.sql.Date.class)),
+    TIME_SQL(List.of(Time.class)),
+    ENUM(List.of(Enum.class)),
+    TIMESTAMP(List.of(Timestamp.class));
 
     private final List<Class<?>> defaultClasses;
 

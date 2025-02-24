@@ -179,7 +179,7 @@ The annotation allows you to specify:
     the name of the field defined on the entity bean (not to be specified if using the annotation on the entity bean). If not specified the key will be the field name.
   - `targetType`: the managed object type by entity. If not specified the librariy tries to obtain it based on field type (es. Integer field without target type definition will be `INTEGER`). If there is no type compatible with those managed, it will be managed as a string. Managed types:
 
-    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `UUID`.
+    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `ENUM`, `DATE_SQL`, `TIME_SQL`, `INSTANT`, `TIMESTAMP`.
 
 - Validation properties:
 
@@ -188,6 +188,7 @@ The annotation allows you to specify:
   - `maxDigits, minDigits`: only for numeric types. Maximum/minimum number of digits.
   - `regexPattern`: regex pattern.
   - `decimalFormat`: only for decimal numeric types. Default `#.##`
+  - `ordinalEnum`: only for `ENUM` type; true if search via ordinal
 
 - Other:
   - `sortable`: if false, the field can be used by search but cannot be used for sorting. Default: true.

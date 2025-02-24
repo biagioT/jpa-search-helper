@@ -3,6 +3,7 @@ package app.tozzi.core;
 import app.tozzi.exception.InvalidValueException;
 import app.tozzi.model.JPASearchOperatorFilter;
 import app.tozzi.model.JPASearchType;
+import app.tozzi.model.MyEnum;
 import app.tozzi.model.MyModel;
 import app.tozzi.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
@@ -19,47 +20,47 @@ public class JPASearchCoreValueProcessorTest {
     public void processValue() {
 
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
-        var res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("id").getKey(), "id", "12345", false);
+        var res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("id").getKey(), "id", "12345", null, false);
         assertNotNull(res);
         assertEquals(12345L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("id").getKey(), "id", 12345L, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("id").getKey(), "id", 12345L, null, false);
         assertNotNull(res);
         assertEquals(12345L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.UUID, searchableFields.get("uuid").getKey(), "uuid", "7409d9e4-ee9d-11ef-9ff1-83157c916723", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.UUID, searchableFields.get("uuid").getKey(), "uuid", "7409d9e4-ee9d-11ef-9ff1-83157c916723", null, false);
         assertNotNull(res);
         assertEquals(UUID.fromString("7409d9e4-ee9d-11ef-9ff1-83157c916723"), res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringOne").getKey(), "stringOne", "test", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringOne").getKey(), "stringOne", "test", null, false);
         assertNotNull(res);
         assertEquals("test", res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringOne").getKey(), "stringOne", "TEST", true);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringOne").getKey(), "stringOne", "TEST", null, true);
         assertNotNull(res);
         assertEquals("test", res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringMail").getKey(), "mail", "biagio.tozzi@gmail.com", true);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringMail").getKey(), "mail", "biagio.tozzi@gmail.com", null, true);
         assertNotNull(res);
         assertEquals("biagio.tozzi@gmail.com", res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", 9, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", 9, null, false);
         assertNotNull(res);
         assertEquals(9, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", "9", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", "9", null, false);
         assertNotNull(res);
         assertEquals(9, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", 9999, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", 9999, null, false);
         assertNotNull(res);
         assertEquals(9999, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", "9999", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", "9999", null, false);
         assertNotNull(res);
         assertEquals(9999, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("stringDate").getKey(), "stringDate", "20240622", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("stringDate").getKey(), "stringDate", "20240622", null, false);
         assertNotNull(res);
         var cal = Calendar.getInstance();
         cal.setTime((Date) res);
@@ -68,99 +69,107 @@ public class JPASearchCoreValueProcessorTest {
         assertEquals(22, cal.get(Calendar.DAY_OF_MONTH));
 
         var now = new Date();
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("dateOne").getKey(), "dateOne", now, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("dateOne").getKey(), "dateOne", now, null, false);
         assertNotNull(res);
         assertEquals(now, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", 9999L, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", 9999L, null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", "9999", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", "9999", null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong.one", 9999L, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong.one", 9999L, null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong.one", "9999", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong.one", "9999", null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong.one", 9999L, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong.one", 9999L, null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLongYes", "9999", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLongYes", "9999", null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "wrapperLongYes", 9999L, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "wrapperLongYes", 9999L, null, false);
         assertNotNull(res);
         assertEquals(9999L, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", "23.54", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", "23.54", null, false);
         assertNotNull(res);
         assertEquals(23.54f, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", 23.54f, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", 23.54f, null, false);
         assertNotNull(res);
         assertEquals(23.54f, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", "23.54", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", "23.54", null, false);
         assertNotNull(res);
         assertEquals(23.54f, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", 23.54f, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", 23.54f, null, false);
         assertNotNull(res);
         assertEquals(23.54f, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", "23.54", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", "23.54", null, false);
         assertNotNull(res);
         assertEquals(23.54d, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", 23.54d, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", 23.54d, null, false);
         assertNotNull(res);
         assertEquals(23.54d, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", "23.544", false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", "23.544", null, false);
         assertNotNull(res);
         assertEquals(23.544d, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", 23.544d, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", 23.544d, null, false);
         assertNotNull(res);
         assertEquals(23.544d, res);
 
-        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", 23.54d, false);
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", 23.54d, null, false);
         assertNotNull(res);
         assertEquals(23.540d, res);
 
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringMail").getKey(), "email", "biagio.tozzi#gmail.com", true));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", "11", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", "a", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", "11111", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", "a", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong", "a", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong", 1, false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", "a", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", 1, false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("stringDate").getKey(), "stringDate", "22/06/2024", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("stringDate").getKey(), "stringDate", "", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("dateOne").getKey(), "dateOne", "22/06/2024", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("dateOne").getKey(), "dateOne", "", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", "58.8998", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", "test", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", 58.9899f, false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", "test", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", 58.9899f, false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", "58.8998", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", "test", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", 58.9899d, false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", "58.8998", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", "test", false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", 58.9899d, false));
-        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", "58.8998", false));
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.ENUM, searchableFields.get("myEnum").getKey(), "myEnum", "EN_VAL_1", MyEnum.class, false);
+        assertNotNull(res);
+        assertEquals(MyEnum.EN_VAL_1, res);
+
+        res = JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.ENUM, searchableFields.get("myEnum2").getKey(), "myEnum2", "1", MyEnum.class, false);
+        assertNotNull(res);
+        assertEquals(MyEnum.EN_VAL_2, res);
+
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.STRING, searchableFields.get("stringMail").getKey(), "email", "biagio.tozzi#gmail.com", null, true));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", "11", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("primitiveInteger").getKey(), "primitiveInteger", "a", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", "11111", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.INTEGER, searchableFields.get("wrapperInteger").getKey(), "wrapperInteger", "a", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong", "a", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("wrapperLong").getKey(), "wrapperLong", 1, null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", "a", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.EQ, JPASearchType.LONG, searchableFields.get("primitiveLong").getKey(), "primitiveLong", 1, null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("stringDate").getKey(), "stringDate", "22/06/2024", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("stringDate").getKey(), "stringDate", "", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("dateOne").getKey(), "dateOne", "22/06/2024", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DATE, searchableFields.get("dateOne").getKey(), "dateOne", "", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", "58.8998", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", "test", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("primitiveFloat").getKey(), "primitiveFloat", 58.9899f, null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", "test", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", 58.9899f, null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.FLOAT, searchableFields.get("wrapperFloat").getKey(), "wrapperFloat", "58.8998", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", "test", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", 58.9899d, null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("primitiveDouble").getKey(), "primitiveDoubleYes", "58.8998", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", "test", null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", 58.9899d, null, false));
+        assertThrows(InvalidValueException.class, () -> JPASearchCoreValueProcessor.processValue(JPASearchOperatorFilter.GT, JPASearchType.DOUBLE, searchableFields.get("wrapperDouble").getKey(), "wrapperDouble", "58.8998", null, false));
 
     }
 

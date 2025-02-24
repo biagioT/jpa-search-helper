@@ -15,12 +15,12 @@ import java.util.Collections;
 
 public class JPASearchCoreValueProcessor {
 
-    protected static Object processValue(JPASearchOperatorFilter operatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
+    protected static Object processValue(JPASearchOperatorFilter operatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, Class<?> type, boolean lower) {
 
         if (operatorFilter.getAllowedValues() == 0)
             return null;
 
-        var objValue = getValue(operatorFilter, searchType, searchable, field, value, lower);
+        var objValue = getValue(operatorFilter, searchType, searchable, field, value, type, lower);
         if (objValue == null) {
             throw new InvalidValueException("Invalid value [" + value + "]", field, value);
         }
@@ -67,10 +67,10 @@ public class JPASearchCoreValueProcessor {
         }
     }
 
-    private static Object getValue(JPASearchOperatorFilter jpaSearchOperatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, boolean lower) {
+    private static Object getValue(JPASearchOperatorFilter jpaSearchOperatorFilter, JPASearchType searchType, Searchable searchable, String field, Object value, Class<?> type, boolean lower) {
 
         if (value instanceof Collection<?> coll) {
-            return coll.stream().map(el -> getValue(jpaSearchOperatorFilter, searchType, searchable, field, el, lower)).toList();
+            return coll.stream().map(el -> getValue(jpaSearchOperatorFilter, searchType, searchable, field, el, type, lower)).toList();
         }
 
         try {
@@ -86,6 +86,11 @@ public class JPASearchCoreValueProcessor {
                 case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL -> formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
                 case ZONEDDATETIME -> GenericUtils.parseZonedDateTime(field, value, searchable.datePattern());
                 case UUID -> GenericUtils.parseUUID(field, value);
+                case INSTANT -> GenericUtils.parseInstant(field, value, searchable.datePattern());
+                case DATE_SQL -> GenericUtils.parseSQLDate(field, value, searchable.datePattern());
+                case TIME_SQL -> GenericUtils.parseSQLTime(field, value, searchable.datePattern());
+                case TIMESTAMP -> GenericUtils.parseSQLTimestamp(field, value, searchable.datePattern());
+                case ENUM -> GenericUtils.parseEnum(field, value, searchable.ordinalEnum(), type);
                 case UNTYPED -> throw new IllegalArgumentException();
             };
 

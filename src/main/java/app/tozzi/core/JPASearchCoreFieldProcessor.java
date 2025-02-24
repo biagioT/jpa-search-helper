@@ -54,6 +54,6 @@ public class JPASearchCoreFieldProcessor {
                         : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : field));
 
         return new FieldDescriptor(field, searchable,
-                JPASearchType.UNTYPED.equals(searchable.targetType()) ? JPASearchType.load(type, JPASearchType.STRING) : searchable.targetType(), entityField);
+                JPASearchType.UNTYPED.equals(searchable.targetType()) ? JPASearchType.load(type, JPASearchType.STRING) : searchable.targetType(), entityField, type);
     }
 }

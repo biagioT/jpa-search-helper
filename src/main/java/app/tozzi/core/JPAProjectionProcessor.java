@@ -27,6 +27,11 @@ public class JPAProjectionProcessor {
     public static <E> ProjectionDescriptor getQuery(@NonNull JPASearchInput input, @NonNull Class<?> type, @NonNull Class<E> entityClass,
                                                     @NonNull CriteriaBuilder criteriaBuilder, @NonNull Map<Class<?>, Map<String, Field>> idFields, boolean processSortOptions, Map<String, JoinType> fetchMap,
                                                     Map<String, String> entityFieldMap, Map<String, Pair<Searchable, Field>> searchableFields, boolean overrideJoins, Map<String, JoinType> overrideJoinTypes) {
+
+        if (input.getOptions() == null) {
+            throw new JPASearchException("Invalid projection");
+        }
+
         Specification<E> specification = JPASearchCore.specification(
                 input.getFilter(),
                 ReflectionUtils.getAllSearchableFields(type), fetchMap, entityFieldMap);

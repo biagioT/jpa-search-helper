@@ -18,7 +18,7 @@ public class ReflectionUtilsTest {
         var projectableFields = ReflectionUtils.getAllProjectableFields(MyModel.class);
         assertNotNull(projectableFields);
         assertFalse(projectableFields.isEmpty());
-        assertEquals(5, projectableFields.size());
+        assertEquals(7, projectableFields.size());
     }
 
     @Test
@@ -26,9 +26,10 @@ public class ReflectionUtilsTest {
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
         assertNotNull(searchableFields);
         assertFalse(searchableFields.isEmpty());
-        assertEquals(29, searchableFields.size());
+        assertEquals(31, searchableFields.size());
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("id") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.LONG) && e.getValue().getValue().getType().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("uuid") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.UNTYPED) && e.getValue().getValue().getType().equals(UUID.class)));
+        assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("myEnum") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.ENUM) && e.getValue().getValue().getType().equals(MyEnum.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("stringOne") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.UNTYPED) && e.getValue().getValue().getType().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("stringTwo") && !e.getValue().getKey().sortable() && e.getValue().getValue().getType().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("stringThree") && e.getValue().getKey().trim() && !e.getValue().getKey().sortable() && e.getValue().getValue().getType().equals(String.class)));
@@ -70,7 +71,7 @@ public class ReflectionUtilsTest {
        assertNotNull(map);
        assertTrue(map.containsKey("name"));
        assertTrue(map.containsKey("predecessor.name"));
-       assertEquals(31, map.size());
+       assertEquals(33, map.size());
     }
 
     @Test

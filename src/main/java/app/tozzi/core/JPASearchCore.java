@@ -206,13 +206,13 @@ public class JPASearchCore {
 
             var obj = new ArrayList<>();
             if (fieldFilter instanceof JPASearchInput.FilterSingleValue fsv) {
-                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fsv.getValue(), ignoreCase);
+                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fsv.getValue(), descriptor.getType(), ignoreCase);
                 if (valueExp != null) {
                     obj.add(valueExp);
                 }
 
             } else if (fieldFilter instanceof JPASearchInput.FilterMultipleValues fmv) {
-                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), ignoreCase);
+                var valueExp = JPASearchCoreValueProcessor.processValue(searchFilter, descriptor.getSearchType(), descriptor.getSearchable(), descriptor.getPath(), fmv.getValues(), descriptor.getType(), ignoreCase);
                 if (valueExp != null) {
                     if (valueExp instanceof Collection<?> coll) {
                         obj.addAll(coll);

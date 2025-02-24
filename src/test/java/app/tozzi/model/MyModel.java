@@ -20,6 +20,14 @@ public class MyModel {
     @Projectable
     private UUID uuid;
 
+    @Searchable(targetType = JPASearchType.ENUM)
+    @Projectable
+    private MyEnum myEnum;
+
+    @Searchable(targetType = JPASearchType.ENUM, ordinalEnum = true)
+    @Projectable
+    private MyEnum myEnum2;
+
     @Searchable
     private String stringOne;
 

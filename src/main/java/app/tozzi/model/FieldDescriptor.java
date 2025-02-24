@@ -12,5 +12,6 @@ public class FieldDescriptor {
     private Searchable searchable;
     private JPASearchType searchType;
     private String entityKey;
+    private Class<?> type;
 
 }

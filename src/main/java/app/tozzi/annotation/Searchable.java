@@ -42,4 +42,5 @@ public @interface Searchable {
 
     boolean allowLikeFilters() default true;
 
+    boolean ordinalEnum() default false;
 }

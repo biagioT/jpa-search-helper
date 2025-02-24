@@ -154,6 +154,13 @@ public class ValidationUtilsTest {
             public boolean allowLikeFilters() {
                 return allowLike;
             }
+
+            @Override
+            public boolean ordinalEnum() {
+                return false;
+            }
+
+
         };
     }
 
