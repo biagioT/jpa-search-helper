@@ -183,7 +183,7 @@ The annotation allows you to specify:
 
 - Validation properties:
 
-  - `datePattern`: only for `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME` target types. Defines the date pattern to use.
+  - `datePattern`: only for `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `TIMESTAMP`, `TIME_SQL`, `DATE_SQL`, `INSTANT` target types. Defines the date pattern to use.
   - `maxSize, minSize`: maximum/minimum length of the value.
   - `maxDigits, minDigits`: only for numeric types. Maximum/minimum number of digits.
   - `regexPattern`: regex pattern.
