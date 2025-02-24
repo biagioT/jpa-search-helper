@@ -188,7 +188,6 @@ The annotation allows you to specify:
   - `maxDigits, minDigits`: only for numeric types. Maximum/minimum number of digits.
   - `regexPattern`: regex pattern.
   - `decimalFormat`: only for decimal numeric types. Default `#.##`
-  - `ordinalEnum`: only for `ENUM` type; true if search via ordinal
 
 - Other:
   - `sortable`: if false, the field can be used by search but cannot be used for sorting. Default: true.
@@ -197,6 +196,7 @@ The annotation allows you to specify:
   - `allowedFilters`: exclusively allowed filters.
   - `notAllowedFilters`: not allowed filters.
   - `likeFilters`: allowed like filters (_contains_, _startsWith_, _endsWith_). Default: true.
+  - `ordinalEnum`: only for `ENUM` type; true if search via ordinal
 
 Continuing the example, our entity classes:
 
