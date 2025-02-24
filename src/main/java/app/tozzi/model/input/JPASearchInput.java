@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,11 +24,19 @@ public class JPASearchInput {
 
     @Data
     public static class JPASearchOptions {
-        private String sortKey;
-        private Boolean sortDesc = false;
         private Integer pageSize;
         private Integer pageOffset;
         private List<String> selections;
+        private List<SortOption> sortOptions;
+
+        public JPASearchOptions addSortOption(SortOption sortOption) {
+            if (this.sortOptions == null) {
+                this.sortOptions = new ArrayList<>();
+            }
+            this.sortOptions.add(sortOption);
+
+            return this;
+        }
     }
 
     @JsonTypeInfo(
@@ -82,6 +91,12 @@ public class JPASearchInput {
         private boolean ignoreCase;
         private boolean trim;
         private boolean negate;
+    }
+
+    @Data
+    public static class SortOption {
+        private String sortKey;
+        private Boolean sortDesc;
     }
 
 }
