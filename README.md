@@ -179,7 +179,7 @@ The annotation allows you to specify:
     the name of the field defined on the entity bean (not to be specified if using the annotation on the entity bean). If not specified the key will be the field name.
   - `targetType`: the managed object type by entity. If not specified the librariy tries to obtain it based on field type (es. Integer field without target type definition will be `INTEGER`). If there is no type compatible with those managed, it will be managed as a string. Managed types:
 
-    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`.
+    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `UUID`.
 
 - Validation properties:
 
