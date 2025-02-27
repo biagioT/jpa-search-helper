@@ -188,7 +188,7 @@ public class JPASearchCore {
                         tempPath.append(".").append(f1);
 
                         if (!doneFetches.contains(tempPath.toString())) {
-                            fetch = fetch.fetch(it.next(), v);
+                            fetch = fetch.fetch(f1, v);
                             doneFetches.add(tempPath.toString());
 
                         } else {
