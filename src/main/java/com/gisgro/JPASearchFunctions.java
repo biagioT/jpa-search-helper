@@ -4,6 +4,7 @@ import com.gisgro.exceptions.JPASearchException;
 import com.gisgro.utils.JPAFuncWithExpressions;
 import com.gisgro.utils.JPAFuncWithObjects;
 
+import java.util.Arrays;
 import javax.persistence.criteria.*;
 
 import java.math.BigDecimal;
@@ -73,13 +74,16 @@ public class JPASearchFunctions {
         return cb.literal(Enum.valueOf(cls, valueName));
     };
 
-    public static <T> Expression<T> getPath(Root<?> root, String k) {
+    public static <Z, X> Expression<Z> getPath(Root<?> root, String k) {
         if (k.contains(".")) {
-            Path<T> path = null;
-            for (String f : k.split("\\.")) {
-                path = path == null ? root.get(f) : path.get(f);
+            Join<Z, X> path = null;
+            var it = Arrays.stream(k.split("\\.")).iterator();
+            var f = it.next();
+            while (it.hasNext()) {
+                path = path == null ? root.join(f, JoinType.LEFT) : path.join(f,  JoinType.LEFT);
+                f = it.next();
             }
-            return path;
+            return path.get(f);
         } else {
             return root.get(k);
         }
