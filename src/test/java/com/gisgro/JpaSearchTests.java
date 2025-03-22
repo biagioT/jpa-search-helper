@@ -151,8 +151,8 @@ public class JpaSearchTests {
     }
 
     private void setup3() {
-        var foo = testEntity3Repository.save(new TestEntity3(0L, "foo", null));
-        testEntity3Repository.save(new TestEntity3(0L, "bar", foo));
+        var foo = testEntity3Repository.save(new TestEntity3(0L, "parentFoo", "foo", null));
+        testEntity3Repository.save(new TestEntity3(0L, "parentBar", "bar", foo));
     }
 
     @SneakyThrows
@@ -163,6 +163,7 @@ public class JpaSearchTests {
         var filterString = """
             {"filter":
                 ["and",
+                 ["eq", ["field", "parentField"], "parentBar"],
                  ["eq", ["field", "payload"], "bar"],
                  ["eq", ["field", "previous.payload"], "foo"]
                 ]}

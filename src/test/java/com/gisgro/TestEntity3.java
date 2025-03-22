@@ -4,6 +4,7 @@ import com.gisgro.annotations.NestedSearchable;
 import com.gisgro.annotations.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,13 +12,18 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-public class TestEntity3 {
-    public TestEntity3() {}
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@NoArgsConstructor
+public class TestEntity3 extends ParentEntity {
+    public TestEntity3(
+            Long id,
+            String parentValue,
+            String payload,
+            TestEntity3 previous
+    ) {
+        super(id, parentValue);
+        this.payload = payload;
+        this.previous = previous;
+    }
 
     @Searchable
     private String payload;
