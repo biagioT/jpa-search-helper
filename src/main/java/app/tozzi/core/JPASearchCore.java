@@ -105,25 +105,27 @@ public class JPASearchCore {
                                  Map<String, Pair<Searchable, Field>> searchableFields,
                                  Map<String, String> entityFieldMap, boolean nullable) {
 
-        if (options == null || options.getSortKey() == null) {
+        if (options == null || options.getSortOptions() == null || options.getSortOptions().isEmpty()) {
 
             if (nullable)
                 return null;
 
             throw new JPASearchException("Invalid sort key");
         }
+        var orders = new ArrayList<Sort.Order>();
+        for (var sortOption : options.getSortOptions()) {
+            var des = JPASearchCoreFieldProcessor.processField(sortOption.getSortKey(), entityFieldMap, searchableFields, true, true, true);
 
-        var des = JPASearchCoreFieldProcessor.processField(options.getSortKey(), entityFieldMap, searchableFields, true, true, true);
-
-        if (des == null) {
-            if (nullable)
-                return null;
-
-            throw new JPASearchException("Invalid sort key");
+            if (des == null) {
+                if (nullable) {
+                    return null;
+                }
+                throw new JPASearchException("Invalid sort key");
+            }
+            var direction = sortOption.getSortDesc() ? Sort.Direction.DESC : Sort.Direction.ASC;
+            orders.add(new Sort.Order(direction, des.getEntityKey()));
         }
-
-        var sort = Sort.by(des.getEntityKey());
-        return Boolean.TRUE.equals(options.getSortDesc()) ? sort.descending() : sort.ascending();
+        return Sort.by(orders);
     }
 
     private static Expression<?> processExpression(
