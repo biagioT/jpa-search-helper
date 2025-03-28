@@ -1069,4 +1069,4 @@ curl -X POST -H "Content-type: application/json" -d '{
 ```
 ---  
 ## Links
-- Presentation article (version 0.0.1) on [Medium](https://medium.com/@biagio.tozzi/advanced-and-dynamic-searching-with-spring-data-jpa-e322e0f40b4b).
+- Presentation article (version 0.0.1) on [Medium](https://medium.com/@biagio.tozzi/advanced-and-dynamic-searching-with-spring-data-jpa-e322e0f40b4b)
