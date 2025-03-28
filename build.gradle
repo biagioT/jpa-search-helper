@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '3.4.3'
+version = '3.4.4'
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -29,7 +29,7 @@ repositories {
 dependencies {
 
     // BOM
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
 
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api'
@@ -67,7 +67,7 @@ publishing {
         mavenJava(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "3.4.3"
+            version = "3.4.4"
             from components.java
 
             pom {

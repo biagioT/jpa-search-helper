@@ -17,15 +17,17 @@ project:
     - spring-boot
     - springboot
     - spring
-    - spring
     - hibernate
     - search-engine
     - rdbms
     - query-engine
+    - dynamic-search
     - dynamic-queries
-    - advanced-search
-    - persistence-api
     - dynamic-query
+    - advanced-search
+    - advanced-queries
+    - advanced-query
+    - persistence-api
     - query-builder
     - query-tool
     - sql

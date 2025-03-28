@@ -121,13 +121,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.4.3</version>
+ <version>3.4.4</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.4.3
+implementation 'app.tozzi:jpa-search-helper:3.4.4
 ```
 
 ## Queries - Usage
