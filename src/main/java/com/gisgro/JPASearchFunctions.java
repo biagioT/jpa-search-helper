@@ -4,15 +4,14 @@ import com.gisgro.exceptions.JPASearchException;
 import com.gisgro.utils.JPAFuncWithExpressions;
 import com.gisgro.utils.JPAFuncWithObjects;
 
-import java.util.Arrays;
 import javax.persistence.criteria.*;
-
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collection;
 
 public class JPASearchFunctions {

@@ -2,7 +2,6 @@ package com.gisgro;
 
 import com.gisgro.annotations.NestedSearchable;
 import com.gisgro.annotations.Searchable;
-import com.gisgro.annotations.Tag;
 import com.gisgro.model.SearchType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,10 +48,10 @@ public class TestEntity {
     @Searchable(targetType = SearchType.DATE, datePattern = "yyyyMMdd")
     private Date date2;
 
-    @Searchable(entityFieldKey = "entity.long-one")
+    @Searchable
     private long primitiveLong;
 
-    @Searchable(entityFieldKey = "entity.long-two")
+    @Searchable
     private Long wrapperLong;
 
     @Searchable(decimalFormat = "#.#")
@@ -85,13 +84,7 @@ public class TestEntity {
     @Searchable(datePattern = "HHmmssXXX")
     private OffsetTime offsetTime;
 
-    @Searchable(tags = {
-            @Tag(fieldKey = "f1"),
-            @Tag(fieldKey = "f2"),
-            @Tag(fieldKey = "t.f2"),
-            @Tag(fieldKey = "t.f3", entityFieldKey = "ttt"),
-            @Tag(fieldKey = "tf3", entityFieldKey = "tttee")
-    })
+    @Searchable
     private String fieldName;
 
     @Searchable

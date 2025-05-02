@@ -10,9 +10,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Searchable {
-
-    String entityFieldKey() default "";
-
     SearchType targetType() default SearchType.UNTYPED;
 
     String datePattern() default "";
@@ -32,6 +29,4 @@ public @interface Searchable {
     boolean sortable() default true;
 
     boolean trim() default false;
-
-    Tag[] tags() default {};
 }

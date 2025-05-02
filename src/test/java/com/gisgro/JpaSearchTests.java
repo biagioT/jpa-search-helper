@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -156,6 +158,17 @@ public class JpaSearchTests {
     }
 
     @SneakyThrows
+    private <T> Specification<T> specificationFrom(String filterString, Class<T> clazz) {
+        JsonNode filters = mapper.readTree(filterString);
+        return JPASearchCore.specification(filters, clazz, true);
+    }
+
+    @SneakyThrows
+    private <T> PageRequest pageRequestFrom(String filterString, Class<T> clazz) {
+        JsonNode filters = mapper.readTree(filterString);
+        return JPASearchCore.loadSortAndPagination(filters, clazz, true, true);
+    }
+
     @Test
     public void testLinked() {
         setup3();
@@ -169,12 +182,10 @@ public class JpaSearchTests {
                 ]}
         """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity3> result = testEntity3Repository.findAll(filters, TestEntity3.class);
+        List<TestEntity3> result = testEntity3Repository.findAll(specificationFrom(filterString, TestEntity3.class));
         assertThat(result).hasSize(1);
     }
 
-    @SneakyThrows
     @Test
     public void testAllFilters() {
         setup();
@@ -223,13 +234,11 @@ public class JpaSearchTests {
 
         */
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
         assertThat(result).hasSize(1);
     }
 
-    @SneakyThrows
     @Test
     public void testOrOperator() {
         setup();
@@ -242,13 +251,11 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
         assertThat(result).hasSize(1);
     }
 
-    @SneakyThrows
     @Test
     public void testNotOperator() {
         setup();
@@ -258,13 +265,11 @@ public class JpaSearchTests {
           ]}
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
         assertThat(result).hasSize(1);
     }
 
-    @SneakyThrows
     @Test
     public void testEnum() {
         setup2();
@@ -272,12 +277,11 @@ public class JpaSearchTests {
           {"filter": ["eq", ["field", "testEnum"], ["enum", "TestEnum", "VALUE1"]]}
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
         assertThat(result).hasSize(1);
     }
-    @SneakyThrows
+
     @Test
     public void testSort() {
         setup2();
@@ -291,8 +295,10 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result).hasSize(2);
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getContent().size()).isEqualTo(2);
@@ -300,7 +306,6 @@ public class JpaSearchTests {
         assertThat(result.getContent().get(1).getPrimitiveInteger()).isEqualTo(7);
     }
 
-    @SneakyThrows
     @Test
     public void testSortDesc() {
         setup2();
@@ -314,8 +319,10 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result).hasSize(2);
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getContent().size()).isEqualTo(2);
@@ -323,7 +330,6 @@ public class JpaSearchTests {
         assertThat(result.getContent().get(1).getPrimitiveInteger()).isEqualTo(6);
     }
 
-    @SneakyThrows
     @Test
     public void testSortDesc2() {
         setup2();
@@ -337,15 +343,17 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result).hasSize(2);
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getContent().size()).isEqualTo(2);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
         assertThat(result.getContent().get(1).getPrimitiveInteger()).isEqualTo(6);
     }
-    @SneakyThrows
+
     @Test
     public void testSortLimit() {
         setup2();
@@ -359,14 +367,15 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(6);
     }
 
-    @SneakyThrows
     @Test
     public void testSortLimit2() {
         setup2();
@@ -380,14 +389,15 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 
-    @SneakyThrows
     @Test
     public void testNestedSortLimit() {
         setup2();
@@ -401,14 +411,15 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 
-    @SneakyThrows
     @Test
     public void testNestedSortLimitDesc() {
         setup2();
@@ -422,14 +433,15 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(6);
     }
 
-    @SneakyThrows
     @Test
     public void testNestedSortLimitMultipleCriteria() {
         setup2();
@@ -443,14 +455,15 @@ public class JpaSearchTests {
           }
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        Page<TestEntity> result = testEntityRepository.findAllWithPaginationAndSorting(filters, TestEntity.class);
+        Page<TestEntity> result = testEntityRepository.findAll(
+                specificationFrom(filterString, TestEntity.class),
+                pageRequestFrom(filterString, TestEntity.class)
+        );
         assertThat(result.getTotalPages()).isEqualTo(2);
         assertThat(result.getContent().size()).isEqualTo(1);
         assertThat(result.getContent().get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 
-    @SneakyThrows
     @Test
     public void testOwnBooleanOperator() {
         setup2();
@@ -466,12 +479,10 @@ public class JpaSearchTests {
           {"filter": ["ownFunc", "nested2"]}
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
         assertThat(result.get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 
-    @SneakyThrows
     @Test
     public void testOwnStringOperator() {
         setup2();
@@ -487,8 +498,7 @@ public class JpaSearchTests {
           {"filter": ["eq", ["ownFunc2", "blah"], "nested2blah"]}
           """;
 
-        JsonNode filters = mapper.readTree(filterString);
-        List<TestEntity> result = testEntityRepository.findAll(filters, TestEntity.class);
+        List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
         assertThat(result.get(0).getPrimitiveInteger()).isEqualTo(7);
     }
 }
