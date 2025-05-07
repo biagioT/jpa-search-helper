@@ -11,7 +11,6 @@ import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collection;
 
 public class JPASearchFunctions {
@@ -64,27 +63,42 @@ public class JPASearchFunctions {
     public static final JPAFuncWithObjects<Enum> ENUM = (root, query, cb, values, searchableFields) -> {
         var className = (String) values[0];
         var valueName = (String) values[1];
-        var cls = (Class<Enum>) searchableFields.values()
-                .stream()
-                .filter(v -> v.getValue().isEnum() && v.getValue().getName().endsWith("." + className))
-                .findFirst()
-                .orElseThrow(() -> new JPASearchException("Enum not found"))
-                .getValue();
-        return cb.literal(Enum.valueOf(cls, valueName));
+
+        for (var p : searchableFields.values()) {
+            var f = p.get(p.size() - 1);
+            var t = f.getType();
+            if (t.isEnum() && t.getName().endsWith("." + className)) {
+                return cb.literal(Enum.valueOf((Class<Enum>) t, valueName));
+            }
+        }
+
+        throw new JPASearchException(String.format("Cannot find enum %s", className));
     };
 
-    public static <Z, X> Expression<Z> getPath(Root<?> root, String k) {
-        if (k.contains(".")) {
-            Join<Z, X> path = null;
-            var it = Arrays.stream(k.split("\\.")).iterator();
-            var f = it.next();
-            while (it.hasNext()) {
-                path = path == null ? root.join(f, JoinType.LEFT) : path.join(f, JoinType.LEFT);
-                f = it.next();
+    public static <Z, X> Expression<Z> getPath(
+            CriteriaBuilder cb,
+            Root<X> root,
+            JPASearchCore.Descriptor descriptor
+    ) {
+        var rc = root.getJavaType();
+        var it = descriptor.getFieldPath().iterator();
+        var f = it.next();
+        Join<Z, X> path = null;
+
+        while (true) {
+            var fc = (Class<X>) f.getDeclaringClass();
+            var treat = !rc.equals(fc) && !fc.isAssignableFrom(rc);
+
+            var p = (path == null
+                    ? (treat ? cb.treat(root, fc) : root)
+                    : (treat ? cb.treat(path, fc) : path));
+
+            if (!it.hasNext()) {
+                return p.get(f.getName());
             }
-            return path.get(f);
-        } else {
-            return root.get(k);
+
+            path = p.join(f.getName(), JoinType.LEFT);
+            f = it.next();
         }
     }
 

@@ -32,14 +32,14 @@ Filter is changed to JSON expression format:
         ["not", ["isNull", ["field" ,"dateString"]]],
         ["not", ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.35"]]],
         ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.23"]],
-        ["eq", ["field","nestedBean.string"], "Nested! daa dumdidum"],
-        ["not", ["eq", ["lower", ["field","nestedBean.string"]], "blaa!"]],
-        ["startsWith", ["field","nestedBean.string"], "Nested!"],
-        ["startsWith", ["lower" ,["field","nestedBean.string"]], "nested!"],
-        ["contains", ["field","nestedBean.string"], "Nested!"],
-        ["contains", ["lower",["field","nestedBean.string"]], "nested!"],
-        ["endsWith", ["field","nestedBean.string"], "dum"],
-        ["endsWith", ["lower",["field","nestedBean.string"]], "dum"]        
+        ["eq", ["field","nested.string"], "Nested! daa dumdidum"],
+        ["not", ["eq", ["lower", ["field","nested.string"]], "blaa!"]],
+        ["startsWith", ["field","nested.string"], "Nested!"],
+        ["startsWith", ["lower" ,["field","nested.string"]], "nested!"],
+        ["contains", ["field","nested.string"], "Nested!"],
+        ["contains", ["lower",["field","nested.string"]], "nested!"],
+        ["endsWith", ["field","nested.string"], "dum"],
+        ["endsWith", ["lower",["field","nested.string"]], "dum"]        
       ]
    ],
    "options": {
@@ -57,8 +57,8 @@ You can extend library like this:
 
 ```java
 JPAFuncWithObjects<String> func = (root, query, cb, values, searchableFields) -> {
-    var nestedBean = root.join("nestedBean", JoinType.LEFT);
-    return cb.concat(nestedBean.get("string"), cb.literal((String)values[0]));
+    var nested = root.join("nested", JoinType.LEFT);
+    return cb.concat(nested.get("string"), cb.literal((String)values[0]));
 };
 
 Operator.addOperator(new Operator("ownOper", func));

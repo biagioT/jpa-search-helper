@@ -9,33 +9,49 @@ import com.gisgro.model.SearchType;
 import com.gisgro.utils.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import static com.gisgro.JPASearchFunctions.getPath;
 
 public class JPASearchCore {
-    public static <R, T> Specification<R> specification(JsonNode filterPayload,
-                                                        Class<T> entityClass,
-                                                        boolean throwsIfNotExistsOrNotSearchable) {
+    public static <R, T> Specification<R> specification(
+            JsonNode filterPayload,
+            Class<T> entityClass,
+            boolean throwsIfNotExistsOrNotSearchable
+    ) {
+        return specification(
+                filterPayload,
+                entityClass,
+                throwsIfNotExistsOrNotSearchable,
+                Collections.emptySet()
+        );
+    }
+
+    public static <R, T> Specification<R> specification(
+            JsonNode filterPayload,
+            Class<T> entityClass,
+            boolean throwsIfNotExistsOrNotSearchable,
+            Set<Class<?>> searchableSubclasses
+    ) {
+        HashSet<Class<?>> entityClasses = new HashSet<>(searchableSubclasses);
+        entityClasses.add(entityClass);
 
         var filterExpression = filterPayload.get("filter");
 
         return (root, query, criteriaBuilder) -> {
-            var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
+            var searchableFields = ReflectionUtils.getAllSearchableFields(entityClasses);
             var expr = processExpression(
                     filterExpression,
                     criteriaBuilder,
                     root,
                     query,
-                    entityClass,
+                    entityClasses,
                     throwsIfNotExistsOrNotSearchable,
                     searchableFields
             );
@@ -53,28 +69,20 @@ public class JPASearchCore {
             CriteriaBuilder cb,
             Root<?> root,
             CriteriaQuery<?> query,
-            Class<T> entityClass,
+            Set<Class<?>> entityClasses,
             boolean throwsIfNotExistsOrNotSearchable,
-            Map<String, Pair<Searchable, Class<?>>> searchableFields
+            Map<String, List<Field>> searchableFields
     ) {
         if (node.isTextual()) {
             var text = node.asText();
             if (Objects.equals(op.getName(), "field")) {
-                var descriptor = loadDescriptor(
-                        text,
+                return processField(
+                        cb,
+                        root,
                         throwsIfNotExistsOrNotSearchable,
-                        false,
-                        false,
-                        searchableFields
+                        searchableFields,
+                        text
                 );
-                var path = getPath(root, text);
-                if (descriptor.searchable.trim() && descriptor.searchType == SearchType.STRING) {
-                    return cb.trim(path.as(String.class));
-                } else if (descriptor.entityType.isEnum()) {
-                    return path.as(descriptor.entityType);
-                } else {
-                    return path;
-                }
             } else if (!op.isEvaluateStrings()) {
                 return text;
             } else {
@@ -89,12 +97,41 @@ public class JPASearchCore {
         } else if (node.isBoolean()) {
             return cb.literal(node.asBoolean());
         } else if (node.isArray()) {
-            return processExpression(node, cb, root, query, entityClass, throwsIfNotExistsOrNotSearchable, searchableFields);
-        } else if (node.isNull()) {
-            return cb.nullLiteral(entityClass);
+            return processExpression(node, cb, root, query, entityClasses, throwsIfNotExistsOrNotSearchable, searchableFields);
         } else {
             throw new JPASearchException("unexpected: " + node);
         }
+    }
+
+    private static <T, U extends T> Expression<?> processField(
+            CriteriaBuilder cb,
+            Root<T> root,
+            boolean throwsIfNotExistsOrNotSearchable,
+            Map<String, List<Field>> searchableFields,
+            String text
+    ) {
+        var descriptor = loadDescriptor(
+                text,
+                throwsIfNotExistsOrNotSearchable,
+                false,
+                false,
+                searchableFields
+        );
+        if (descriptor == null) {
+            return null;
+        }
+
+        var path = getPath(cb, root, descriptor);
+        var field = descriptor.fieldPath.get(descriptor.fieldPath.size() - 1);
+        var searchable = field.getAnnotation(Searchable.class);
+
+        if (searchable.trim() && descriptor.searchType == SearchType.STRING) {
+            return cb.trim(path.as(String.class));
+        } else if (field.getType().isEnum()) {
+            return path.as(field.getType());
+        }
+
+        return path;
     }
 
     private static Expression<?> processExpression(
@@ -102,9 +139,9 @@ public class JPASearchCore {
             CriteriaBuilder cb,
             Root<?> root,
             CriteriaQuery<?> query,
-            Class<?> entityClass,
+            Set<Class<?>> entityClasses,
             boolean throwsIfNotExistsOrNotSearchable,
-            Map<String, Pair<Searchable, Class<?>>> searchableFields
+            Map<String, List<Field>> searchableFields
     ) {
         if (!node.isArray() || node.isEmpty() || !node.get(0).isTextual()) {
             throw new JPASearchException("Invalid expression");
@@ -122,7 +159,7 @@ public class JPASearchCore {
                             cb,
                             root,
                             query,
-                            entityClass,
+                            entityClasses,
                             throwsIfNotExistsOrNotSearchable,
                             searchableFields
                     )
@@ -137,13 +174,13 @@ public class JPASearchCore {
 
     public static Sort loadSort(
             JsonNode filterPayload,
-            Class<?> entityClass,
+            Set<Class<?>> entityClasses,
             boolean throwsIfNotSortable,
             boolean throwsIfNotExistsOrNotSearchable
     ) {
         ArrayList<Sort.Order> orderSpecs = new ArrayList<>();
         var options = filterPayload.get("options");
-        var searchableFields = ReflectionUtils.getAllSearchableFields(entityClass);
+        var searchableFields = ReflectionUtils.getAllSearchableFields(entityClasses);
         if (options != null) {
             var sortKeysNode = options.get("sortKey");
             if (sortKeysNode != null) {
@@ -161,6 +198,8 @@ public class JPASearchCore {
                         sortKeyStr = sortKeyStr.substring(1);
                         descending = true;
                     }
+
+                    // noinspection unused: this is used for checking for sortability
                     var descriptor = loadDescriptor(
                             sortKeyStr,
                             throwsIfNotExistsOrNotSearchable,
@@ -170,9 +209,9 @@ public class JPASearchCore {
                     );
 
                     if (descending) {
-                        orderSpecs.add(Sort.Order.desc(descriptor.entityKey));
+                        orderSpecs.add(Sort.Order.desc(sortKeyStr));
                     } else {
-                        orderSpecs.add(Sort.Order.asc(descriptor.entityKey));
+                        orderSpecs.add(Sort.Order.asc(sortKeyStr));
                     }
                 }
             }
@@ -186,6 +225,25 @@ public class JPASearchCore {
             boolean throwsIfNotSortable,
             boolean throwsIfNotExistsOrSearchable
     ) {
+        return loadSortAndPagination(
+                filterPayload,
+                entityClass,
+                throwsIfNotSortable,
+                throwsIfNotExistsOrSearchable,
+                Collections.emptySet()
+        );
+    }
+
+    public static PageRequest loadSortAndPagination(
+            JsonNode filterPayload,
+            Class<?> entityClass,
+            boolean throwsIfNotSortable,
+            boolean throwsIfNotExistsOrSearchable,
+            Set<Class<?>> searchableSubclasses
+    ) {
+        HashSet<Class<?>> entityClasses = new HashSet<>(searchableSubclasses);
+        entityClasses.add(entityClass);
+
         Integer pageSize = null;
         Integer pageOffset = null;
         Sort sort = null;
@@ -195,7 +253,7 @@ public class JPASearchCore {
         if (options != null) {
             sort = loadSort(
                     filterPayload,
-                    entityClass,
+                    entityClasses,
                     throwsIfNotSortable,
                     throwsIfNotExistsOrSearchable
             );
@@ -225,11 +283,12 @@ public class JPASearchCore {
         return result;
     }
 
-    public static DescriptorBean loadDescriptor(String key,
-                                                boolean throwsIfNotExistsOrNotSortable,
-                                                boolean checkSortable,
-                                                boolean throwsIfNotSortable,
-                                                Map<String, Pair<Searchable, Class<?>>> searchableFields
+    public static Descriptor loadDescriptor(
+            String key,
+            boolean throwsIfNotExistsOrNotSortable,
+            boolean checkSortable,
+            boolean throwsIfNotSortable,
+            Map<String, List<Field>> searchableFields
     ) {
         if (!searchableFields.containsKey(key)) {
 
@@ -240,8 +299,13 @@ public class JPASearchCore {
             return null;
         }
 
-        Searchable searchable = searchableFields.get(key).getKey();
-        Class<?> type = searchableFields.get(key).getValue();
+        var path = searchableFields.get(key);
+        var field = path.get(path.size() - 1);
+        var searchable = field.getAnnotation(Searchable.class);
+
+        if (searchable == null) {
+            return null;
+        }
 
         if (checkSortable && !searchable.sortable()) {
             if (throwsIfNotSortable) {
@@ -251,23 +315,17 @@ public class JPASearchCore {
             return null;
         }
 
-        return new DescriptorBean(
-                key, searchable,
-                SearchType.UNTYPED.equals(searchable.targetType())
-                        ? SearchType.load(type, SearchType.STRING)
-                        : searchable.targetType(),
-                key,
-                type
-        );
+        var searchType = SearchType.UNTYPED.equals(searchable.targetType())
+                ? SearchType.load(field.getType(), SearchType.STRING)
+                : searchable.targetType();
+
+        return new Descriptor(searchType, path);
     }
 
     @Data
     @AllArgsConstructor
-    public static class DescriptorBean {
-        private String path;
-        private Searchable searchable;
+    public static class Descriptor {
         private SearchType searchType;
-        private String entityKey;
-        private Class<?> entityType;
+        private List<Field> fieldPath;
     }
 }

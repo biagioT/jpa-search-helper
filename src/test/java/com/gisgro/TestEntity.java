@@ -97,7 +97,7 @@ public class TestEntity {
     @NestedSearchable
     @ManyToOne
     @JoinColumn
-    private TestEntity2 nestedBean;
+    private TestEntity2 nested;
 
     @Searchable
     private TestEnum testEnum;

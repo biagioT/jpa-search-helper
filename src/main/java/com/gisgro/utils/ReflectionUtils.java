@@ -4,56 +4,60 @@ import com.gisgro.annotations.NestedSearchable;
 import com.gisgro.annotations.Searchable;
 import com.gisgro.exceptions.JPASearchException;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.WildcardType;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReflectionUtils {
-    private static final ConcurrentHashMap<Class<?>, Map<String, Pair<Searchable, Class<?>>>> cache = new ConcurrentHashMap<>();
-
-    public static Map<String, Pair<Searchable, Class<?>>> getAllSearchableFields(Class<?> beanClass) {
-        return cache.computeIfAbsent(beanClass, key -> {
-            Map<String, Pair<Searchable, Class<?>>> res = new HashMap<>();
-            getAllSearchableFields(new StringBuilder(), beanClass, res, true);
-            return res;
-        });
+    public static Map<String, List<Field>> getAllSearchableFields(Set<Class<?>> entityClasses) {
+        return getAllSearchableFields(
+                entityClasses,
+                new ArrayList<>(),
+                new HashMap<>(),
+                true
+        );
     }
 
-    private static void getAllSearchableFields(
-            final StringBuilder root,
-            Class<?> beanClass,
-            Map<String, Pair<Searchable, Class<?>>> res,
+    private static Map<String, List<Field>> getAllSearchableFields(
+            Set<Class<?>> entityClasses,
+            List<Field> path,
+            Map<String, List<Field>> res,
             boolean evaluateNested
     ) {
-        Stream.of(FieldUtils.getAllFields(beanClass))
-                .forEach(f -> {
-                    if (f.isAnnotationPresent(Searchable.class)) {
-                        res.putIfAbsent(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
-                    }
-                    if (evaluateNested && f.isAnnotationPresent(NestedSearchable.class)) {
-                        if (!root.isEmpty()) {
-                            root.append(".");
-                        }
-                        root.append(f.getName());
+        var fields = new HashSet<Field>();
 
-                        var type = getType(f);
-                        getAllSearchableFields(root, type, res, !type.equals(beanClass));
+        entityClasses.forEach(clazz -> {
+            fields.addAll(Set.of(FieldUtils.getAllFields(clazz)));
+        });
 
-                        if (root.indexOf(".") != -1) {
-                            root.delete(root.lastIndexOf("."), root.length());
+        fields.forEach(f -> {
+            var newPath = new ArrayList<>(path);
+            newPath.add(f);
 
-                        } else {
-                            root.setLength(0);
-                        }
-                    }
-                });
+            if (f.isAnnotationPresent(Searchable.class)) {
+                res.putIfAbsent(
+                        newPath
+                                .stream()
+                                .map(Field::getName)
+                                .collect(Collectors.joining(".")),
+                        newPath
+                );
+            }
+            if (evaluateNested && f.isAnnotationPresent(NestedSearchable.class)) {
+                var type = getType(f);
+                getAllSearchableFields(
+                        Set.of(type),
+                        newPath,
+                        res,
+                        !entityClasses.contains(type)
+                );
+            }
+        });
+
+        return res;
     }
 
     public static Class<?> getType(Field f) {
