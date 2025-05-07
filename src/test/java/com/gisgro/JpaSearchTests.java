@@ -29,125 +29,128 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @ContextConfiguration(classes = {JpaSearchTests.class})
 @EnableAutoConfiguration
 @TestPropertySource(properties = {
-    "spring.jpa.show-sql=true",
-    "logging.level.org.hibernate.SQL=DEBUG",
-    "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE"
+        "spring.jpa.show-sql=true",
+        "logging.level.org.hibernate.SQL=DEBUG",
+        "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE"
 })
 public class JpaSearchTests {
     ObjectMapper mapper = new ObjectMapper();
-    @Autowired private TestEntityRepository testEntityRepository;
-    @Autowired private TestEntity2Repository testEntity2Repository;
-    @Autowired private TestEntity3Repository testEntity3Repository;
+    @Autowired
+    private TestEntityRepository testEntityRepository;
+    @Autowired
+    private TestEntity2Repository testEntity2Repository;
+    @Autowired
+    private TestEntity3Repository testEntity3Repository;
 
     private void setup() {
         var ent2 = new TestEntity2(
-            0L,
-            "Nested! daa dumdidum"
+                0L,
+                "Nested! daa dumdidum"
         );
 
         ent2 = testEntity2Repository.save(ent2);
         TestEntity ent = new TestEntity(
-            0L,
-            6,
-            null,
-            "asdf",
-            "test@test.fi",
-            "",
-            "20240609",
-            new Date(2024, Calendar.MARCH, 1),
-            new Date(2024, Calendar.MARCH, 1),
-            1L,
-            10L,
-            1.35F,
-            5.6F,
-            1.3,
-            2.3,
-            new BigDecimal("1.23"),
-            LocalDateTime.now(),
-            LocalDate.now(),
-            LocalTime.now(),
-            OffsetDateTime.now(),
-            OffsetTime.now(),
-            "fieldName",
-            false,
-            true,
-            ent2,
-            TestEnum.VALUE1,
-            Period.parse("P6M")
+                0L,
+                6,
+                null,
+                "asdf",
+                "test@test.fi",
+                "",
+                "20240609",
+                new Date(2024, Calendar.MARCH, 1),
+                new Date(2024, Calendar.MARCH, 1),
+                1L,
+                10L,
+                1.35F,
+                5.6F,
+                1.3,
+                2.3,
+                new BigDecimal("1.23"),
+                LocalDateTime.now(),
+                LocalDate.now(),
+                LocalTime.now(),
+                OffsetDateTime.now(),
+                OffsetTime.now(),
+                "fieldName",
+                false,
+                true,
+                ent2,
+                TestEnum.VALUE1,
+                Period.parse("P6M")
         );
         testEntityRepository.save(ent);
     }
 
     private void setup2() {
         var ent2a = new TestEntity2(
-            0L,
-            "nested1"
+                0L,
+                "nested1"
         );
         ent2a = testEntity2Repository.save(ent2a);
         var ent2b = new TestEntity2(
-            0L,
-            "nested2"
+                0L,
+                "nested2"
         );
         ent2b = testEntity2Repository.save(ent2b);
 
         TestEntity ent = new TestEntity(
-            0L,
-            6,
-            null,
-            "asdf",
-            "test@test.fi",
-            "",
-            "20240609",
-            new Date(2024, Calendar.MARCH, 1),
-            new Date(2024, Calendar.MARCH, 1),
-            1L,
-            10L,
-            1.35F,
-            5.6F,
-            1.3,
-            2.3,
-            new BigDecimal("1.23"),
-            LocalDateTime.now(),
-            LocalDate.now(),
-            LocalTime.now(),
-            OffsetDateTime.now(),
-            OffsetTime.now(),
-            "fieldName",
-            false,
-            true,
-            ent2a,
-            TestEnum.VALUE1,
-            Period.parse("P12M")
+                0L,
+                6,
+                null,
+                "asdf",
+                "test@test.fi",
+                "",
+                "20240609",
+                new Date(2024, Calendar.MARCH, 1),
+                new Date(2024, Calendar.MARCH, 1),
+                1L,
+                10L,
+                1.35F,
+                5.6F,
+                1.3,
+                2.3,
+                new BigDecimal("1.23"),
+                LocalDateTime.now(),
+                LocalDate.now(),
+                LocalTime.now(),
+                OffsetDateTime.now(),
+                OffsetTime.now(),
+                "fieldName",
+                false,
+                true,
+                ent2a,
+                TestEnum.VALUE1,
+                Period.parse("P12M")
         );
         testEntityRepository.save(ent);
         ent = new TestEntity(
-            0L,
-            7,
-            null,
-            "asdf",
-            "test@test.fi",
-            "",
-            "20240609",
-            new Date(2024, Calendar.MARCH, 1),
-            new Date(2024, Calendar.MARCH, 1),
-            1L,
-            10L,
-            1.35F,
-            5.6F,
-            1.3,
-            2.3,
-            new BigDecimal("1.23"),
-            LocalDateTime.now(),
-            LocalDate.now(),
-            LocalTime.now(),
-            OffsetDateTime.now(),
-            OffsetTime.now(),
-            "fieldName",
-            false,
-            true,
-            ent2b,
-            TestEnum.VALUE2,
-            Period.parse("P6M")
+                0L,
+                7,
+                null,
+                "asdf",
+                "test@test.fi",
+                "",
+                "20240609",
+                new Date(2024, Calendar.MARCH, 1),
+                new Date(2024, Calendar.MARCH, 1),
+                1L,
+                10L,
+                1.35F,
+                5.6F,
+                1.3,
+                2.3,
+                new BigDecimal("1.23"),
+                LocalDateTime.now(),
+                LocalDate.now(),
+                LocalTime.now(),
+                OffsetDateTime.now(),
+                OffsetTime.now(),
+                "fieldName",
+                false,
+                true,
+                ent2b,
+                TestEnum.VALUE2,
+                Period.parse("P6M")
         );
         testEntityRepository.save(ent);
     }
@@ -174,13 +177,13 @@ public class JpaSearchTests {
         setup3();
 
         var filterString = """
-            {"filter":
-                ["and",
-                 ["eq", ["field", "parentField"], "parentBar"],
-                 ["eq", ["field", "payload"], "bar"],
-                 ["eq", ["field", "previous.payload"], "foo"]
-                ]}
-        """;
+                    {"filter":
+                        ["and",
+                         ["eq", ["field", "parentField"], "parentBar"],
+                         ["eq", ["field", "payload"], "bar"],
+                         ["eq", ["field", "previous.payload"], "foo"]
+                        ]}
+                """;
 
         List<TestEntity3> result = testEntity3Repository.findAll(specificationFrom(filterString, TestEntity3.class));
         assertThat(result).hasSize(1);
@@ -190,41 +193,41 @@ public class JpaSearchTests {
     public void testAllFilters() {
         setup();
         var filterString = """
-          {
-            "filter":
-    ["and",
-      ["and",
-        ["and",
-          ["eq", ["field","primitiveInteger"], 6],
-          ["eq", ["lower" , ["field","email"]], "test@test.fi"],
-          ["lt", ["field" ,"primitiveLong"], 10],
-          ["in", ["field","primitiveDouble"], 1.3, 1.4],
-          ["between", ["field","primitiveFloat"], 1.3, 1.4],
-          ["lte", ["field","wrapperLong"], 10],
-          ["not", ["in", ["field","wrapperDouble"], 1.3, 1.4]],
-          ["isNull", ["field","wrapperInteger"]],
-          ["eq", ["field","integerString"], ""],
-          ["eq", ["field","testEnum"], ["enum", "TestEnum", "VALUE1"]],
-          ["eq", ["field","period"], ["period", "P6M"]]
-        ]
-      ],
-      ["and",
-        ["not", ["isNull", ["field" ,"dateString"]]],
-        ["not", ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.35"]]],
-        ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.23"]],
-        ["eq", ["field","nestedBean.string"], "Nested! daa dumdidum"],
-        ["not", ["eq", ["lower", ["field","nestedBean.string"]], "blaa!"]],
-        ["startsWith", ["field","nestedBean.string"], "Nested!"],
-        ["startsWith", ["lower" ,["field","nestedBean.string"]], "nested!"],
-        ["contains", ["field","nestedBean.string"], "Nested!"],
-        ["contains", ["lower",["field","nestedBean.string"]], "nested!"],
-        ["endsWith", ["field","nestedBean.string"], "dum"],
-        ["endsWith", ["lower",["field","nestedBean.string"]], "dum"]
-      ]
-      ]            
-   
-   }
-          """;
+                       {
+                         "filter":
+                 ["and",
+                   ["and",
+                     ["and",
+                       ["eq", ["field","primitiveInteger"], 6],
+                       ["eq", ["lower" , ["field","email"]], "test@test.fi"],
+                       ["lt", ["field" ,"primitiveLong"], 10],
+                       ["in", ["field","primitiveDouble"], 1.3, 1.4],
+                       ["between", ["field","primitiveFloat"], 1.3, 1.4],
+                       ["lte", ["field","wrapperLong"], 10],
+                       ["not", ["in", ["field","wrapperDouble"], 1.3, 1.4]],
+                       ["isNull", ["field","wrapperInteger"]],
+                       ["eq", ["field","integerString"], ""],
+                       ["eq", ["field","testEnum"], ["enum", "TestEnum", "VALUE1"]],
+                       ["eq", ["field","period"], ["period", "P6M"]]
+                     ]
+                   ],
+                   ["and",
+                     ["not", ["isNull", ["field" ,"dateString"]]],
+                     ["not", ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.35"]]],
+                     ["eq", ["field","bigDecimal"],  ["bigDecimal", "1.23"]],
+                     ["eq", ["field","nestedBean.string"], "Nested! daa dumdidum"],
+                     ["not", ["eq", ["lower", ["field","nestedBean.string"]], "blaa!"]],
+                     ["startsWith", ["field","nestedBean.string"], "Nested!"],
+                     ["startsWith", ["lower" ,["field","nestedBean.string"]], "nested!"],
+                     ["contains", ["field","nestedBean.string"], "Nested!"],
+                     ["contains", ["lower",["field","nestedBean.string"]], "nested!"],
+                     ["endsWith", ["field","nestedBean.string"], "dum"],
+                     ["endsWith", ["lower",["field","nestedBean.string"]], "dum"]
+                   ]
+                   ]            
+                
+                }
+                """;
 
         /*
              H2 does not support STR_TO_DATE function, so can't test this
@@ -243,13 +246,13 @@ public class JpaSearchTests {
     public void testOrOperator() {
         setup();
         var filterString = """
-          {
-           "filter": ["or",
-            ["eq", ["field", "primitiveInteger"], 6],
-            ["eq", ["field", "primitiveInteger"], 7]
-           ]
-          }
-          """;
+                {
+                 "filter": ["or",
+                  ["eq", ["field", "primitiveInteger"], 6],
+                  ["eq", ["field", "primitiveInteger"], 7]
+                 ]
+                }
+                """;
 
         List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
@@ -260,10 +263,10 @@ public class JpaSearchTests {
     public void testNotOperator() {
         setup();
         var filterString = """
-          {"filter": ["not",
-            ["eq", ["field", "primitiveInteger"], 7]
-          ]}
-          """;
+                {"filter": ["not",
+                  ["eq", ["field", "primitiveInteger"], 7]
+                ]}
+                """;
 
         List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
@@ -274,8 +277,8 @@ public class JpaSearchTests {
     public void testEnum() {
         setup2();
         var filterString = """
-          {"filter": ["eq", ["field", "testEnum"], ["enum", "TestEnum", "VALUE1"]]}
-          """;
+                {"filter": ["eq", ["field", "testEnum"], ["enum", "TestEnum", "VALUE1"]]}
+                """;
 
         List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
 
@@ -286,14 +289,14 @@ public class JpaSearchTests {
     public void testSort() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["primitiveInteger"],
-            "pageSize": 2,
-            "pageOffset": 0
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["primitiveInteger"],
+                  "pageSize": 2,
+                  "pageOffset": 0
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -310,14 +313,14 @@ public class JpaSearchTests {
     public void testSortDesc() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["-primitiveInteger"],
-            "pageSize": 2,
-            "pageOffset": 0
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["-primitiveInteger"],
+                  "pageSize": 2,
+                  "pageOffset": 0
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -334,14 +337,14 @@ public class JpaSearchTests {
     public void testSortDesc2() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": "-primitiveInteger",
-            "pageSize": 2,
-            "pageOffset": 0
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": "-primitiveInteger",
+                  "pageSize": 2,
+                  "pageOffset": 0
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -358,14 +361,14 @@ public class JpaSearchTests {
     public void testSortLimit() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["primitiveInteger"],
-            "pageSize": 1,
-            "pageOffset": 0
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["primitiveInteger"],
+                  "pageSize": 1,
+                  "pageOffset": 0
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -380,14 +383,14 @@ public class JpaSearchTests {
     public void testSortLimit2() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["primitiveInteger"],
-            "pageSize": 1,
-            "pageOffset": 1
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["primitiveInteger"],
+                  "pageSize": 1,
+                  "pageOffset": 1
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -402,14 +405,14 @@ public class JpaSearchTests {
     public void testNestedSortLimit() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["nestedBean.string"],
-            "pageSize": 1,
-            "pageOffset": 1
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["nestedBean.string"],
+                  "pageSize": 1,
+                  "pageOffset": 1
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -424,14 +427,14 @@ public class JpaSearchTests {
     public void testNestedSortLimitDesc() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["-nestedBean.string"],
-            "pageSize": 1,
-            "pageOffset": 1
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["-nestedBean.string"],
+                  "pageSize": 1,
+                  "pageOffset": 1
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -446,14 +449,14 @@ public class JpaSearchTests {
     public void testNestedSortLimitMultipleCriteria() {
         setup2();
         var filterString = """
-          {"filter": ["gte", ["field", "primitiveInteger"], 6],
-          "options": {
-            "sortKey": ["primitiveInteger", "-nestedBean.string"],
-            "pageSize": 1,
-            "pageOffset": 1
-          }
-          }
-          """;
+                {"filter": ["gte", ["field", "primitiveInteger"], 6],
+                "options": {
+                  "sortKey": ["primitiveInteger", "-nestedBean.string"],
+                  "pageSize": 1,
+                  "pageOffset": 1
+                }
+                }
+                """;
 
         Page<TestEntity> result = testEntityRepository.findAll(
                 specificationFrom(filterString, TestEntity.class),
@@ -476,8 +479,8 @@ public class JpaSearchTests {
         Operator.addOperator(new Operator("ownFunc", func));
 
         var filterString = """
-          {"filter": ["ownFunc", "nested2"]}
-          """;
+                {"filter": ["ownFunc", "nested2"]}
+                """;
 
         List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
         assertThat(result.get(0).getPrimitiveInteger()).isEqualTo(7);
@@ -489,14 +492,14 @@ public class JpaSearchTests {
 
         JPAFuncWithObjects<String> func = (root, query, cb, values, searchableFields) -> {
             var nestedBean = root.join("nestedBean", JoinType.LEFT);
-            return cb.concat(nestedBean.get("string"), cb.literal((String)values[0]));
+            return cb.concat(nestedBean.get("string"), cb.literal((String) values[0]));
         };
 
         Operator.addOperator(new Operator("ownFunc2", func));
 
         var filterString = """
-          {"filter": ["eq", ["ownFunc2", "blah"], "nested2blah"]}
-          """;
+                {"filter": ["eq", ["ownFunc2", "blah"], "nested2blah"]}
+                """;
 
         List<TestEntity> result = testEntityRepository.findAll(specificationFrom(filterString, TestEntity.class));
         assertThat(result.get(0).getPrimitiveInteger()).isEqualTo(7);

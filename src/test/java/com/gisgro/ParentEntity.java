@@ -15,7 +15,8 @@ import javax.persistence.Id;
 @Setter
 @AllArgsConstructor
 public class ParentEntity {
-    public ParentEntity() {}
+    public ParentEntity() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

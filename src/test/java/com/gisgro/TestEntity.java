@@ -19,7 +19,8 @@ import java.util.Date;
 @AllArgsConstructor
 public class TestEntity {
 
-    public TestEntity() {}
+    public TestEntity() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

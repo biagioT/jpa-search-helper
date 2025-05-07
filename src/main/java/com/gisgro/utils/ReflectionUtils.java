@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class ReflectionUtils {
-    private static final ConcurrentHashMap<Class<?>, Map<String,Pair<Searchable, Class<?>>>> cache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, Map<String, Pair<Searchable, Class<?>>>> cache = new ConcurrentHashMap<>();
 
     public static Map<String, Pair<Searchable, Class<?>>> getAllSearchableFields(Class<?> beanClass) {
         return cache.computeIfAbsent(beanClass, key -> {
@@ -33,27 +33,27 @@ public class ReflectionUtils {
             boolean evaluateNested
     ) {
         Stream.of(FieldUtils.getAllFields(beanClass))
-            .forEach(f -> {
-                if (f.isAnnotationPresent(Searchable.class)) {
-                    res.putIfAbsent(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
-                }
-                if (evaluateNested && f.isAnnotationPresent(NestedSearchable.class)) {
-                    if (!root.isEmpty()) {
-                        root.append(".");
+                .forEach(f -> {
+                    if (f.isAnnotationPresent(Searchable.class)) {
+                        res.putIfAbsent(root.isEmpty() ? f.getName() : root + "." + f.getName(), Pair.of(f.getAnnotation(Searchable.class), f.getType()));
                     }
-                    root.append(f.getName());
+                    if (evaluateNested && f.isAnnotationPresent(NestedSearchable.class)) {
+                        if (!root.isEmpty()) {
+                            root.append(".");
+                        }
+                        root.append(f.getName());
 
-                    var type = getType(f);
-                    getAllSearchableFields(root, type, res, !type.equals(beanClass));
+                        var type = getType(f);
+                        getAllSearchableFields(root, type, res, !type.equals(beanClass));
 
-                    if (root.indexOf(".") != -1) {
-                        root.delete(root.lastIndexOf("."), root.length());
+                        if (root.indexOf(".") != -1) {
+                            root.delete(root.lastIndexOf("."), root.length());
 
-                    } else {
-                        root.setLength(0);
+                        } else {
+                            root.setLength(0);
+                        }
                     }
-                }
-            });
+                });
     }
 
     public static Class<?> getType(Field f) {

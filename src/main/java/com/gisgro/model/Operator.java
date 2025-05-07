@@ -13,8 +13,9 @@ import java.util.HashMap;
 @AllArgsConstructor
 public class Operator {
     public Operator(String name, JPAFuncWithExpressions<?, ?> fnc) {
-        this(name, fnc, null,  true);
+        this(name, fnc, null, true);
     }
+
     public Operator(String name, JPAFuncWithObjects<?> fnc) {
         this(name, null, fnc, false);
     }
@@ -32,27 +33,27 @@ public class Operator {
         }
         operators = new HashMap<>();
         Operator[] operatorArray = {
-            new Operator("and", JPASearchFunctions.AND),
-            new Operator("or", JPASearchFunctions.OR),
-            new Operator("not", JPASearchFunctions.NOT),
-            new Operator("eq", JPASearchFunctions.EQ),
-            new Operator("contains", JPASearchFunctions.CONTAINS),
-            new Operator("in", JPASearchFunctions.IN),
-            new Operator("startsWith", JPASearchFunctions.STARTSWITH),
-            new Operator("endsWith", JPASearchFunctions.ENDSWITH),
-            new Operator("gt", JPASearchFunctions.GT),
-            new Operator("gte", JPASearchFunctions.GTE),
-            new Operator("lt", JPASearchFunctions.LT),
-            new Operator("lte", JPASearchFunctions.LTE),
-            new Operator("between", JPASearchFunctions.BETWEEN),
-            new Operator("lower", JPASearchFunctions.LOWER),
-            new Operator("date", JPASearchFunctions.DATE),
-            new Operator("enum", JPASearchFunctions.ENUM),
-            new Operator("field", JPASearchFunctions.FIELD),
-            new Operator("bigDecimal", JPASearchFunctions.BIG_DECIMAL),
-            new Operator("period", JPASearchFunctions.PERIOD),
-            new Operator("isNull", JPASearchFunctions.NULL),
-            new Operator("isEmpty", JPASearchFunctions.EMPTY)
+                new Operator("and", JPASearchFunctions.AND),
+                new Operator("or", JPASearchFunctions.OR),
+                new Operator("not", JPASearchFunctions.NOT),
+                new Operator("eq", JPASearchFunctions.EQ),
+                new Operator("contains", JPASearchFunctions.CONTAINS),
+                new Operator("in", JPASearchFunctions.IN),
+                new Operator("startsWith", JPASearchFunctions.STARTSWITH),
+                new Operator("endsWith", JPASearchFunctions.ENDSWITH),
+                new Operator("gt", JPASearchFunctions.GT),
+                new Operator("gte", JPASearchFunctions.GTE),
+                new Operator("lt", JPASearchFunctions.LT),
+                new Operator("lte", JPASearchFunctions.LTE),
+                new Operator("between", JPASearchFunctions.BETWEEN),
+                new Operator("lower", JPASearchFunctions.LOWER),
+                new Operator("date", JPASearchFunctions.DATE),
+                new Operator("enum", JPASearchFunctions.ENUM),
+                new Operator("field", JPASearchFunctions.FIELD),
+                new Operator("bigDecimal", JPASearchFunctions.BIG_DECIMAL),
+                new Operator("period", JPASearchFunctions.PERIOD),
+                new Operator("isNull", JPASearchFunctions.NULL),
+                new Operator("isEmpty", JPASearchFunctions.EMPTY)
         };
         for (Operator operator : operatorArray) {
             operators.put(operator.getName(), operator);
