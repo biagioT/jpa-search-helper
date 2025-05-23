@@ -29,7 +29,7 @@ repositories {
 dependencies {
 
     // BOM
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.0"))
 
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api'
