@@ -23,11 +23,20 @@ public class JPASearchInput {
 
     @Data
     public static class JPASearchOptions {
-        private String sortKey;
-        private Boolean sortDesc = false;
         private Integer pageSize;
         private Integer pageOffset;
+        private List<JPASortOptions> sortOptions;
         private List<String> selections;
+    }
+
+    @Data
+    public static class JPASortOptions {
+
+        @NotEmpty
+        @NotNull
+        private String key;
+
+        private Boolean desc = false;
     }
 
     @JsonTypeInfo(
@@ -43,6 +52,7 @@ public class JPASearchInput {
     public abstract static class Filter {
 
         @NotEmpty
+        @NotNull
         private String operator;
     }
 
@@ -59,6 +69,7 @@ public class JPASearchInput {
     public static class FieldFilter extends Filter {
 
         @NotEmpty
+        @NotNull
         private String key;
 
         @Nullable

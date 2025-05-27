@@ -237,8 +237,11 @@ public class JPASearchCoreTest {
     @Test
     void mode2_onlySortingWithoutFilters() {
         var options = new JPASearchInput.JPASearchOptions();
-        options.setSortKey("stringOne");
-        options.setSortDesc(true);
+        options.setSortOptions(new ArrayList<>());
+        var sortOptions = new JPASearchInput.JPASortOptions();
+        sortOptions.setKey("stringOne");
+        sortOptions.setDesc(true);
+        options.getSortOptions().add(sortOptions);
         var input = new JPASearchInput();
         input.setOptions(options);
 
@@ -253,8 +256,11 @@ public class JPASearchCoreTest {
         var options = new JPASearchInput.JPASearchOptions();
         options.setPageOffset(0);
         options.setPageSize(50);
-        options.setSortKey("stringOne");
-        options.setSortDesc(true);
+        options.setSortOptions(new ArrayList<>());
+        var sortOptions = new JPASearchInput.JPASortOptions();
+        sortOptions.setKey("stringOne");
+        sortOptions.setDesc(true);
+        options.getSortOptions().add(sortOptions);
         var input = new JPASearchInput();
         input.setOptions(options);
 
@@ -377,8 +383,11 @@ public class JPASearchCoreTest {
 
         input.setOptions(new JPASearchInput.JPASearchOptions());
         input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
-        input.getOptions().setSortKey("stringMail");
-        input.getOptions().setSortDesc(true);
+        input.getOptions().setSortOptions(new ArrayList<>());
+        var sortOptions = new JPASearchInput.JPASortOptions();
+        sortOptions.setKey("stringMail");
+        sortOptions.setDesc(true);
+        input.getOptions().getSortOptions().add(sortOptions);
 
         List<Map<String, Object>> res = myRepository.projectionWithSorting(input, MyModel.class, MyEntity.class);
         assertNotNull(res);
@@ -430,8 +439,11 @@ public class JPASearchCoreTest {
 
         input.setOptions(new JPASearchInput.JPASearchOptions());
         input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe"));
-        input.getOptions().setSortKey("stringMail");
-        input.getOptions().setSortDesc(false);
+        input.getOptions().setSortOptions(new ArrayList<>());
+        var sortOptions = new JPASearchInput.JPASortOptions();
+        sortOptions.setKey("stringMail");
+        sortOptions.setDesc(false);
+        input.getOptions().getSortOptions().add(sortOptions);
 
         List<Map<String, Object>> res = myRepository.projectionWithSorting(input, MyModel.class, MyEntity.class);
         assertNotNull(res);

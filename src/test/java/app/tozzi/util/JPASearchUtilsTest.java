@@ -91,8 +91,9 @@ public class JPASearchUtilsTest {
         assertNotNull(input.getOptions());
         assertEquals(1, input.getOptions().getPageOffset());
         assertEquals(10, input.getOptions().getPageSize());
-        assertEquals("id", input.getOptions().getSortKey());
-        assertEquals(true, input.getOptions().getSortDesc());
+        assertNotNull(input.getOptions().getSortOptions());
+        assertEquals("id", input.getOptions().getSortOptions().get(0).getKey());
+        assertEquals(true, input.getOptions().getSortOptions().get(0).getDesc());
         assertNotNull(input.getFilter());
         assertEquals("and", input.getFilter().getOperator());
         assertNotNull(input.getFilter().getFilters());
@@ -119,8 +120,9 @@ public class JPASearchUtilsTest {
         assertNotNull(input.getOptions());
         assertEquals(1, input.getOptions().getPageOffset());
         assertEquals(10, input.getOptions().getPageSize());
-        assertEquals("id", input.getOptions().getSortKey());
-        assertEquals(false, input.getOptions().getSortDesc());
+        assertNotNull(input.getOptions().getSortOptions());
+        assertEquals("id", input.getOptions().getSortOptions().get(0).getKey());
+        assertEquals(false, input.getOptions().getSortOptions().get(0).getDesc());
         assertNotNull(input.getFilter());
         assertEquals("and", input.getFilter().getOperator());
         assertNotNull(input.getFilter().getFilters());

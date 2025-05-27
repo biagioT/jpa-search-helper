@@ -62,8 +62,14 @@ public class JPASearchUtils {
                             case LIMIT -> res.getOptions().setPageSize(GenericUtils.loadInt(e.getValue(), processPaginationOptions ? 0 : -1));
                             case OFFSET -> res.getOptions().setPageOffset(GenericUtils.loadInt(e.getValue(), 0));
                             case SORT -> {
-                                res.getOptions().setSortKey(e.getKey().substring(0, e.getKey().lastIndexOf("_")));
-                                res.getOptions().setSortDesc(JPASearchSortType.DESC.name().equalsIgnoreCase(e.getValue()));
+                                if (res.getOptions().getSortOptions() == null) {
+                                    res.getOptions().setSortOptions(new ArrayList<>());
+                                }
+
+                                var sortOption = new JPASearchInput.JPASortOptions();
+                                sortOption.setKey(e.getKey().substring(0, e.getKey().lastIndexOf("_")));
+                                sortOption.setDesc(JPASearchSortType.DESC.name().equalsIgnoreCase(e.getValue()));
+                                res.getOptions().getSortOptions().add(sortOption);
                             }
                         }
 

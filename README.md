@@ -92,8 +92,12 @@ curl -X POST -H "Content-type: application/json" -d '{
   "options": {
     "pageSize": 10,
     "pageOffset": 0,
-    "sortKey": "birthDate",
-    "sortDesc": false
+    "sortOptions" : [
+      {
+          "key": "birthDate",
+          "desc": false
+      }
+    ]
   }
   
 }' 'https://myexampledomain.com/persons'
@@ -114,6 +118,7 @@ curl -X POST -H "Content-type: application/json" -d '{
 | [v0.0.1 - v2.1.1] | 3.2.x       | [17 - 24] |  
 | [v3.0.0 - v3.2.2] | 3.3.x       | [17 - 24] |  
 | [v3.3.0 - latest] | 3.4.x       | [17 - 24] |  
+| [v3.5.0 - latest] | 3.5.x       | [17 - 24] |  
 
 ## Project dependency
 #### Maven
@@ -121,13 +126,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.4.5</version>
+ <version>3.5.0</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.4.5'
+implementation 'app.tozzi:jpa-search-helper:3.5.0'
 ```
 
 ## Queries - Usage
@@ -370,8 +375,12 @@ In your manager, or in your service, or wherever you want to use the repository:
   "options": {
     "pageSize": 10,
     "pageOffset": 0,
-    "sortKey": "birthDate",
-    "sortDesc": false
+    "sortOptions" : [
+      {
+        "key": "birthDate",
+        "desc": false
+      }
+    ]
   }
   
 }
@@ -472,8 +481,12 @@ public static class JPASearchFilterOptions {
     // ...
   },
   "options" : {
-    "sortKey": "firstName",
-    "sortDesc": true,
+    "sortOptions" : [
+      {
+        "key": "firstName",
+        "desc": true
+      }
+    ],
     "pageSize": 10,
     "pageOffset": 1
   }
@@ -483,11 +496,20 @@ Java object:
 ```java
 @Data
 public static class JPASearchOptions {
-    private String sortKey;
-    private Boolean sortDesc = false;
+    private List<JPASortOptions> sortOptions;
     private Integer pageSize;
     private Integer pageOffset;
     private List<String> selections;
+}
+
+@Data
+public static class JPASortOptions {
+
+  @NotEmpty
+  @NotNull
+  private String key;
+
+  private Boolean desc = false;
 }
 ```
 
@@ -675,8 +697,12 @@ In your manager, or in your service, or wherever you want to use the repository:
   "options": {
     "pageSize": 10,
     "pageOffset": 0,
-    "sortKey": "birthDate",
-    "sortDesc": false,
+    "sortOptions" : [
+      {
+        "key": "birthDate",
+        "desc": false
+      }
+    ],
     "selections" : [
 		"lastName",
 		"birthDate",
@@ -986,8 +1012,12 @@ curl -X POST -H "Content-type: application/json" -d '{
   "options": {
     "pageSize": 10,
     "pageOffset": 0,
-    "sortKey": "birthDate",
-    "sortDesc": false
+    "sortOptions" : [
+      {
+        "key": "birthDate",
+        "desc": false
+      }
+    ]
   }
   
 }' 'http://localhost:8080/persons'
@@ -1056,8 +1086,12 @@ curl -X POST -H "Content-type: application/json" -d '{
       ]
   },
   "options": {
-    "sortKey": "birthDate",
-    "sortDesc": false,
+    "sortOptions" : [
+      {
+        "key": "birthDate",
+        "desc": false
+      }
+    ]
     "selections" : [
 		"birthDate",
 		"firstName",
