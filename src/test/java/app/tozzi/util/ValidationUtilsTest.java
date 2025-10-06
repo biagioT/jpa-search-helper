@@ -160,7 +160,10 @@ public class ValidationUtilsTest {
                 return false;
             }
 
-
+            @Override
+            public String jsonPath() {
+                return "";
+            }
         };
     }
 

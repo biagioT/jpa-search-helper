@@ -83,7 +83,8 @@ public class JPASearchCoreValueProcessor {
                 case OFFSETDATETIME -> GenericUtils.parseOffsetDateTime(field, value, searchable.datePattern());
                 case OFFSETTIME -> GenericUtils.parseOffsetTime(field, value, searchable.datePattern());
                 case BOOLEAN -> GenericUtils.parseBoolean(field, value);
-                case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL -> formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
+                case INTEGER, LONG, FLOAT, DOUBLE, BIGDECIMAL ->
+                        formatNumber(field, value, searchable, searchType, jpaSearchOperatorFilter);
                 case ZONEDDATETIME -> GenericUtils.parseZonedDateTime(field, value, searchable.datePattern());
                 case UUID -> GenericUtils.parseUUID(field, value);
                 case INSTANT -> GenericUtils.parseInstant(field, value, searchable.datePattern());
@@ -91,6 +92,7 @@ public class JPASearchCoreValueProcessor {
                 case TIME_SQL -> GenericUtils.parseSQLTime(field, value, searchable.datePattern());
                 case TIMESTAMP -> GenericUtils.parseSQLTimestamp(field, value, searchable.datePattern());
                 case ENUM -> GenericUtils.parseEnum(field, value, searchable.ordinalEnum(), type);
+                case JSONB -> value;
                 case UNTYPED -> throw new IllegalArgumentException();
             };
 

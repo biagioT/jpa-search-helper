@@ -40,6 +40,10 @@ public class JPASearchCoreFieldProcessor {
         var searchable = searchableFields.containsKey(field) ? searchableFields.get(field).getKey() : tagMap.get(field).getKey().getKey();
         var type = searchableFields.containsKey(field) ? searchableFields.get(field).getValue().getType() : tagMap.get(field).getKey().getValue().getType();
 
+        if (JPASearchType.JSONB.equals(searchable.targetType()) && (searchable.jsonPath() == null || searchable.jsonPath().isBlank())) {
+            throw new InvalidFieldException("Invalid json path for field [" + field + "]", field);
+        }
+
         if (checkSortable && !searchable.sortable()) {
             if (throwsIfNotSortable) {
                 throw new InvalidFieldException("Field [" + field + "] is not sortable", field);
@@ -54,6 +58,6 @@ public class JPASearchCoreFieldProcessor {
                         : (searchable.entityFieldKey() != null && !searchable.entityFieldKey().isBlank() ? searchable.entityFieldKey() : field));
 
         return new FieldDescriptor(field, searchable,
-                JPASearchType.UNTYPED.equals(searchable.targetType()) ? JPASearchType.load(type, JPASearchType.STRING) : searchable.targetType(), entityField, type);
+                JPASearchType.UNTYPED.equals(searchable.targetType()) ? JPASearchType.load(type, JPASearchType.STRING) : searchable.targetType(), entityField, type, JPASearchType.JSONB.equals(searchable.targetType()) ? searchable.jsonPath() : null);
     }
 }

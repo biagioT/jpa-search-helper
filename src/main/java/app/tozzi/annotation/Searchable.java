@@ -14,6 +14,8 @@ public @interface Searchable {
 
     String entityFieldKey() default "";
 
+    String jsonPath() default "";
+
     JPASearchType targetType() default JPASearchType.UNTYPED;
 
     String datePattern() default "";

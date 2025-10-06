@@ -36,7 +36,8 @@ public enum JPASearchType {
     DATE_SQL(List.of(java.sql.Date.class)),
     TIME_SQL(List.of(Time.class)),
     ENUM(List.of(Enum.class)),
-    TIMESTAMP(List.of(Timestamp.class));
+    TIMESTAMP(List.of(Timestamp.class)),
+    JSONB(Collections.EMPTY_LIST);
 
     private final List<Class<?>> defaultClasses;
 

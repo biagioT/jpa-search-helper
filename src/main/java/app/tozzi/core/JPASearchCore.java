@@ -4,6 +4,7 @@ import app.tozzi.annotation.Searchable;
 import app.tozzi.exception.JPASearchException;
 import app.tozzi.model.JPASearchOperatorFilter;
 import app.tozzi.model.JPASearchOperatorGroup;
+import app.tozzi.model.JPASearchType;
 import app.tozzi.model.input.JPASearchInput;
 import app.tozzi.util.JPASearchUtils;
 import app.tozzi.util.ValidationUtils;
@@ -185,7 +186,7 @@ public class JPASearchCore {
             }
 
             ValidationUtils.searchableValidations(descriptor.getSearchable(), descriptor.getPath(), searchFilter);
-            var path = JPASearchUtils.getPath(root, descriptor.getEntityKey());
+            var path = JPASearchUtils.getPath(cb, root, descriptor.getEntityKey(), descriptor.getJsonPath());
 
             Expression<?> exp = null;
             var trim = false;
