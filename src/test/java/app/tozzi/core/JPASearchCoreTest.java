@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -221,6 +222,17 @@ public class JPASearchCoreTest {
     }
 
     @Test
+    void mode1_paginationAndSortingWithoutFilters_Lazy() {
+        Slice<MyEntity> res = myRepository.findAllWithPaginationAndSortingLazy(Map.of("stringOne_sort", "DESC",
+                        "_limit", "50",
+                        "_offset", "0"),
+                MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
     void mode2_onlyPaginationWithoutFilters() {
         var options = new JPASearchInput.JPASearchOptions();
         options.setPageOffset(0);
@@ -229,6 +241,20 @@ public class JPASearchCoreTest {
         input.setOptions(options);
 
         Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
+    void mode2_onlyPaginationWithoutFilters_Lazy() {
+        var options = new JPASearchInput.JPASearchOptions();
+        options.setPageOffset(0);
+        options.setPageSize(50);
+        var input = new JPASearchInput();
+        input.setOptions(options);
+
+        Slice<MyEntity> res = myRepository.findAllWithPaginationAndSortingLazy(input, MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
         assertEquals(8, res.getNumberOfElements());
@@ -265,6 +291,25 @@ public class JPASearchCoreTest {
         input.setOptions(options);
 
         Page<MyEntity> res = myRepository.findAllWithPaginationAndSorting(input, MyModel.class);
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.getNumberOfElements());
+    }
+
+    @Test
+    void mode2_paginationAndSortingWithoutFiltersLazy() {
+        var options = new JPASearchInput.JPASearchOptions();
+        options.setPageOffset(0);
+        options.setPageSize(50);
+        options.setSortOptions(new ArrayList<>());
+        var sortOptions = new JPASearchInput.JPASortOptions();
+        sortOptions.setKey("stringOne");
+        sortOptions.setDesc(true);
+        options.getSortOptions().add(sortOptions);
+        var input = new JPASearchInput();
+        input.setOptions(options);
+
+        Slice<MyEntity> res = myRepository.findAllWithPaginationAndSortingLazy(input, MyModel.class);
         assertNotNull(res);
         assertFalse(res.isEmpty());
         assertEquals(8, res.getNumberOfElements());
