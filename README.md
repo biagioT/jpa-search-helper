@@ -118,7 +118,8 @@ curl -X POST -H "Content-type: application/json" -d '{
 | [v0.0.1 - v2.1.1] | 3.2.x       | [17 - 25] |  
 | [v3.0.0 - v3.2.2] | 3.3.x       | [17 - 25] |  
 | [v3.3.0 - latest] | 3.4.x       | [17 - 25] |  
-| [v3.5.0 - latest] | 3.5.x       | [17 - 25] |  
+| [v3.5.0 - 3.5.5]  | 3.5.x       | [17 - 25] |  
+| [v3.6.0 - latest] | 4.x.x       | [17 - 25] |  
 
 ## Project dependency
 #### Maven

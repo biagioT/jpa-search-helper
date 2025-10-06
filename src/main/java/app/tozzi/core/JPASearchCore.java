@@ -39,7 +39,7 @@ public class JPASearchCore {
                                                      Map<String, String> entityFieldMap) {
 
         if (filter == null) {
-            return Specification.where(null);
+            return (root, query, cb) -> cb.conjunction();
         }
 
         return (root, query, criteriaBuilder) -> {
