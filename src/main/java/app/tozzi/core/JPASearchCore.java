@@ -4,7 +4,6 @@ import app.tozzi.annotation.Searchable;
 import app.tozzi.exception.JPASearchException;
 import app.tozzi.model.JPASearchOperatorFilter;
 import app.tozzi.model.JPASearchOperatorGroup;
-import app.tozzi.model.JPASearchType;
 import app.tozzi.model.input.JPASearchInput;
 import app.tozzi.util.JPASearchUtils;
 import app.tozzi.util.ValidationUtils;

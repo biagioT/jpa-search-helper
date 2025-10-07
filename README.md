@@ -3,6 +3,20 @@
 
 Library for building and running advanced and dynamic queries using JPA in Spring Boot.
 
+## Why use JPA Search Helper?
+
+Building dynamic and type-safe queries with JPA can quickly become complex and repetitive.  
+`JPA Search Helper` simplifies this process by providing a fluent, declarative way to build advanced search filters and projections — with minimal boilerplate.
+
+With this library, you can:
+- Dynamically build queries using simple request parameters or structured JSON input.
+- Combine filters with logical operators (`AND`, `OR`, `NOT`) — without writing custom `Specification` or `CriteriaBuilder` code.
+- Reuse your existing JPA entities or domain models through simple annotations.
+- Support projections to return only specific fields instead of entire entities.
+- Keep full control of the repository layer, without exposing new endpoints.
+
+In short, it helps you build **powerful, flexible search APIs** in Spring Boot — **with zero query code**.
+
 ## TL;DR
 ### Key features
 - **Queries**: the library supports two modes for building advanced and dynamic queries:
@@ -11,7 +25,7 @@ Library for building and running advanced and dynamic queries using JPA in Sprin
 - **Projection**:  for both modes, the library allows you to extract only a subselection of fields from the query (from *3.2.0* version)
 
 ### Spoiler
-Through **jpa-search-helper** your controller* will be able to receive requests like this:
+With **jpa-search-helper** your controller* can handle requests like this:
 
 *Mode 1*:
 ```bash  
@@ -103,9 +117,9 @@ curl -X POST -H "Content-type: application/json" -d '{
 }' 'https://myexampledomain.com/persons'
 ```  
 
-..how you do it? Read this readme!
+..how can you do it? Keep reading this README!
 
-**\*** Please note:  the library does not expose controllers/HTTP Endpoints, but only offers the repository that will build and execute the queries.
+**\*** Please note: the library itself does not expose any controllers or HTTP endpoints — it only provides the repository layer responsible for building and executing the queries.
 
 ## Compatibility Matrix
 
@@ -113,7 +127,7 @@ curl -X POST -H "Content-type: application/json" -d '{
 - Java 17 or later
 - Spring Boot 3.2.x or later
 
-| JPA Search Helper | Spring Boot | Java      |  
+| JPA Search Helper | Spring Boot | JDK       |  
 |-------------------|-------------|-----------|  
 | [v0.0.1 - v2.1.1] | 3.2.x       | [17 - 25] |  
 | [v3.0.0 - v3.2.2] | 3.3.x       | [17 - 25] |  
@@ -127,13 +141,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.5.4</version>
+ <version>3.6.0</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.5.4'
+implementation 'app.tozzi:jpa-search-helper:3.6.0'
 ```
 
 ## Queries - Usage
@@ -166,6 +180,12 @@ public class Person {
   @NestedSearchable
   private Company company;
 
+  @Searchable(targetType = JPASearchType.JSONB, entityFieldKey = "data", jsonPath = "address.street")
+  private String addressStreet;
+
+  @Searchable(targetType = JPASearchType.JSONB, entityFieldKey = "data", jsonPath = "address.city")
+  private String addressCity;
+  
   @Data
   public static class Company {
 
@@ -185,7 +205,7 @@ The annotation allows you to specify:
     the name of the field defined on the entity bean (not to be specified if using the annotation on the entity bean). If not specified the key will be the field name.
   - `targetType`: the managed object type by entity. If not specified the librariy tries to obtain it based on field type (es. Integer field without target type definition will be `INTEGER`). If there is no type compatible with those managed, it will be managed as a string. Managed types:
 
-    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `ENUM`, `DATE_SQL`, `TIME_SQL`, `INSTANT`, `TIMESTAMP`.
+    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `ENUM`, `DATE_SQL`, `TIME_SQL`, `INSTANT`, `TIMESTAMP`, `JSONB`
 
 - Validation properties:
 
@@ -203,8 +223,9 @@ The annotation allows you to specify:
   - `notAllowedFilters`: not allowed filters.
   - `likeFilters`: allowed like filters (_contains_, _startsWith_, _endsWith_). Default: true.
   - `ordinalEnum`: only for `ENUM` type; true if search via ordinal
+  - `jsonPath`: required for `JSONB`; represents the JSON path inside the jsonb column.
 
-Continuing the example, our entity classes:
+Continuing the example, here are our entity classes:
 
 ```java
 @Entity
@@ -231,6 +252,10 @@ public class PersonEntity {
 
   @Column(name = "FIL_TWO")
   private String fillerTwo;
+
+  @Type(JsonType.class)
+  @Column(name = "DATA_ADDRESS", columnDefinition = "jsonb")
+  private Map<String, Object> data;
 
   @OneToOne
   private CompanyEntity companyEntity;
@@ -267,6 +292,7 @@ public interface PersonRepository extends JpaRepository<PersonEntity, Long>, JPA
 In your manager, or in your service, or wherever you want to use the repository:
 
 **Mode 1**: define a map _<filter_key#options, value>_:
+
 ```java
 // ...
 
@@ -275,7 +301,7 @@ In your manager, or in your service, or wherever you want to use the repository:
 
   public List<Person> advancedSearch() {
   
-	// Pure example, in real use case it is expected that these filters can be passed directly by the controller
+	// This is a simple example; in a real use case, these filters would typically be passed directly from the controller.
     Map<String, String> filters = new HashMap<>();
     filters.put("firstName_eq", "Biagio");
     filters.put("lastName_startsWith#i", "Toz"); // ignore case
@@ -716,7 +742,7 @@ In your manager, or in your service, or wherever you want to use the repository:
 For both modes, the projection will return a List<Map<String, Object>> result where **the map structure and keys will reflect the entity structure** (to be clear *toJson(entityList) == toJson(mapList)*)
 
 Note 1:
-> Be careful: the default projection forces all Join relationships as LEFT JOIN. If you don't want this behavior, choose to use the repository methods (methods with 'Classic' suffix) that allow you to possibly modify only the relations you want to modify
+> By default, projection forces all Join relationships to use LEFT JOIN. If you don't want this behavior, choose to use the repository methods (methods with 'Classic' suffix) that allow you to possibly modify only the relations you want to modify
 
 Note 2:
 > Projection, regardless of whether you want it or not, will always extract the fields that represent the primary keys of an entity (or related entities)
