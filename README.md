@@ -17,6 +17,18 @@ With this library, you can:
 
 In short, it helps you build **powerful, flexible search APIs** in Spring Boot — **with zero query code**.
 
+
+## Status
+
+| Type | Status |
+| ---- | ------ |
+| Build (CI) | [![Build (github)](https://github.com/biagioT/jpa-search-helper/actions/workflows/ci.yml/badge.svg)](https://github.com/biagioT/jpa-search-helper/actions/workflows/ci.yml) |
+| CodeQL | [![Build (github)](https://github.com/biagioT/jpa-search-helper/actions/workflows/codeql.yml/badge.svg)](https://github.com/biagioT/jpa-search-helper/actions/workflows/codeql.yml) |
+| Artifact | [![Maven Central](https://img.shields.io/maven-central/v/app.tozzi/jpa-search-helper.svg)](https://mvnrepository.com/artifact/app.tozzi/jpa-search-helper) |
+| Javadocs | [![javadoc](https://javadoc.io/badge2/app.tozzi/jpa-search-helper/javadoc.svg)](https://javadoc.io/doc/app.tozzi/jpa-search-helper) |
+| OpenSSF Score | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/biagioT/jpa-search-helper/badge)](https://securityscorecards.dev/viewer/?uri=github.com/biagioT/jpa-search-helper) |
+| Dependabot | [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen?logo=dependabot&labelColor=555555)](https://github.com/biagioT/jpa-search-helper/security/dependabot) |
+
 ## TL;DR
 ### Key features
 - **Queries**: the library supports two modes for building advanced and dynamic queries:
