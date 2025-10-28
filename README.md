@@ -126,13 +126,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.5.4</version>
+ <version>3.5.5</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.5.4'
+implementation 'app.tozzi:jpa-search-helper:3.5.5'
 ```
 
 ## Queries - Usage
@@ -202,6 +202,7 @@ The annotation allows you to specify:
   - `notAllowedFilters`: not allowed filters.
   - `likeFilters`: allowed like filters (_contains_, _startsWith_, _endsWith_). Default: true.
   - `ordinalEnum`: only for `ENUM` type; true if search via ordinal
+  - `elementCollection`: true, if the corresponding element is of type `@ElementCollection`
 
 Continuing the example, our entity classes:
 

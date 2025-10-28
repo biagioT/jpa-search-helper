@@ -14,7 +14,7 @@ public class JPASearchFunctions {
 
     public static final JPASearchFunction<?, Boolean> EQ = (cb, expressions, values) -> cb.equal(expressions[0], values[0]);
     public static final JPASearchFunction<String, Boolean> STARTSWITH = (cb, expressions, values) -> cb.like(expressions[0], values[0] + "%");
-    public static final JPASearchFunction<String, Boolean> ENDSWITH = (cb, expressions, values) -> cb.like(expressions[0],"%" + values[0]);
+    public static final JPASearchFunction<String, Boolean> ENDSWITH = (cb, expressions, values) -> cb.like(expressions[0], "%" + values[0]);
     public static final JPASearchFunction<String, Boolean> CONTAINS = (cb, expressions, values) -> cb.like(expressions[0], "%" + values[0] + "%");
     public static final JPASearchFunction<Comparable, Boolean> GT = (cb, expressions, values) -> cb.greaterThan(expressions[0], (Comparable) values[0]);
     public static final JPASearchFunction<Comparable, Boolean> GTE = (cb, expressions, values) -> cb.greaterThanOrEqualTo(expressions[0], (Comparable) values[0]);

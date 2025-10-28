@@ -26,7 +26,7 @@ public class ReflectionUtilsTest {
         var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
         assertNotNull(searchableFields);
         assertFalse(searchableFields.isEmpty());
-        assertEquals(31, searchableFields.size());
+        assertEquals(32, searchableFields.size());
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("id") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.LONG) && e.getValue().getValue().getType().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("uuid") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.UNTYPED) && e.getValue().getValue().getType().equals(UUID.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("myEnum") && e.getValue().getKey().sortable() && e.getValue().getKey().targetType().equals(JPASearchType.ENUM) && e.getValue().getValue().getType().equals(MyEnum.class)));
@@ -57,6 +57,7 @@ public class ReflectionUtilsTest {
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("mySubModel.searchMe") && e.getValue().getKey().tags().length == 0 && e.getValue().getKey().minDigits() == -1 && e.getValue().getKey().maxDigits() == -1 && e.getValue().getKey().maxSize() == -1 && e.getValue().getKey().minSize() == -1 && e.getValue().getValue().getType().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("mySubModel.mySubSubModel.searchMeAgain") && e.getValue().getKey().entityFieldKey().equals("test1.colTest1") && e.getValue().getKey().tags().length == 0 && e.getValue().getKey().minDigits() == -1 && e.getValue().getKey().maxDigits() == -1 && e.getValue().getKey().maxSize() == -1 && e.getValue().getKey().minSize() == -1 && e.getValue().getValue().getType().equals(String.class)));
         assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("list.other") && e.getValue().getValue().getType().equals(String.class)));
+        assertTrue(searchableFields.entrySet().stream().anyMatch(e -> e.getKey().equals("keywords") && e.getValue().getKey().elementCollection()));
         assertFalse(searchableFields.containsKey("notSearchableOne"));
         assertFalse(searchableFields.containsKey("notSearchableTwo"));
         assertFalse(searchableFields.containsKey("notSearchableThree"));
@@ -71,7 +72,7 @@ public class ReflectionUtilsTest {
        assertNotNull(map);
        assertTrue(map.containsKey("name"));
        assertTrue(map.containsKey("predecessor.name"));
-       assertEquals(33, map.size());
+       assertEquals(34, map.size());
     }
 
     @Test

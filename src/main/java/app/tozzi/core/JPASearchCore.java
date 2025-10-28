@@ -229,6 +229,24 @@ public class JPASearchCore {
                 }
             }
 
+            if (descriptor.getSearchable().elementCollection() && JPASearchOperatorFilter.IN.equals(searchFilter)) {
+                var predicates = new ArrayList<Predicate>();
+
+                var collectionExpr = (Expression) JPASearchUtils.getPath(root, descriptor.getEntityKey());
+
+                for (var value : obj) {
+                    predicates.add(cb.isMember(value, collectionExpr));
+                }
+
+                var memberOfPredicate = predicates.size() == 1
+                        ? predicates.get(0)
+                        : cb.or(predicates.toArray(new Predicate[0]));
+
+                return fieldFilter.getOptions() != null && fieldFilter.getOptions().isNegate()
+                        ? cb.not(memberOfPredicate)
+                        : memberOfPredicate;
+            }
+
             return fieldFilter.getOptions() != null
                     && fieldFilter.getOptions().isNegate()
                     ? JPASearchOperatorGroup.NOT.getFunction().apply(cb, new Expression[]{searchFilter.getFunction().apply(cb, exps.toArray(new Expression[0]), obj.toArray(new Object[0]))}, new Object[]{})

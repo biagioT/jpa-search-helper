@@ -483,6 +483,143 @@ public class JPASearchCoreTest {
     }
 
     @Test
+    public void mode2_elementCollection_keywords_in() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterMultipleValues();
+        ff1.setKey("keywords");
+        ff1.setValues(List.of("java", "hibernate"));
+        ff1.setOperator("in");
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(5, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(3L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(4L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(6L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(8L)));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_in_single() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterMultipleValues();
+        ff1.setKey("keywords");
+        ff1.setValues(List.of("unique_1"));
+        ff1.setOperator("in");
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(1, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_in_withNegation() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterMultipleValues();
+        ff1.setKey("keywords");
+        ff1.setValues(List.of("java"));
+        ff1.setOperator("in");
+        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff1.getOptions().setNegate(true);
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(4, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(3L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(5L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(7L)));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_in_combinedWithOtherFilters() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterMultipleValues();
+        ff1.setKey("keywords");
+        ff1.setValues(List.of("java"));
+        ff1.setOperator("in");
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterSingleValue();
+        ff2.setKey("stringOne");
+        ff2.setValue("stringone");
+        ff2.setOperator("startsWith");
+        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
+        ff2.getOptions().setIgnoreCase(true);
+        root.getFilters().add(ff2);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(4, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(2L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(4L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(6L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(8L)));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_or_condition() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("or");
+
+        var ff1 = new JPASearchInput.FilterMultipleValues();
+        ff1.setKey("keywords");
+        ff1.setValues(List.of("unique_1"));
+        ff1.setOperator("in");
+        root.getFilters().add(ff1);
+
+        var ff2 = new JPASearchInput.FilterMultipleValues();
+        ff2.setKey("keywords");
+        ff2.setValues(List.of("unique_5"));
+        ff2.setOperator("in");
+        root.getFilters().add(ff2);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(2, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(5L)));
+    }
+
+    @Test
     void mode2_projection_2() {
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
@@ -579,6 +716,20 @@ public class JPASearchCoreTest {
                     .entities5(testEntity5Set)
                     .build();
 
+            List<String> keywords = new ArrayList<>();
+            if (i % 2 == 0) {
+                keywords.add("java");
+                keywords.add("spring");
+            }
+            if (i % 3 == 0) {
+                keywords.add("hibernate");
+                keywords.add("jpa");
+            }
+            if (i == 1 || i == 5) {
+                keywords.add("unique_" + i);
+            }
+            keywords.add("keyword_" + i);
+
             MyEntity myEntity = MyEntity.builder()
                     .id((long) i)
                     .stringOne("StringOne_" + i)
@@ -608,6 +759,7 @@ public class JPASearchCoreTest {
                     .notSearchableOne("NotSearchableOne_" + i)
                     .notSearchableTwo("NotSearchableTwo_" + i)
                     .notSearchableThree(i * 300L)
+                    .keywords(keywords)  // <-- Aggiunto
                     .test1(testEntity1)
                     .test2(testEntity2)
                     .test3(testEntity3)

@@ -1,9 +1,6 @@
 package app.tozzi.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +9,9 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -54,6 +53,14 @@ public class MyEntity {
     private String notSearchableOne;
     private String notSearchableTwo;
     private Long notSearchableThree;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "myentity_keywords",
+            joinColumns = @JoinColumn(name = "entity_id")
+    )
+    @Column(name = "keyword")
+    private List<String> keywords = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     private TestEntity1 test1;

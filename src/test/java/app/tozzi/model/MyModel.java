@@ -116,6 +116,9 @@ public class MyModel {
     @NestedSearchable
     private List<MyOtherSubModel> list;
 
+    @Searchable(elementCollection = true)
+    private List<String> keywords;
+
     @Data
     public static class MySubModel {
 
