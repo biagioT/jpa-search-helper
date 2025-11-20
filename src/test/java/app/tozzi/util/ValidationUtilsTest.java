@@ -164,6 +164,11 @@ public class ValidationUtilsTest {
             public boolean elementCollection() {
                 return false;
             }
+
+            @Override
+            public String jsonPath() {
+                return "";
+            }
         };
     }
 

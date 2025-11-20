@@ -33,5 +33,4 @@ public class JPASearchFunctions {
         return in;
     };
 
-
 }

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'app.tozzi'
-version = '3.5.5'
+version = '3.6.0-SNAPSHOT'
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -29,7 +29,7 @@ repositories {
 dependencies {
 
     // BOM
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.7"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.0-M3"))
 
     // JPA
     implementation 'jakarta.persistence:jakarta.persistence-api'
@@ -52,7 +52,9 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.19.0'
 
     // Test
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:4.0.0-M3'
+    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure:4.0.0-M3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa:4.0.0-M3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'com.h2database:h2'
@@ -60,6 +62,10 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.42'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+    testImplementation 'io.hypersistence:hypersistence-utils-hibernate-70:3.11.0'
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
+    testImplementation 'org.testcontainers:postgresql:1.21.3'
+    testImplementation 'org.postgresql:postgresql:42.7.8'
 }
 
 publishing {
@@ -67,7 +73,7 @@ publishing {
         mavenJava(MavenPublication) {
             group = 'app.tozzi'
             artifactId = 'jpa-search-helper'
-            version = "3.5.5"
+            version = "3.6.0-SNAPSHOT"
             from components.java
 
             pom {

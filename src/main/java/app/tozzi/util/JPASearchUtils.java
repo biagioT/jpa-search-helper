@@ -208,4 +208,55 @@ public class JPASearchUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> Expression<T> getPath(
+            CriteriaBuilder cb,
+            Root<?> root,
+            String fieldName,
+            String jsonPath
+    ) {
+        Expression<?> expr;
+
+        if (fieldName.contains(".")) {
+            Path<?> path = null;
+            for (String part : fieldName.split("\\.")) {
+                path = path == null ? root.get(part) : path.get(part);
+            }
+            expr = path;
+        } else {
+            expr = root.get(fieldName);
+        }
+
+        if (jsonPath == null || jsonPath.isBlank()) {
+            return (Expression<T>) expr;
+        }
+
+        Expression<?> jsonExpr = expr;
+
+        String[] parts = jsonPath.split("\\.");
+
+        for (int i = 0; i < parts.length; i++) {
+            if (i == parts.length - 1) {
+                jsonExpr = cb.function(
+                        "jsonb_extract_path_text",
+                        String.class,
+                        jsonExpr,
+                        cb.literal(parts[i])
+                );
+            } else {
+                jsonExpr = cb.function(
+                        "jsonb_extract_path",
+                        Object.class,   // restituisce jsonb
+                        jsonExpr,
+                        cb.literal(parts[i])
+                );
+            }
+        }
+
+        return (Expression<T>) jsonExpr;
+    }
+
+
+
+
 }

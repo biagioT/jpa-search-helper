@@ -10,6 +10,10 @@ public class JPASearchException extends RuntimeException {
         super(reason);
     }
 
+    public JPASearchException(Throwable cause) {
+        super(cause);
+    }
+
     public JPASearchException(String reason, Throwable cause) {
         super(reason, cause);
     }

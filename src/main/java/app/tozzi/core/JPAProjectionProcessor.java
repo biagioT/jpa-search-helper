@@ -195,7 +195,7 @@ public class JPAProjectionProcessor {
                 try {
                     field = currentClass.getDeclaredField(currentPath);
                 } catch (NoSuchFieldException e) {
-                    throw new RuntimeException(e);
+                    throw new JPASearchException(e);
                 }
                 field.setAccessible(true);
 

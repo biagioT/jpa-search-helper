@@ -8,6 +8,7 @@ import io.micrometer.observation.annotation.Observed;
 import jakarta.persistence.criteria.JoinType;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -226,6 +227,21 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     }
 
     /**
+     * Mode 1: Search by filters with sorting and pagination. Lazy mode: {@link Slice} instead of {@link Page}
+     *
+     * @param filters                 search filters
+     * @param domainModelOrEntityType the type of the domain object or entity: i.e. the root object where you applied the {@link app.tozzi.annotation.Searchable} and {@link app.tozzi.annotation.NestedSearchable} annotations
+     * @return list of entities of the searched page
+     */
+    default Slice<E> findAllWithPaginationAndSortingLazy(Map<String, String> filters, @NonNull Class<?> domainModelOrEntityType) {
+        var searchableFields = ReflectionUtils.getAllSearchableFields(domainModelOrEntityType);
+        var input = JPASearchUtils.toObject(filters, true, true, false);
+        Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
+        return findAll(specification, pageRequest);
+    }
+
+    /**
      * Mode 2: Search by filters with sorting and pagination
      *
      * @param input                   search filters
@@ -233,6 +249,20 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return list of entities of the searched page
      */
     default Page<E> findAllWithPaginationAndSorting(@NonNull JPASearchInput input, @NonNull Class<?> domainModelOrEntityType) {
+        var searchableFields = ReflectionUtils.getAllSearchableFields(domainModelOrEntityType);
+        Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
+        return findAll(specification, pageRequest);
+    }
+
+    /**
+     * Mode 2: Search by filters with sorting and pagination. Lazy mode: {@link Slice} instead of {@link Page}
+     *
+     * @param input                   search filters
+     * @param domainModelOrEntityType the type of the domain object or entity: i.e. the root object where you applied the {@link app.tozzi.annotation.Searchable} and {@link app.tozzi.annotation.NestedSearchable} annotations
+     * @return list of entities of the searched page
+     */
+    default Slice<E> findAllWithPaginationAndSortingLazy(@NonNull JPASearchInput input, @NonNull Class<?> domainModelOrEntityType) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(domainModelOrEntityType);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, null);
         var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, null);
@@ -260,6 +290,28 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
     }
 
     /**
+     * Mode 1: Search by filters with sorting, pagination and with a map of:
+     * <ul>
+     * <li> key: domain object field name </li>
+     * <li> value: entity field name </li>
+     * </ul>
+     * <p>
+     * Lazy mode: {@link Slice} instead of {@link Page}
+     *
+     * @param filters                 search filters
+     * @param domainModelOrEntityType the type of the domain object or entity: i.e. the root object where you applied the {@link app.tozzi.annotation.Searchable} and {@link app.tozzi.annotation.NestedSearchable} annotations
+     * @param entityFieldMap
+     * @return list of entities of the searched page
+     */
+    default Slice<E> findAllWithPaginationAndSortingLazy(Map<String, String> filters, @NonNull Class<?> domainModelOrEntityType, Map<String, String> entityFieldMap) {
+        var searchableFields = ReflectionUtils.getAllSearchableFields(domainModelOrEntityType);
+        var input = JPASearchUtils.toObject(filters, true, true, false);
+        Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, entityFieldMap);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
+        return findAll(specification, pageRequest);
+    }
+
+    /**
      * Mode 2: Search by filters with sorting, pagination and with a map of:
      * <ul>
      * <li> key: domain object field name </li>
@@ -272,6 +324,27 @@ public interface JPASearchRepository<E> extends JpaSpecificationExecutor<E> {
      * @return list of entities of the searched page
      */
     default Page<E> findAllWithPaginationAndSorting(@NonNull JPASearchInput input, @NonNull Class<?> domainModelOrEntityType, Map<String, String> entityFieldMap) {
+        var searchableFields = ReflectionUtils.getAllSearchableFields(domainModelOrEntityType);
+        Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, entityFieldMap);
+        var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);
+        return findAll(specification, pageRequest);
+    }
+
+    /**
+     * Mode 2: Search by filters with sorting, pagination and with a map of:
+     * <ul>
+     * <li> key: domain object field name </li>
+     * <li> value: entity field name </li>
+     * </ul>
+     *
+     * Lazy mode: {@link Slice} instead of {@link Page}
+     *
+     * @param input                   search filters
+     * @param domainModelOrEntityType the type of the domain object or entity: i.e. the root object where you applied the {@link app.tozzi.annotation.Searchable} and {@link app.tozzi.annotation.NestedSearchable} annotations
+     * @param entityFieldMap
+     * @return list of entities of the searched page
+     */
+    default Slice<E> findAllWithPaginationAndSortingLazy(@NonNull JPASearchInput input, @NonNull Class<?> domainModelOrEntityType, Map<String, String> entityFieldMap) {
         var searchableFields = ReflectionUtils.getAllSearchableFields(domainModelOrEntityType);
         Specification<E> specification = JPASearchCore.specification(input.getFilter(), searchableFields, null, entityFieldMap);
         var pageRequest = JPASearchCore.loadSortAndPagination(input.getOptions(), searchableFields, entityFieldMap);

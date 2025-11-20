@@ -1,0 +1,37 @@
+JPA Search Helper - NOTICE
+
+This project includes the following third-party libraries:
+
+1. Spring Boot Dependencies (org.springframework.boot)
+   - License: Apache License 2.0
+   - URL: https://github.com/spring-projects/spring-boot
+
+2. Spring Data JPA (org.springframework.data:spring-data-jpa)
+   - License: Apache License 2.0
+   - URL: https://github.com/spring-projects/spring-data-jpa
+
+3. Spring Core (org.springframework:spring-beans)
+   - License: Apache License 2.0
+   - URL: https://github.com/spring-projects/spring-framework
+
+4. Jakarta Persistence API (jakarta.persistence:jakarta.persistence-api)
+   - License: Eclipse Public License 2.0
+   - URL: https://projects.eclipse.org/projects/ee4j.jpa
+
+5. Jakarta Validation API (jakarta.validation:jakarta.validation-api)
+   - License: Apache License 2.0
+   - URL: https://projects.eclipse.org/projects/ee4j.bean-validation
+
+6. Jackson Annotations (com.fasterxml.jackson.core:jackson-annotations)
+   - License: Apache License 2.0
+   - URL: https://github.com/FasterXML/jackson
+
+7. Apache Commons Lang (org.apache.commons:commons-lang3)
+   - License: Apache License 2.0
+   - URL: https://commons.apache.org/proper/commons-lang/
+
+8. Project Lombok (org.projectlombok:lombok) [compile only / provided only]
+   - License: MIT License
+   - URL: https://projectlombok.org/
+
+All included software is used in accordance with their respective licenses.

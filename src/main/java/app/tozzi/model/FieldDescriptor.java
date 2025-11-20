@@ -13,5 +13,6 @@ public class FieldDescriptor {
     private JPASearchType searchType;
     private String entityKey;
     private Class<?> type;
+    private String jsonPath;
 
 }

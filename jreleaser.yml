@@ -2,7 +2,9 @@ project:
   name: jpa-search-helper
   description: Library for building and running advanced and dynamic queries using JPA in Spring Boot
   longDescription: |
-    Library for building and running advanced and dynamic queries using JPA in Spring Boot
+    JPA Search Helper simplifies building advanced, type-safe, and dynamic queries with JPA in Spring Boot. 
+    It provides a fluent, declarative approach to filter, project, and combine search conditions 
+    without writing custom Specification or CriteriaBuilder code.
   inceptionYear: '2024'
   links:
     homepage: https://tozzi.app

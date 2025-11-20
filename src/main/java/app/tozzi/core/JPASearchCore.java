@@ -39,7 +39,7 @@ public class JPASearchCore {
                                                      Map<String, String> entityFieldMap) {
 
         if (filter == null) {
-            return Specification.where(null);
+            return (root, query, cb) -> cb.conjunction();
         }
 
         return (root, query, criteriaBuilder) -> {
@@ -185,7 +185,7 @@ public class JPASearchCore {
             }
 
             ValidationUtils.searchableValidations(descriptor.getSearchable(), descriptor.getPath(), searchFilter);
-            var path = JPASearchUtils.getPath(root, descriptor.getEntityKey());
+            var path = JPASearchUtils.getPath(cb, root, descriptor.getEntityKey(), descriptor.getJsonPath());
 
             Expression<?> exp = null;
             var trim = false;
