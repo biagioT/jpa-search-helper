@@ -9,10 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -25,14 +28,18 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DataJpaTest
 @Testcontainers
-@SpringBootTest(classes = JsonbTest.TestApplication.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(classes = JsonbTest.TestConfig.class)
 public class JsonbTest {
 
-    @SpringBootApplication
+    @SpringBootConfiguration
+    @EnableAutoConfiguration
     @EntityScan("app.tozzi.postgresql.entity")
     @EnableJpaRepositories("app.tozzi.postgresql.repository")
-    static class TestApplication {
+    static class TestConfig {
+
     }
 
     @Container

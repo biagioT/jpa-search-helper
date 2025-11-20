@@ -1,16 +1,15 @@
 package app.tozzi.json;
 
 import app.tozzi.model.input.JPASearchInput;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JacksonTest {
 
     @Test
-    public void serializeJpaSearchInputTest() throws JsonProcessingException {
+    public void serializeJpaSearchInputTest() {
 
         String json = """
                 {
@@ -64,7 +63,7 @@ public class JacksonTest {
                 }
                 """;
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        var objectMapper = new ObjectMapper();
         var input = objectMapper.readValue(json, JPASearchInput.class);
         assertNotNull(input);
         assertNotNull(input.getFilter());
