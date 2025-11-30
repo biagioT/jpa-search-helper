@@ -825,7 +825,7 @@ public class JPASearchCoreTest {
 
         var ff1 = new JPASearchInput.FilterSingleValue();
         ff1.setKey("keywords");
-        ff1.setValue("key"); // Dovrebbe matchare "keyword_X"
+        ff1.setValue("key");
         ff1.setOperator("startsWith");
         root.getFilters().add(ff1);
 

@@ -66,31 +66,61 @@ public class GenericUtils {
 
     public static Float parseFloat(String field, Object value) {
         if (value instanceof Float fl) return fl;
-        if (value instanceof String fl) return Float.parseFloat(fl);
+        if (value instanceof String fl) {
+            try {
+                return Float.parseFloat(fl);
+            } catch (NumberFormatException e) {
+                throw new InvalidValueException("Invalid float number [" + value + "]", field, value);
+            }
+        }
         throw new InvalidValueException("Invalid float number [" + value + "]", field, value);
     }
 
     public static Long parseLong(String field, Object value) {
         if (value instanceof Long ln) return ln;
-        if (value instanceof String ln) return Long.parseLong(ln);
+        if (value instanceof String ln) {
+            try {
+                return Long.parseLong(ln);
+            } catch (NumberFormatException e) {
+                throw new InvalidValueException("Invalid long number [" + value + "]", field, value);
+            }
+        }
         throw new InvalidValueException("Invalid long number [" + value + "]", field, value);
     }
 
     public static Integer parseInteger(String field, Object value) {
         if (value instanceof Integer in) return in;
-        if (value instanceof String in) return Integer.parseInt(in);
+        if (value instanceof String in) {
+            try {
+                return Integer.parseInt(in);
+            } catch (NumberFormatException e) {
+                throw new InvalidValueException("Invalid number [" + value + "]", field, value);
+            }
+        }
         throw new InvalidValueException("Invalid number [" + value + "]", field, value);
     }
 
     public static Double parseDouble(String field, Object value) {
         if (value instanceof Double db) return db;
-        if (value instanceof String db) return Double.parseDouble(db);
+        if (value instanceof String db) {
+            try {
+                return Double.parseDouble(db);
+            } catch (NumberFormatException e) {
+                throw new InvalidValueException("Invalid double number [" + value + "]", field, value);
+            }
+        }
         throw new InvalidValueException("Invalid double number [" + value + "]", field, value);
     }
 
     public static BigDecimal parseBigDecimal(String field, Object value) {
         if (value instanceof BigDecimal db) return db;
-        if (value instanceof String db) return new BigDecimal(db);
+        if (value instanceof String db) {
+            try {
+                return new BigDecimal(db);
+            } catch (NumberFormatException e) {
+                throw new InvalidValueException("Invalid big decimal number [" + value + "]", field, value);
+            }
+        }
         throw new InvalidValueException("Invalid big decimal number [" + value + "]", field, value);
     }
 
@@ -105,10 +135,14 @@ public class GenericUtils {
         throw new InvalidValueException("Invalid boolean value [" + value + "]", field, value);
     }
 
-    public static Date parseDate(String field, Object value, String pattern) throws ParseException {
+    public static Date parseDate(String field, Object value, String pattern) {
         if (value instanceof Date d) return d;
         if (value instanceof String str) {
-            return getThreadLocalDateFormat(pattern).parse(str);
+            try {
+                return getThreadLocalDateFormat(pattern).parse(str);
+            } catch (ParseException e) {
+                throw new InvalidValueException("Invalid date value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid date value [" + value + "]", field, value);
     }
@@ -120,7 +154,11 @@ public class GenericUtils {
     public static LocalDate parseLocalDate(String field, Object value, String pattern) {
         if (value instanceof LocalDate ld) return ld;
         if (value instanceof String str) {
-            return LocalDate.parse(str, DateTimeFormatter.ofPattern(pattern));
+            try {
+                return LocalDate.parse(str, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid local date value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid local date value [" + value + "]", field, value);
     }
@@ -128,7 +166,11 @@ public class GenericUtils {
     public static LocalTime parseLocalTime(String field, Object value, String pattern) {
         if (value instanceof LocalTime lt) return lt;
         if (value instanceof String str) {
-            return LocalTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            try {
+                return LocalTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid local time [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid local time [" + value + "]", field, value);
     }
@@ -136,7 +178,11 @@ public class GenericUtils {
     public static LocalDateTime parseLocalDateTime(String field, Object value, String pattern) {
         if (value instanceof LocalDateTime ldt) return ldt;
         if (value instanceof String str) {
-            return LocalDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            try {
+                return LocalDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid local date time value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid local date time value [" + value + "]", field, value);
     }
@@ -144,7 +190,11 @@ public class GenericUtils {
     public static OffsetTime parseOffsetTime(String field, Object value, String pattern) {
         if (value instanceof OffsetTime ot) return ot;
         if (value instanceof String str) {
-            return OffsetTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            try {
+                return OffsetTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid offset time value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid offset time value [" + value + "]", field, value);
     }
@@ -152,7 +202,11 @@ public class GenericUtils {
     public static OffsetDateTime parseOffsetDateTime(String field, Object value, String pattern) {
         if (value instanceof OffsetDateTime odt) return odt;
         if (value instanceof String str) {
-            return OffsetDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            try {
+                return OffsetDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid offset date time value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid offset date time value [" + value + "]", field, value);
     }
@@ -160,38 +214,52 @@ public class GenericUtils {
     public static ZonedDateTime parseZonedDateTime(String field, Object value, String pattern) {
         if (value instanceof ZonedDateTime zdt) return zdt;
         if (value instanceof String str) {
-            return ZonedDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            try {
+                return ZonedDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid zoned date time value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid zoned date time value [" + value + "]", field, value);
     }
 
     public static UUID parseUUID(String field, Object value) {
         if (value instanceof UUID uuid) return uuid;
-        if (value instanceof String str) return UUID.fromString(str);
+        if (value instanceof String str) {
+            try {
+                return UUID.fromString(str);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidValueException("Invalid UUID value [" + value + "]", field, value);
+            }
+        }
         throw new InvalidValueException("Invalid UUID value [" + value + "]", field, value);
     }
 
     public static Instant parseInstant(String field, Object value, String pattern) {
         if (value instanceof Instant i) return i;
         if (value instanceof String str) {
-            return pattern != null && !pattern.isBlank()
-                    ? Instant.from(DateTimeFormatter.ofPattern(pattern).parse(str))
-                    : Instant.parse(str);
+            try {
+                return pattern != null && !pattern.isBlank()
+                        ? Instant.from(DateTimeFormatter.ofPattern(pattern).parse(str))
+                        : Instant.parse(str);
+            } catch (DateTimeException e) {
+                throw new InvalidValueException("Invalid Instant value [" + value + "]", field, value);
+            }
         }
         throw new InvalidValueException("Invalid Instant value [" + value + "]", field, value);
     }
 
-    public static java.sql.Date parseSQLDate(String field, Object value, String pattern) throws ParseException {
+    public static java.sql.Date parseSQLDate(String field, Object value, String pattern) {
         if (value instanceof java.sql.Date d) return d;
         return new java.sql.Date(parseDate(field, value, pattern).getTime());
     }
 
-    public static Time parseSQLTime(String field, Object value, String pattern) throws ParseException {
+    public static Time parseSQLTime(String field, Object value, String pattern) {
         if (value instanceof Time t) return t;
         return new Time(parseDate(field, value, pattern).getTime());
     }
 
-    public static Timestamp parseSQLTimestamp(String field, Object value, String pattern) throws ParseException {
+    public static Timestamp parseSQLTimestamp(String field, Object value, String pattern) {
         if (value instanceof Timestamp t) return t;
         return new Timestamp(parseDate(field, value, pattern).getTime());
     }

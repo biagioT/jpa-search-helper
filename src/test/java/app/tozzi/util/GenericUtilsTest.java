@@ -8,7 +8,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.*;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -218,7 +217,7 @@ public class GenericUtilsTest {
     @Test
     public void parseDate() throws ParseException {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseDate("field", 20240622, "yyyy-MM-dd"));
-        assertThrows(ParseException.class, () -> GenericUtils.parseDate("field", "22/06/2024", "yyyyMMdd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseDate("field", "22/06/2024", "yyyyMMdd"));
 
         var now = new Date();
         assertEquals(now, GenericUtils.parseDate("field", now, null));
@@ -266,7 +265,7 @@ public class GenericUtilsTest {
     @Test
     public void parseLocalDate() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDate("field", 20240622, "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDate("field", "22/06/2024", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDate("field", "22/06/2024", "yyyy-MM-dd"));
 
         var now = LocalDate.now();
         assertEquals(now, GenericUtils.parseLocalDate("field", now, null));
@@ -300,9 +299,9 @@ public class GenericUtilsTest {
     @Test
     public void parseLocalDateTime() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDateTime("field", 20240622152200L, "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDateTime("field", "2024-06-22", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalDateTime("field", "20240622", "yyyyMMdd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDateTime("field", "2024-06-22", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalDateTime("field", "20240622", "yyyyMMdd"));
 
         var now = LocalDateTime.now();
         assertEquals(now, GenericUtils.parseLocalDateTime("field", now, null));
@@ -330,11 +329,11 @@ public class GenericUtilsTest {
     @Test
     public void parseOffsetDate() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", 20240622152200L, "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "20240622", "yyyyMMdd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22 09:00:00.234", "yyyy-MM-dd HH:mm:ss.SSS"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22 13:55:01", "yyyy-MM-dd HH:mm:ss"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", "20240622", "yyyyMMdd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22 09:00:00.234", "yyyy-MM-dd HH:mm:ss.SSS"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetDateTime("field", "2024-06-22 13:55:01", "yyyy-MM-dd HH:mm:ss"));
 
         var now = OffsetDateTime.now();
         assertEquals(now, GenericUtils.parseOffsetDateTime("field", now, null));
@@ -364,11 +363,11 @@ public class GenericUtilsTest {
     @Test
     public void parseZonedDateTime() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseZonedDateTime("field", 20240622152200L, "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseZonedDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseZonedDateTime("field", "2024-06-22", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseZonedDateTime("field", "20240622", "yyyyMMdd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseZonedDateTime("field", "2024-06-22 09:00:00.234", "yyyy-MM-dd HH:mm:ss.SSS"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseZonedDateTime("field", "2024-06-22 13:55:01", "yyyy-MM-dd HH:mm:ss"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseZonedDateTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseZonedDateTime("field", "2024-06-22", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseZonedDateTime("field", "20240622", "yyyyMMdd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseZonedDateTime("field", "2024-06-22 09:00:00.234", "yyyy-MM-dd HH:mm:ss.SSS"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseZonedDateTime("field", "2024-06-22 13:55:01", "yyyy-MM-dd HH:mm:ss"));
 
         var now = ZonedDateTime.now();
         assertEquals(now, GenericUtils.parseZonedDateTime("field", now, null));
@@ -400,9 +399,9 @@ public class GenericUtilsTest {
     @Test
     public void parseLocalTime() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalTime("field", 20240622152200L, "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalTime("field", "2024-06-22", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseLocalTime("field", "20240622", "yyyyMMdd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalTime("field", "2024-06-22", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseLocalTime("field", "20240622", "yyyyMMdd"));
 
         var now = LocalTime.now();
         assertEquals(now, GenericUtils.parseLocalTime("field", now, null));
@@ -423,11 +422,11 @@ public class GenericUtilsTest {
     @Test
     public void parseOffsetTime() {
         assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetTime("field", 20240622152200L, "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetTime("field", "2024-06-22", "yyyy-MM-dd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetTime("field", "20240622", "yyyyMMdd"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetTime("field", "2024-06-22 09:00:00.234", "yyyy-MM-dd HH:mm:ss.SSS"));
-        assertThrows(DateTimeParseException.class, () -> GenericUtils.parseOffsetTime("field", "2024-06-22 13:55:01", "yyyy-MM-dd HH:mm:ss"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetTime("field", "22/06/2024 15:01:02", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetTime("field", "2024-06-22", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetTime("field", "20240622", "yyyyMMdd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetTime("field", "2024-06-22 09:00:00.234", "yyyy-MM-dd HH:mm:ss.SSS"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseOffsetTime("field", "2024-06-22 13:55:01", "yyyy-MM-dd HH:mm:ss"));
 
         var now = OffsetTime.now();
         assertEquals(now, GenericUtils.parseOffsetTime("field", now, null));
@@ -477,7 +476,7 @@ public class GenericUtilsTest {
         var now = new Date(System.currentTimeMillis());
         assertEquals(now, GenericUtils.parseSQLDate("testField", now, null));
         assertNotNull(GenericUtils.parseSQLDate("testField", "2023-02-20", "yyyy-MM-dd"));
-        assertThrows(ParseException.class, () -> GenericUtils.parseSQLDate("testField", "invalid-date", "yyyy-MM-dd"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseSQLDate("testField", "invalid-date", "yyyy-MM-dd"));
     }
 
     @Test
@@ -485,7 +484,7 @@ public class GenericUtilsTest {
         var now = new Time(System.currentTimeMillis());
         assertEquals(now, GenericUtils.parseSQLTime("testField", now, null));
         assertNotNull(GenericUtils.parseSQLTime("testField", "12:30:45", "HH:mm:ss"));
-        assertThrows(ParseException.class, () -> GenericUtils.parseSQLTime("testField", "invalid-time", "HH:mm:ss"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseSQLTime("testField", "invalid-time", "HH:mm:ss"));
     }
 
     @Test
@@ -493,7 +492,7 @@ public class GenericUtilsTest {
         var now = new Timestamp(System.currentTimeMillis());
         assertEquals(now, GenericUtils.parseSQLTimestamp("testField", now, null));
         assertNotNull(GenericUtils.parseSQLTimestamp("testField", "2023-02-20 10:15:30", "yyyy-MM-dd HH:mm:ss"));
-        assertThrows(ParseException.class, () -> GenericUtils.parseSQLTimestamp("testField", "invalid-timestamp", "yyyy-MM-dd HH:mm:ss"));
+        assertThrows(InvalidValueException.class, () -> GenericUtils.parseSQLTimestamp("testField", "invalid-timestamp", "yyyy-MM-dd HH:mm:ss"));
     }
 
     @Test
