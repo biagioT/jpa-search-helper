@@ -4,7 +4,6 @@ import app.tozzi.annotation.Projectable;
 import app.tozzi.annotation.Searchable;
 import app.tozzi.exception.InvalidFieldException;
 import app.tozzi.exception.JPASearchException;
-import app.tozzi.model.JPAEntityId;
 import app.tozzi.model.ProjectionDescriptor;
 import app.tozzi.model.input.JPASearchInput;
 import app.tozzi.util.JPASearchUtils;
@@ -161,127 +160,184 @@ public class JPAProjectionProcessor {
         return selections;
     }
 
-    private static void toMap(Tuple tuple, Map<ClassID, Map<String, Object>> ids, Class<?> entityClass, List<Selection<?>> selections,
-                              Map<Class<?>, Map<String, Field>> idFields) {
+    private static class SelectionMetadata {
+        final String[] pathParts;
+        final Field[] fields;
+        final boolean[] isCollection;
+        final Class<?>[] nextTypes;
 
+        public SelectionMetadata(String alias, Class<?> rootClass) {
+            this.pathParts = alias.split("\\.");
+            int len = pathParts.length;
+            this.fields = new Field[len];
+            this.isCollection = new boolean[len];
+            this.nextTypes = new Class<?>[len];
 
-        var currentIds = new LinkedHashMap<Class<?>, Pair<JPAEntityId, Map<String, Object>>>();
+            var currentClass = rootClass;
+            for (int i = 0; i < len; i++) {
+                try {
+                    var f = currentClass.getDeclaredField(pathParts[i]);
+                    f.setAccessible(true);
+                    this.fields[i] = f;
+                    this.isCollection[i] = Collection.class.isAssignableFrom(f.getType());
+
+                    var nextType = ReflectionUtils.getType(f);
+                    this.nextTypes[i] = nextType;
+
+                    currentClass = nextType;
+                } catch (NoSuchFieldException e) {
+                    throw new JPASearchException(e);
+                }
+            }
+        }
+    }
+
+    public static List<Map<String, Object>> toMap(List<Tuple> tuple, Class<?> entityClass, List<Selection<?>> selections, Map<Class<?>, Map<String, Field>> idFields) {
+        if (tuple == null || tuple.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        var metadataCache = new HashMap<String, SelectionMetadata>();
+        for (var selection : selections) {
+            metadataCache.put(selection.getAlias(), new SelectionMetadata(selection.getAlias(), entityClass));
+        }
+
+        // Cache basata su CacheKey (Class + Lista ID) per aggregare le righe
+        var map = new LinkedHashMap<CacheKey, Map<String, Object>>();
+        tuple.forEach(t -> toMap(t, map, entityClass, selections, idFields, metadataCache));
+
+        return map.entrySet().stream()
+                .filter(e -> e.getKey().getClazz().equals(entityClass))
+                .map(Map.Entry::getValue)
+                .toList();
+    }
+
+    private static void toMap(Tuple tuple, Map<CacheKey, Map<String, Object>> ids, Class<?> entityClass,
+                              List<Selection<?>> selections, Map<Class<?>, Map<String, Field>> idFields,
+                              Map<String, SelectionMetadata> metadataCache) {
+
+        var currentEntityContexts = new HashMap<Class<?>, Map<String, Object>>();
 
         idFields.forEach((currentEntityClass, currentIdMap) -> {
-            var id = new JPAEntityId();
-            id.setIds(new LinkedList<>());
-            currentIdMap.keySet().forEach(k -> {
-                tuple.getElements().stream().filter(el -> el.getAlias().equals(k)).findAny().ifPresent(t -> {
-                    id.getIds().add(tuple.get(k));
-                });
-            });
+            var rawIds = new ArrayList<>();
+            var hasId = false;
 
-            if (!id.getIds().isEmpty()) {
-                var classId = new ClassID(currentEntityClass, id);
-                ids.putIfAbsent(classId, new LinkedHashMap<>());
-                currentIds.put(currentEntityClass, Pair.of(id, ids.get(classId)));
+            for (var k : currentIdMap.keySet()) {
+                try {
+                    var val = tuple.get(k);
+                    if (val != null) {
+                        rawIds.add(val);
+                        hasId = true;
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+
+            if (hasId && !rawIds.isEmpty()) {
+                var key = new CacheKey(currentEntityClass, rawIds);
+                var entityMap = ids.computeIfAbsent(key, k -> new LinkedHashMap<>());
+                currentEntityContexts.put(currentEntityClass, entityMap);
             }
         });
 
         for (var selection : selections) {
-            var path = selection.getAlias().split("\\.");
-            var currentClass = entityClass;
-            var currentMap = currentIds.get(currentClass).getRight();
-            var value = tuple.get(selection.getAlias());
+            var alias = selection.getAlias();
+            var meta = metadataCache.get(alias);
 
-            for (int i = 0; i < path.length; i++) {
-                var currentPath = path[i];
-                Field field;
-                try {
-                    field = currentClass.getDeclaredField(currentPath);
-                } catch (NoSuchFieldException e) {
-                    throw new JPASearchException(e);
-                }
-                field.setAccessible(true);
+            var value = tuple.get(alias);
+            var currentMap = currentEntityContexts.get(entityClass);
 
-                if (i == path.length - 1) {
-                    if (Collection.class.isAssignableFrom(field.getType())) {
-                        ((Collection<Object>) currentMap.computeIfAbsent(currentPath, k -> createCollection(field))).add(value);
+            if (currentMap == null) continue;
 
+            for (int i = 0; i < meta.pathParts.length; i++) {
+                var currentPathName = meta.pathParts[i];
+                var isCollection = meta.isCollection[i];
+                var field = meta.fields[i];
+                var nextType = meta.nextTypes[i];
+
+                if (i == meta.pathParts.length - 1) {
+                    // Foglia
+                    if (isCollection) {
+                        var coll = (Collection<Object>) currentMap.computeIfAbsent(currentPathName, k -> createCollection(field));
+                        // Deduplicazione per valore (String, Long, ecc) usando contains standard
+                        if (value != null && !coll.contains(value)) {
+                            coll.add(value);
+                        }
                     } else {
-                        currentMap.put(currentPath, value);
+                        currentMap.put(currentPathName, value);
                     }
-
                 } else {
-                    if (Collection.class.isAssignableFrom(field.getType())) {
-                        Collection<Object> collection;
-                        var newCollection = false;
+                    // Nodo Intermedio
+                    if (isCollection) {
+                        var collection = (Collection<Object>) currentMap.computeIfAbsent(currentPathName, k -> createCollection(field));
+                        var childMap = currentEntityContexts.get(nextType);
 
-                        if (!currentMap.containsKey(currentPath)) {
-                            collection = createCollection(field);
-                            currentMap.put(currentPath, collection);
-                            newCollection = true;
+                        if (childMap != null) {
+                            // DEDUPLICAZIONE ROBUSTA: Usa Reference Equality (==)
+                            // Poiché childMap viene dalla cache (currentEntityContexts),
+                            // se è la stessa entità logica, è garantito che sia lo stesso oggetto Java.
+                            // Questo evita problemi con Map.equals() su mappe mutevoli.
+                            var alreadyExists = false;
+                            for (var existing : collection) {
+                                if (existing == childMap) {
+                                    alreadyExists = true;
+                                    break;
+                                }
+                            }
 
+                            if (!alreadyExists) {
+                                collection.add(childMap);
+                            }
+
+                            currentMap = childMap;
                         } else {
-                            collection = (Collection<Object>) currentMap.get(currentPath);
+                            break;
                         }
-
-                        var toAdd = false;
-
-                        if (!currentIds.get(ReflectionUtils.getType(field)).getRight().containsKey(path[i + 1])) {
-                            currentMap = currentIds.get(ReflectionUtils.getType(field)).getRight();
-                            toAdd = currentMap.isEmpty();
-
-                        } else {
-                            currentMap = currentIds.get(ReflectionUtils.getType(field)).getRight();
-                        }
-
-                        if (newCollection || toAdd)
-                            collection.add(currentMap);
-
                     } else {
-                        Map<String, Object> tempCurrentMap;
-                        if (currentIds.containsKey(ReflectionUtils.getType(field))) {
-                            tempCurrentMap = currentIds.get(ReflectionUtils.getType(field)).getRight();
-
+                        Map<String, Object> nextMap;
+                        if (currentEntityContexts.containsKey(nextType)) {
+                            nextMap = currentEntityContexts.get(nextType);
                         } else {
-                            tempCurrentMap = new LinkedHashMap<>();
+                            // Se non c'è ID, la relazione è null. Stop.
+                            if (idFields.containsKey(nextType)) {
+                                break;
+                            }
+                            nextMap = new LinkedHashMap<>();
                         }
 
-                        var nestedMap = (Map<String, Object>) currentMap.computeIfAbsent(currentPath, k -> tempCurrentMap);
-                        currentMap = nestedMap;
+                        var existing = (Map<String, Object>) currentMap.get(currentPathName);
+                        if (existing == null) {
+                            currentMap.put(currentPathName, nextMap);
+                            currentMap = nextMap;
+                        } else {
+                            currentMap = existing;
+                        }
                     }
-
                 }
-
-                currentClass = ReflectionUtils.getType(field);
             }
         }
     }
 
-
-    public static List<Map<String, Object>> toMap(List<Tuple> tuple, Class<?> entityClass, List<Selection<?>> selections, Map<Class<?>, Map<String, Field>> idFields) {
-        Map<ClassID, Map<String, Object>> map = new LinkedHashMap<>();
-        tuple.forEach(t -> toMap(t, map, entityClass, selections, idFields));
-        return map.entrySet().stream().filter(e -> e.getKey().getClazz().equals(entityClass)).map(Map.Entry::getValue).toList();
-    }
-
+    /**
+     * Chiave interna per cache. Sostituisce JPAEntityId.
+     */
     @Data
     @AllArgsConstructor
-    private static class ClassID {
+    private static class CacheKey {
         private Class<?> clazz;
-        private JPAEntityId id;
+        private List<Object> ids;
     }
 
     private static Collection<Object> createCollection(Field field) {
-
         if (List.class.isAssignableFrom(field.getType())) {
             return new ArrayList<>();
         }
-
         if (Set.class.isAssignableFrom(field.getType())) {
             return new HashSet<>();
         }
-
         if (Queue.class.isAssignableFrom(field.getType())) {
             return new LinkedList<>();
         }
-
         return new ArrayList<>();
     }
 }
