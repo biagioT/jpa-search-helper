@@ -1,11 +1,18 @@
 package app.tozzi.util;
 
+import app.tozzi.annotation.Searchable;
+import app.tozzi.entity.MyEntity;
+import app.tozzi.entity.TestEntity1;
+import app.tozzi.entity.TestEntity6;
+import app.tozzi.exception.JPASearchException;
 import app.tozzi.model.*;
+import jakarta.persistence.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -68,11 +75,11 @@ public class ReflectionUtilsTest {
 
     @Test
     public void recursiveModelTest() {
-       var map = ReflectionUtils.getAllSearchableFields(RecursiveModel.class);
-       assertNotNull(map);
-       assertTrue(map.containsKey("name"));
-       assertTrue(map.containsKey("predecessor.name"));
-       assertEquals(34, map.size());
+        var map = ReflectionUtils.getAllSearchableFields(RecursiveModel.class);
+        assertNotNull(map);
+        assertTrue(map.containsKey("name"));
+        assertTrue(map.containsKey("predecessor.name"));
+        assertEquals(34, map.size());
     }
 
     @Test
@@ -84,5 +91,83 @@ public class ReflectionUtilsTest {
         assertTrue(map.containsKey("modelAID"));
         assertTrue(map.containsKey("modelAField"));
         assertEquals(4, map.size());
+    }
+
+    @Test
+    public void getIdFields_MyEntity() {
+        var idFields = ReflectionUtils.getIdFields(MyEntity.class);
+
+        assertNotNull(idFields);
+        assertFalse(idFields.isEmpty());
+
+        assertTrue(idFields.containsKey(MyEntity.class));
+        var rootIds = idFields.get(MyEntity.class);
+        assertTrue(rootIds.containsKey("id"));
+
+        assertTrue(idFields.containsKey(TestEntity1.class));
+        var t1Ids = idFields.get(TestEntity1.class);
+        assertTrue(t1Ids.containsKey("test1.id"));
+
+        assertTrue(idFields.containsKey(TestEntity6.class));
+        var t6Ids = idFields.get(TestEntity6.class);
+        assertTrue(t6Ids.containsKey("test1.entity6s.id"));
+    }
+
+    @Test
+    public void getIdFields_EmbeddedId() {
+        var idFields = ReflectionUtils.getIdFields(EntityWithEmbedded.class);
+
+        assertNotNull(idFields);
+        assertTrue(idFields.containsKey(EntityWithEmbedded.class));
+
+        var fields = idFields.get(EntityWithEmbedded.class);
+        assertEquals(2, fields.size());
+        assertTrue(fields.containsKey("pk.code"));
+        assertTrue(fields.containsKey("pk.sequence"));
+    }
+
+    @Test
+    public void getIdFields_MappedSuperclass() {
+        var idFields = ReflectionUtils.getIdFields(ChildEntity.class);
+
+        assertTrue(idFields.containsKey(ChildEntity.class));
+        var fields = idFields.get(ChildEntity.class);
+
+        assertTrue(fields.containsKey("id"));
+        assertEquals(1, fields.size());
+    }
+
+    @Test
+    public void invalidCollectionTypeTest() {
+        var ex = assertThrows(JPASearchException.class, () -> ReflectionUtils.getAllSearchableFields(BadCollectionModel.class));
+        assertTrue(ex.getMessage().contains("Invalid searchable type"));
+    }
+
+    @Entity
+    static class EntityWithEmbedded {
+        @EmbeddedId
+        private MyEmbeddableId pk;
+    }
+
+    @Embeddable
+    static class MyEmbeddableId {
+        private String code;
+        private Long sequence;
+    }
+
+    @MappedSuperclass
+    static class BaseEntity {
+        @Id
+        private Long id;
+    }
+
+    @Entity
+    static class ChildEntity extends BaseEntity {
+        private String childField;
+    }
+
+    static class BadCollectionModel {
+        @Searchable
+        private List rawList;
     }
 }
