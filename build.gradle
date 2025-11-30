@@ -67,6 +67,7 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
     testImplementation 'org.testcontainers:postgresql:1.21.3'
     testImplementation 'org.postgresql:postgresql:42.7.8'
+    testImplementation 'com.code-intelligence:jazzer-junit:0.28.0'
 }
 
 publishing {

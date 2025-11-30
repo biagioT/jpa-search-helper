@@ -202,7 +202,6 @@ public class JPAProjectionProcessor {
             metadataCache.put(selection.getAlias(), new SelectionMetadata(selection.getAlias(), entityClass));
         }
 
-        // Cache basata su CacheKey (Class + Lista ID) per aggregare le righe
         var map = new LinkedHashMap<CacheKey, Map<String, Object>>();
         tuple.forEach(t -> toMap(t, map, entityClass, selections, idFields, metadataCache));
 
@@ -256,10 +255,8 @@ public class JPAProjectionProcessor {
                 var nextType = meta.nextTypes[i];
 
                 if (i == meta.pathParts.length - 1) {
-                    // Foglia
                     if (isCollection) {
                         var coll = (Collection<Object>) currentMap.computeIfAbsent(currentPathName, k -> createCollection(field));
-                        // Deduplicazione per valore (String, Long, ecc) usando contains standard
                         if (value != null && !coll.contains(value)) {
                             coll.add(value);
                         }
@@ -267,16 +264,11 @@ public class JPAProjectionProcessor {
                         currentMap.put(currentPathName, value);
                     }
                 } else {
-                    // Nodo Intermedio
                     if (isCollection) {
                         var collection = (Collection<Object>) currentMap.computeIfAbsent(currentPathName, k -> createCollection(field));
                         var childMap = currentEntityContexts.get(nextType);
 
                         if (childMap != null) {
-                            // DEDUPLICAZIONE ROBUSTA: Usa Reference Equality (==)
-                            // Poiché childMap viene dalla cache (currentEntityContexts),
-                            // se è la stessa entità logica, è garantito che sia lo stesso oggetto Java.
-                            // Questo evita problemi con Map.equals() su mappe mutevoli.
                             var alreadyExists = false;
                             for (var existing : collection) {
                                 if (existing == childMap) {
@@ -298,7 +290,6 @@ public class JPAProjectionProcessor {
                         if (currentEntityContexts.containsKey(nextType)) {
                             nextMap = currentEntityContexts.get(nextType);
                         } else {
-                            // Se non c'è ID, la relazione è null. Stop.
                             if (idFields.containsKey(nextType)) {
                                 break;
                             }

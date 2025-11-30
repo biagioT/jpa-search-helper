@@ -462,7 +462,6 @@ public class JPAProjectionProcessorTest {
                     .colTest6("Test6_" + i)
                     .build();
 
-            // Persistenza manuale per le entità figlie dove manca il Cascade
             entityManager.persist(testEntity6);
 
             var testEntity6Set = new HashSet<TestEntity6>();

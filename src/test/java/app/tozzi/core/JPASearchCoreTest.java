@@ -804,7 +804,7 @@ public class JPASearchCoreTest {
                     .notSearchableOne("NotSearchableOne_" + i)
                     .notSearchableTwo("NotSearchableTwo_" + i)
                     .notSearchableThree(i * 300L)
-                    .keywords(keywords)  // <-- Aggiunto
+                    .keywords(keywords)
                     .test1(testEntity1)
                     .test2(testEntity2)
                     .test3(testEntity3)
@@ -814,6 +814,28 @@ public class JPASearchCoreTest {
         }
 
         myRepository.saveAll(entities);
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_startsWith() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("keywords");
+        ff1.setValue("key"); // Dovrebbe matchare "keyword_X"
+        ff1.setOperator("startsWith");
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        assertEquals(8, res.size());
+        assertTrue(res.stream().allMatch(r -> r.getKeywords().stream().anyMatch(k -> k.startsWith("key"))));
     }
 
 }

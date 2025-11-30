@@ -8,14 +8,11 @@ import app.tozzi.model.JPASearchSortType;
 import app.tozzi.model.input.JPASearchInput;
 import jakarta.persistence.criteria.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class JPASearchUtils {
 
-    public static JPASearchInput EMPTY_INPUT = new JPASearchInput();
+    public static final JPASearchInput EMPTY_INPUT = new JPASearchInput();
 
     private static final String SEPARATOR = ",";
     private static final String ESCAPE_SEPARATOR_CHAR = "/";
@@ -24,239 +21,235 @@ public class JPASearchUtils {
     private static final String TRIM_OPTION_IDENTIFIER = "#t";
     private static final String PROJECTION_KEY = "selections";
 
-    public static JPASearchInput toObject(Map<String, String> filters,
-                                          boolean processPaginationOptions, boolean processSortOption, boolean processProjection
-    ) {
+    private static final List<String> SORTED_OPERATORS = Arrays.stream(JPASearchOperatorFilter.values())
+            .map(JPASearchOperatorFilter::getValue)
+            .sorted((a, b) -> Integer.compare(b.length(), a.length()))
+            .toList();
 
+    public static JPASearchInput toObject(Map<String, String> filters, boolean processPagination, boolean processSort, boolean processProjection) {
         if (filters == null || filters.isEmpty()) {
-
-            if (processSortOption) {
-                throw new JPASearchException("Invalid sort filters");
-            }
-
-            if (processPaginationOptions) {
-                throw new JPASearchException("Invalid pagination filters");
-            }
-
-            if (processProjection) {
-                throw new JPASearchException("Invalid projection selection");
-            }
-
-            return JPASearchUtils.EMPTY_INPUT;
+            validateEmptyFilters(processPagination, processSort, processProjection);
+            return EMPTY_INPUT;
         }
 
         var res = new JPASearchInput();
         res.setFilter(new JPASearchInput.RootFilter());
         res.getFilter().setOperator(JPASearchOperatorGroup.AND.getValue());
+        res.setOptions(new JPASearchInput.JPASearchOptions());
 
-        filters.entrySet().stream()
-                .filter(e -> e.getValue() != null && e.getKey() != null && !e.getKey().isBlank())
-                .forEach(e -> {
-                    if ((processPaginationOptions || processSortOption) && (e.getKey().charAt(0) == '_' && JPASearchPaginationFilter.keys().contains(e.getKey().substring(1)) || e.getKey().endsWith("_" + JPASearchPaginationFilter.SORT.getValue()))) {
-                        if (res.getOptions() == null) {
-                            res.setOptions(new JPASearchInput.JPASearchOptions());
-                        }
+        filters.forEach((key, value) -> {
+            if (key == null || key.isBlank() || value == null) return;
 
-                        var paginationFilter = e.getKey().endsWith("_" + JPASearchPaginationFilter.SORT.getValue()) ? JPASearchPaginationFilter.SORT : JPASearchPaginationFilter.load(e.getKey().substring(1));
-                        switch (paginationFilter) {
-                            case LIMIT -> res.getOptions().setPageSize(GenericUtils.loadInt(e.getValue(), processPaginationOptions ? 0 : -1));
-                            case OFFSET -> res.getOptions().setPageOffset(GenericUtils.loadInt(e.getValue(), 0));
-                            case SORT -> {
-                                if (res.getOptions().getSortOptions() == null) {
-                                    res.getOptions().setSortOptions(new ArrayList<>());
-                                }
+            if ((processPagination || processSort) && isPaginationOrSortKey(key)) {
+                handlePaginationAndSort(res, key, value, processPagination);
+                return;
+            }
 
-                                var sortOption = new JPASearchInput.JPASortOptions();
-                                sortOption.setKey(e.getKey().substring(0, e.getKey().lastIndexOf("_")));
-                                sortOption.setDesc(JPASearchSortType.DESC.name().equalsIgnoreCase(e.getValue()));
-                                res.getOptions().getSortOptions().add(sortOption);
-                            }
-                        }
+            if (processProjection && PROJECTION_KEY.equals(key)) {
+                res.getOptions().setSelections(GenericUtils.split(value, ",", null));
+                return;
+            }
 
-                        return;
-                    }
+            addFilter(res, key, value);
+        });
 
-                    if (processProjection && e.getKey().equals(PROJECTION_KEY)) {
-                        if (res.getOptions() == null) {
-                            res.setOptions(new JPASearchInput.JPASearchOptions());
-                        }
-
-                        res.getOptions().setSelections(GenericUtils.split(e.getValue(), ",", null));
-                        return;
-                    }
-
-                    var field = e.getKey().contains("_") ? e.getKey().substring(0, e.getKey().lastIndexOf("_")) : e.getKey();
-                    var operator = e.getKey().contains("_") ? e.getKey().substring(e.getKey().lastIndexOf("_") + 1) : JPASearchOperatorFilter.EQ.getValue();
-                    var ignoreCase = false;
-                    if (operator.contains(IGNORE_CASE_OPTION_IDENTIFIER)) {
-                        ignoreCase = true;
-                        operator = operator.replace(IGNORE_CASE_OPTION_IDENTIFIER, "");
-                    }
-                    var negation = false;
-                    if (operator.contains(NEGATION_OPTION_IDENTIFIER)) {
-                        negation = true;
-                        operator = operator.replace(NEGATION_OPTION_IDENTIFIER, "");
-                    }
-
-                    var trim = false;
-                    if (operator.contains(TRIM_OPTION_IDENTIFIER)) {
-                        trim = true;
-                        operator = operator.replace(TRIM_OPTION_IDENTIFIER, "");
-                    }
-
-                    JPASearchInput.FieldFilter filter;
-
-                    if (GenericUtils.containsSeparator(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)) {
-                        filter = new JPASearchInput.FilterMultipleValues();
-                        ((JPASearchInput.FilterMultipleValues) filter).setValues(new ArrayList<>(GenericUtils.split(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)));
-
-                    } else if (GenericUtils.containsSeparatorWithEscape(e.getValue(), SEPARATOR, ESCAPE_SEPARATOR_CHAR)) {
-                        filter = new JPASearchInput.FilterSingleValue();
-                        ((JPASearchInput.FilterSingleValue) filter).setValue(e.getValue().replace(ESCAPE_SEPARATOR_CHAR, ""));
-
-                    } else {
-                        filter = new JPASearchInput.FilterSingleValue();
-                        ((JPASearchInput.FilterSingleValue) filter).setValue(e.getValue());
-                    }
-
-                    filter.setKey(field);
-                    filter.setOperator(operator);
-                    if (ignoreCase || negation || trim) {
-                        filter.setOptions(new JPASearchInput.JPASearchFilterOptions());
-                        filter.getOptions().setIgnoreCase(ignoreCase);
-                        filter.getOptions().setNegate(negation);
-                        filter.getOptions().setTrim(trim);
-                    }
-
-                    if (res.getFilter().getFilters() == null) {
-                        res.getFilter().setFilters(new ArrayList<>());
-                    }
-
-                    res.getFilter().getFilters().add(filter);
-
-                });
+        if (res.getOptions().getPageSize() == null && res.getOptions().getSortOptions() == null && res.getOptions().getSelections() == null) {
+            res.setOptions(null);
+        }
 
         return res;
     }
 
-    public static Predicate[] toPredicates(Expression<Boolean>[] values) {
-        var predicates = new Predicate[values.length];
-        for (var i = 0; i < values.length; i++) {
-            predicates[i] = (Predicate) values[i];
+    private static void validateEmptyFilters(boolean pag, boolean sort, boolean proj) {
+        if (sort) throw new JPASearchException("Invalid sort filters");
+        if (pag) throw new JPASearchException("Invalid pagination filters");
+        if (proj) throw new JPASearchException("Invalid projection selection");
+    }
+
+    private static boolean isPaginationOrSortKey(String key) {
+        return (key.startsWith("_") && JPASearchPaginationFilter.keys().contains(key.substring(1))) ||
+                key.endsWith("_" + JPASearchPaginationFilter.SORT.getValue());
+    }
+
+    private static void handlePaginationAndSort(JPASearchInput input, String key, String value, boolean processPagination) {
+        var cleanKey = key.startsWith("_") ? key.substring(1) : key;
+
+        if (key.endsWith("_" + JPASearchPaginationFilter.SORT.getValue())) {
+            var fieldName = key.substring(0, key.lastIndexOf("_"));
+            addSortOption(input, fieldName, value);
+            return;
         }
-        return predicates;
+
+        var paginationFilter = JPASearchPaginationFilter.load(cleanKey);
+        switch (paginationFilter) {
+            case LIMIT ->
+                    input.getOptions().setPageSize(GenericUtils.loadInt(value, processPagination ? 0 : -1));
+            case OFFSET -> input.getOptions().setPageOffset(GenericUtils.loadInt(value, 0));
+            case SORT -> {
+            }
+        }
+    }
+
+    private static void addSortOption(JPASearchInput input, String field, String direction) {
+        if (input.getOptions().getSortOptions() == null) {
+            input.getOptions().setSortOptions(new ArrayList<>());
+        }
+        var sortOption = new JPASearchInput.JPASortOptions();
+        sortOption.setKey(field);
+        sortOption.setDesc(JPASearchSortType.DESC.name().equalsIgnoreCase(direction));
+        input.getOptions().getSortOptions().add(sortOption);
+    }
+
+    private static void addFilter(JPASearchInput input, String rawKey, String value) {
+        var tempKey = rawKey;
+        var ignoreCase = false;
+        var negation = false;
+        var trim = false;
+        var foundOption = false;
+
+        do {
+            foundOption = false;
+            if (tempKey.endsWith(IGNORE_CASE_OPTION_IDENTIFIER)) {
+                ignoreCase = true;
+                tempKey = tempKey.substring(0, tempKey.length() - IGNORE_CASE_OPTION_IDENTIFIER.length());
+                foundOption = true;
+            }
+            if (tempKey.endsWith(NEGATION_OPTION_IDENTIFIER)) {
+                negation = true;
+                tempKey = tempKey.substring(0, tempKey.length() - NEGATION_OPTION_IDENTIFIER.length());
+                foundOption = true;
+            }
+            if (tempKey.endsWith(TRIM_OPTION_IDENTIFIER)) {
+                trim = true;
+                tempKey = tempKey.substring(0, tempKey.length() - TRIM_OPTION_IDENTIFIER.length());
+                foundOption = true;
+            }
+        } while (foundOption);
+
+        var field = tempKey;
+        var operator = JPASearchOperatorFilter.EQ.getValue();
+
+        for (var op : SORTED_OPERATORS) {
+            var suffix = "_" + op;
+            if (tempKey.endsWith(suffix)) {
+                field = tempKey.substring(0, tempKey.length() - suffix.length());
+                operator = op;
+                break;
+            }
+        }
+
+        JPASearchInput.FieldFilter filter;
+        if (GenericUtils.containsSeparator(value, SEPARATOR, ESCAPE_SEPARATOR_CHAR)) {
+            filter = new JPASearchInput.FilterMultipleValues();
+            ((JPASearchInput.FilterMultipleValues) filter).setValues(new ArrayList<>(GenericUtils.split(value, SEPARATOR, ESCAPE_SEPARATOR_CHAR)));
+        } else {
+            filter = new JPASearchInput.FilterSingleValue();
+            var cleanVal = GenericUtils.containsSeparatorWithEscape(value, SEPARATOR, ESCAPE_SEPARATOR_CHAR)
+                    ? value.replace(ESCAPE_SEPARATOR_CHAR, "")
+                    : value;
+            ((JPASearchInput.FilterSingleValue) filter).setValue(cleanVal);
+        }
+
+        filter.setKey(field);
+        filter.setOperator(operator);
+
+        if (ignoreCase || negation || trim) {
+            filter.setOptions(new JPASearchInput.JPASearchFilterOptions());
+            filter.getOptions().setIgnoreCase(ignoreCase);
+            filter.getOptions().setNegate(negation);
+            filter.getOptions().setTrim(trim);
+        }
+
+        if (input.getFilter().getFilters() == null) {
+            input.getFilter().setFilters(new ArrayList<>());
+        }
+        input.getFilter().getFilters().add(filter);
+    }
+
+    public static Predicate[] toPredicates(Expression<Boolean>[] values) {
+        return Arrays.stream(values).map(v -> (Predicate) v).toArray(Predicate[]::new);
     }
 
     public static <E> Root<E> fetchManagement(Map<String, JoinType> fetchMap, Root<E> root) {
+        if (fetchMap == null || fetchMap.isEmpty()) {
+            return root;
+        }
 
-        if (fetchMap != null) {
-            fetchMap = new TreeMap<>(fetchMap);
-            var doneFetches = new ArrayList<>();
+        var sortedMap = new TreeMap<>(fetchMap);
+        var doneFetches = new HashSet<String>();
 
-            fetchMap.forEach((k, v) -> {
-                if (k.contains(".")) {
-                    var it = Arrays.stream(k.split("\\.")).iterator();
-                    Fetch<?, ?> fetch;
-                    var f = it.next();
-                    var tempPath = new StringBuilder(f);
+        sortedMap.forEach((path, type) -> {
+            if (!path.contains(".")) {
+                if (doneFetches.add(path)) {
+                    root.fetch(path, type);
+                }
+            } else {
+                Fetch<?, ?> currentFetch = null;
+                var parts = path.split("\\.");
+                var currentPath = new StringBuilder();
 
-                    if (!doneFetches.contains(f)) {
-                        fetch = root.fetch(f, v);
-                        doneFetches.add(f);
-
-                    } else {
-                        fetch = root.getFetches().stream().filter(rf -> rf.getAttribute().getName().equals(f)).findAny().orElseThrow();
+                for (int i = 0; i < parts.length; i++) {
+                    var part = parts[i];
+                    if (i > 0) {
+                        currentPath.append(".");
                     }
+                    currentPath.append(part);
+                    var pathKey = currentPath.toString();
 
-                    while (it.hasNext()) {
-                        var f1 = it.next();
-                        tempPath.append(".").append(f1);
-
-                        if (!doneFetches.contains(tempPath.toString())) {
-                            fetch = fetch.fetch(f1, v);
-                            doneFetches.add(tempPath.toString());
-
+                    if (doneFetches.add(pathKey)) {
+                        if (i == 0) {
+                            currentFetch = root.fetch(part, type);
                         } else {
-                            fetch = fetch.getFetches().stream().filter(rf -> rf.getAttribute().getName().equals(f1)).findAny().orElseThrow();
+                            currentFetch = currentFetch.fetch(part, type);
+                        }
+                    } else {
+                        if (i == 0) {
+                            currentFetch = root.getFetches().stream()
+                                    .filter(f -> f.getAttribute().getName().equals(part))
+                                    .findAny().orElseThrow(() -> new JPASearchException("Fetch logic error for " + part));
+                        } else {
+                            var nextPart = part;
+                            currentFetch = currentFetch.getFetches().stream()
+                                    .filter(f -> f.getAttribute().getName().equals(nextPart))
+                                    .findAny().orElseThrow(() -> new JPASearchException("Fetch logic error for " + nextPart));
                         }
                     }
-
-                } else if (!doneFetches.contains(k)) {
-                    root.fetch(k, v);
-                    doneFetches.add(k);
                 }
-            });
-        }
+            }
+        });
 
         return root;
     }
 
     public static <T> Expression<T> getPath(Root<?> root, String k) {
-
-        if (k.contains(".")) {
-
-            Path<T> path = null;
-
-            for (var f : k.split("\\.")) {
-                path = path == null ? root.get(f) : path.get(f);
-            }
-
-            return path;
-
-        } else {
+        if (!k.contains(".")) {
             return root.get(k);
         }
+
+        Path<T> path = null;
+        for (var f : k.split("\\.")) {
+            path = path == null ? root.get(f) : path.get(f);
+        }
+        return path;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Expression<T> getPath(
-            CriteriaBuilder cb,
-            Root<?> root,
-            String fieldName,
-            String jsonPath
-    ) {
-        Expression<?> expr;
-
-        if (fieldName.contains(".")) {
-            Path<?> path = null;
-            for (String part : fieldName.split("\\.")) {
-                path = path == null ? root.get(part) : path.get(part);
-            }
-            expr = path;
-        } else {
-            expr = root.get(fieldName);
-        }
+    public static <T> Expression<T> getPath(CriteriaBuilder cb, Root<?> root, String fieldName, String jsonPath) {
+        Expression<?> expr = getPath(root, fieldName);
 
         if (jsonPath == null || jsonPath.isBlank()) {
             return (Expression<T>) expr;
         }
 
-        Expression<?> jsonExpr = expr;
-
-        String[] parts = jsonPath.split("\\.");
-
+        var parts = jsonPath.split("\\.");
         for (int i = 0; i < parts.length; i++) {
-            if (i == parts.length - 1) {
-                jsonExpr = cb.function(
-                        "jsonb_extract_path_text",
-                        String.class,
-                        jsonExpr,
-                        cb.literal(parts[i])
-                );
-            } else {
-                jsonExpr = cb.function(
-                        "jsonb_extract_path",
-                        Object.class,   // restituisce jsonb
-                        jsonExpr,
-                        cb.literal(parts[i])
-                );
-            }
+            var isLast = (i == parts.length - 1);
+            var functionName = isLast ? "jsonb_extract_path_text" : "jsonb_extract_path";
+            var returnType = isLast ? String.class : Object.class;
+
+            expr = cb.function(functionName, returnType, expr, cb.literal(parts[i]));
         }
 
-        return (Expression<T>) jsonExpr;
+        return (Expression<T>) expr;
     }
-
-
-
-
 }
