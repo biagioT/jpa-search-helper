@@ -79,7 +79,7 @@ jobs:
           JRELEASER_PROJECT_VERSION: ${{ github.event.release.tag_name }}
 
       - name: Output
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6.0.0
         if: always()
         with:
           name: jreleaser-release
