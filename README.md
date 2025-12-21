@@ -6,16 +6,16 @@ Library for building and running advanced and dynamic queries using JPA in Sprin
 ## Why use JPA Search Helper?
 
 Building dynamic and type-safe queries with JPA can quickly become complex and repetitive.  
-`JPA Search Helper` simplifies this process by providing a fluent, declarative way to build advanced search filters and projections — with minimal boilerplate.
+`JPA Search Helper` simplifies this process by providing a fluent, declarative way to build advanced search filters and projections, with minimal boilerplate.
 
 With this library, you can:
 - Dynamically build queries using simple request parameters or structured JSON input.
-- Combine filters with logical operators (`AND`, `OR`, `NOT`) — without writing custom `Specification` or `CriteriaBuilder` code.
+- Combine filters with logical operators (`AND`, `OR`, `NOT`), without writing custom `Specification` or `CriteriaBuilder` code.
 - Reuse your existing JPA entities or domain models through simple annotations.
 - Support projections to return only specific fields instead of entire entities.
 - Keep full control of the repository layer, without exposing new endpoints.
 
-In short, it helps you build **powerful, flexible search APIs** in Spring Boot — **with zero query code**.
+In short, it helps you build **powerful, flexible search APIs** in Spring Boot, **with zero query code**.
 
 
 ## Status
@@ -132,7 +132,7 @@ curl -X POST -H "Content-type: application/json" -d '{
 
 ..how can you do it? Keep reading this README!
 
-**\*** Please note: the library itself does not expose any controllers or HTTP endpoints — it only provides the repository layer responsible for building and executing the queries.
+**\*** Please note: the library itself does not expose any controllers or HTTP endpoints, it only provides the repository layer responsible for building and executing the queries.
 
 ## Compatibility Matrix
 
@@ -154,13 +154,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.6.1</version>
+ <version>3.6.2</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.6.1'
+implementation 'app.tozzi:jpa-search-helper:3.6.2'
 ```
 
 ## Queries - Usage
