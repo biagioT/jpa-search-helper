@@ -62,7 +62,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.42'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
     testImplementation 'tools.jackson.core:jackson-databind:3.0.3'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.21.0'
     testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
     testImplementation 'org.testcontainers:postgresql:1.21.4'
     testImplementation 'org.postgresql:postgresql:42.7.8'
