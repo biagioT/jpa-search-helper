@@ -154,13 +154,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.6.2</version>
+ <version>3.6.3</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.6.2'
+implementation 'app.tozzi:jpa-search-helper:3.6.3'
 ```
 
 ## Queries - Usage
@@ -618,6 +618,20 @@ Your Spring JPA repository must extend `JPAProjectionRepository<YourEntityClass>
 public interface PersonRepository extends JpaRepository<PersonEntity, Long>, JPASearchRepository<PersonEntity>, JPAProjectionRepository<PersonEntity> {  
   
 }  
+```
+> **⚠️ Important Configuration Note:**
+> Depending on your Spring Boot version and project structure, you may need to explicitly scan this library's packages to ensure the repository implementation and components are discovered.
+> You must add `app.tozzi` to your component scan and `app.tozzi.repository` to your JPA repositories configuration. Crucially, ensure you also include your own application's packages to maintain your existing context:
+
+```java  
+@Configuration
+// Include your package AND the library package
+@ComponentScan(basePackages = {"com.my-package", "app.tozzi"})
+// Include your repository package AND the library repository package
+@EnableJpaRepositories(basePackages = {"com.my-package.repository", "app.tozzi.repository"})
+public class ApplicationConfiguration {
+    // ...
+}
 ```
 
 ### 3. Projection implementation
