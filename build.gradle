@@ -45,8 +45,8 @@ dependencies {
     implementation 'org.springframework:spring-beans'
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.42'
-    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    compileOnly 'org.projectlombok:lombok:1.18.44'
+    annotationProcessor 'org.projectlombok:lombok:1.18.44'
 
     // Utils
     implementation 'org.apache.commons:commons-lang3:3.20.0'
@@ -58,9 +58,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'org.springframework.boot:spring-boot-data-jpa-test'
     testImplementation 'com.h2database:h2'
-    testImplementation 'org.projectlombok:lombok:1.18.42'
-    testCompileOnly 'org.projectlombok:lombok:1.18.42'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
+    testImplementation 'org.projectlombok:lombok:1.18.44'
+    testCompileOnly 'org.projectlombok:lombok:1.18.44'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.44'
     testImplementation 'tools.jackson.core:jackson-databind:3.0.4'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.21.1'
     testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
