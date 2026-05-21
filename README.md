@@ -146,7 +146,8 @@ curl -X POST -H "Content-type: application/json" -d '{
 | [v3.0.0 - v3.2.2] | 3.3.x       | [17 - 25] |  
 | [v3.3.0 - v3.4.5] | 3.4.x       | [17 - 25] |  
 | [v3.5.0 - v3.5.5] | 3.5.x       | [17 - 25] |  
-| [v3.6.0 - latest] | 4.x.x       | [17 - 25] |  
+| [v3.6.0 - v3.6.4] | 4.x.x       | [17 - 25] |  
+| [v4.0.0 - latest] | 4.x.x       | [17 - 25] |  
 
 ## Project dependency
 #### Maven
@@ -154,13 +155,13 @@ curl -X POST -H "Content-type: application/json" -d '{
 <dependency>  
  <groupId>app.tozzi</groupId> 
  <artifactId>jpa-search-helper</artifactId> 
- <version>3.6.4</version>
+ <version>4.0.0</version>
 </dependency>  
 ```  
 
 #### Gradle
 ```  
-implementation 'app.tozzi:jpa-search-helper:3.6.4'
+implementation 'app.tozzi:jpa-search-helper:4.0.0'
 ```
 
 ## Queries - Usage
@@ -218,12 +219,12 @@ The annotation allows you to specify:
     the name of the field defined on the entity bean (not to be specified if using the annotation on the entity bean). If not specified the key will be the field name.
   - `targetType`: the managed object type by entity. If not specified the librariy tries to obtain it based on field type (es. Integer field without target type definition will be `INTEGER`). If there is no type compatible with those managed, it will be managed as a string. Managed types:
 
-    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `ENUM`, `DATE_SQL`, `TIME_SQL`, `INSTANT`, `TIMESTAMP`, `JSONB`
+    - `STRING`, `INTEGER`, `DOUBLE`, `FLOAT`, `LONG`, `BIGDECIMAL`, `BOOLEAN`, `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `ENUM`, `DATE_SQL`, `TIME_SQL`, `INSTANT`, `TIMESTAMP`, `UUID`, `JSONB`
 
 - Validation properties:
 
   - `datePattern`: only for `DATE`, `LOCALDATE`, `LOCALDATETIME`, `LOCALTIME`, `OFFSETDATETIME`, `OFFSETTIME`, `ZONEDDATETIME`, `TIMESTAMP`, `TIME_SQL`, `DATE_SQL`, `INSTANT` target types. Defines the date pattern to use.
-  - `maxSize, minSize`: maximum/minimum length of the value.
+  - `maxSize, minSize`: maximum/minimum length of the value (for `STRING` types).
   - `maxDigits, minDigits`: only for numeric types. Maximum/minimum number of digits.
   - `regexPattern`: regex pattern.
   - `decimalFormat`: only for decimal numeric types. Default `#.##`
@@ -237,6 +238,7 @@ The annotation allows you to specify:
   - `likeFilters`: allowed like filters (_contains_, _startsWith_, _endsWith_). Default: true.
   - `ordinalEnum`: only for `ENUM` type; true if search via ordinal
   - `jsonPath`: required for `JSONB`; represents the JSON path inside the jsonb column.
+  - `elementCollection`: set to true when the underlying entity attribute is annotated with `@ElementCollection` (e.g. `List<String>`). `EQ` and `IN` are evaluated with `cb.isMember(...)`; other operators fall back to a LEFT JOIN on the collection table.
 
 Continuing the example, here are our entity classes:
 
@@ -328,7 +330,7 @@ In your manager, or in your service, or wherever you want to use the repository:
     // Without pagination
     List<PersonEntity> fullSearch = personRepository.findAll(filters, Person.class);
   
-    filters.put("birthDate_sort" : "ASC"); // sorting key and sorting order
+    filters.put("birthDate_sort", "ASC"); // sorting key and sorting order
     filters.put("_limit", "10"); // page size
     filters.put("_offset", "0"); // page offset
     
@@ -458,7 +460,7 @@ To use the other operators, `OR` and `NOT`, you must use *Mode 2*
 | Less Than or Equal        | lte         | sql_col <= val                     | 1,2 | yes            |
 | Between                   | between     | sql_col BETWEEN val1 AND val2      | 1,2 | yes            |
 | Null                      | null        | sql_col IS NULL                    | 1,2 | no             |
-| Empty                     | empty       | sql_collection_col IS NULL               | 1,2 | no             |
+| Empty                     | empty       | sql_collection_col IS EMPTY        | 1,2 | no             |
 
 #### Options
 **Mode 1**
@@ -506,11 +508,11 @@ public static class JPASearchFilterOptions {
 
 ### Pagination
 
-| Filter name | Key | Fixed values
-|--|--|--|
-| Limit (page size) | limit
-| Offset (page number) | offset
-| Sort | sort | ASC, DESC
+| Filter name | Key |
+|--|--|
+| Limit (page size) | _limit |
+| Offset (page number) | _offset |
+| Sort | <field>_sort (values: ASC, DESC) |
 
 **Mode 1**: e.g. *?firstName_sort=DESC&_limit=10&_offset=0*
 
@@ -555,7 +557,7 @@ public static class JPASortOptions {
 
 ### Other (only for Mode 1)
 - Separator for array values: `,`: e.g. _?myField_in=test1,test2_ --> values to search for: ["**test1**", "**test2**"]
-- To escape separator: `/,`: e.g. _?myField_in=test1,test2/,test3_ --> values to search for: ["**test1**", "**test2,test3**"]
+- To escape separator: prepend `/` to the comma. Example: `?myField_in=test1,test2/,test3` --> values to search for: ["**test1**", "**test2,test3**"]. So `/` is the escape character and `/,` is the escape sequence that represents a literal comma inside a value.
 
 ## Projection - Usage
 
@@ -619,16 +621,16 @@ public interface PersonRepository extends JpaRepository<PersonEntity, Long>, JPA
   
 }  
 ```
-> **⚠️ Important Configuration Note:**
-> Depending on your Spring Boot version and project structure, you may need to explicitly scan this library's packages to ensure the repository implementation and components are discovered.
-> You must add `app.tozzi` to your component scan and `app.tozzi.repository` to your JPA repositories configuration. Crucially, ensure you also include your own application's packages to maintain your existing context:
+> **ℹ️ Configuration Note (Spring Boot):**
+> Starting from version `4.0.0`, the library ships a Spring Boot auto-configuration that registers `JPAProjectionRepositoryImpl` automatically. No additional `@ComponentScan` / `@EnableJpaRepositories` setup is required for Spring Boot consumers.
+>
+> If your application **does not** use Spring Boot auto-configuration, or you have customized your component scan, you may still need to add `app.tozzi` to your component scan to ensure the implementation bean is discovered:
 
 ```java  
 @Configuration
-// Include your package AND the library package
+// Include your package AND the library package (only needed when NOT using Spring Boot auto-configuration)
 @ComponentScan(basePackages = {"com.my-package", "app.tozzi"})
-// Include your repository package AND the library repository package
-@EnableJpaRepositories(basePackages = {"com.my-package.repository", "app.tozzi.repository"})
+@EnableJpaRepositories(basePackages = {"com.my-package.repository"})
 public class ApplicationConfiguration {
     // ...
 }
@@ -667,7 +669,7 @@ In your manager, or in your service, or wherever you want to use the repository:
     // Without sorting
     List<Map<String, Object>> result = personRepository.projection(filters, Person.class, PersonEntity.class);
   
-    filters.put("birthDate_sort" : "ASC"); // sorting key and sorting order
+    filters.put("birthDate_sort", "ASC"); // sorting key and sorting order
     
     // With sorting
     List<Map<String, Object>> sortedAndPaginatedSearch = personRepository.projectionWithSorting(filters, Person.class, PersonEntity.class);
@@ -785,13 +787,19 @@ Note 3:
 ---
 
 ## Advanced Settings
+
+> Starting from version `4.0.0`, the optional parameters (`fetches`, `entityFieldMap`, override join types, ...) are passed via the parameter objects `JPASearchOptions` (search) and `JPAProjectionOptions` (projection), instead of the many overloaded method signatures used in releases up to `3.6.x`. Build them with the fluent `builder()` or use the static `empty()` helper when no extra options are needed.
+
 ### Join Fetch
 It is possible to force joins with fetch to allow Hibernate (or your JPA framework) to execute a single query for the relationships defined on the entity. **This is only possible without pagination**:
 ```java
 // ...
 
-Map<String, JoinFetch> fetches = Map.of("companyEntity", JoinFetch.LEFT);
-personRepository.findAll(filters, Person.class, fetches);
+var options = JPASearchOptions.builder()
+        .fetches(Map.of("companyEntity", JoinType.LEFT))
+        .build();
+
+personRepository.findAll(filters, Person.class, options);
 
 // ...
 ```
@@ -801,13 +809,16 @@ If you have a Domain Model that is the result of the conversion of multiple enti
 ```java
 // ...
 
-Map<String, String> entityFieldMap = Map.of("company", "companyEntity.name");
+var options = JPASearchOptions.builder()
+        .fetches(Map.of("companyEntity", JoinType.LEFT))
+        .entityFieldMap(Map.of("company", "companyEntity.name"))
+        .build();
 
 // Without pagination
-personRepository.findAll(filters, Person.class, fetches, entityFieldMap);
+personRepository.findAll(filters, Person.class, options);
 
 // With pagination
-personRepository.findAllWithPaginationAndSorting(filters, Person.class, entityFieldMap);
+personRepository.findAllWithPaginationAndSorting(filters, Person.class, options);
 
 // ...
 ```
@@ -965,9 +976,8 @@ public class PersonController {
   public List<Person> findPersons(@Valid @RequestBody JPASearchInput input) {
     return personManager.find(input);
   }
-}
 
-@PostMapping(path="/projection", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path="/projection", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
   public List<Person> projection(@Valid @RequestBody JPASearchInput input) {
     return personManager.projection(input);
   }
@@ -986,7 +996,7 @@ public class PersonManager {
     return personRepository.findAllWithPaginationAndSorting(input, Person.class).stream().map(this::toModel).toList();
   }
   
-  public List<Person> find(JPASearchInput input) {
+  public List<Person> projection(JPASearchInput input) {
     return personRepository.projection(input, Person.class, PersonEntity.class).stream().map(this::toModel).toList();
   }
 
@@ -1145,7 +1155,7 @@ curl -X POST -H "Content-type: application/json" -d '{
         "key": "birthDate",
         "desc": false
       }
-    ]
+    ],
     "selections" : [
 		"birthDate",
 		"firstName",

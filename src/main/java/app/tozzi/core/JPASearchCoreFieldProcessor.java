@@ -23,7 +23,7 @@ public class JPASearchCoreFieldProcessor {
 
         if (!searchableFields.containsKey(field) && tagMatch == null) {
             if (throwIfFieldNotExists) {
-                throw new InvalidFieldException("Field [" + field + "] does not exists or not sortable", field);
+                throw new InvalidFieldException("Field [" + field + "] does not exist or is not searchable", field);
             }
             return null;
         }
@@ -31,7 +31,7 @@ public class JPASearchCoreFieldProcessor {
         if (searchableFields.containsKey(field)) {
             var s = searchableFields.get(field).getKey();
             if (s.tags().length > 0 && Stream.of(s.tags()).noneMatch(t -> t.fieldKey().equals(field))) {
-                throw new InvalidFieldException("Field [" + field + "] does not exists or not sortable", field);
+                throw new InvalidFieldException("Field [" + field + "] is tagged: it must be referenced through one of its tag fieldKey values", field);
             }
         }
 

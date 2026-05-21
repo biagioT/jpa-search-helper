@@ -55,7 +55,7 @@ public class JPASearchCoreValueProcessor {
         }
 
         if (searchable.regexPattern() != null && !searchable.regexPattern().isBlank() && !matchRegex(searchType, filter, targetValue, searchable.regexPattern())) {
-            throw new InvalidValueException("Value [" + value + " does not match pattern [" + searchable.regexPattern() + " of field [" + field + "]", field, value);
+            throw new InvalidValueException("Value [" + value + "] does not match pattern [" + searchable.regexPattern() + "] of field [" + field + "]", field, value);
         }
     }
 
@@ -192,9 +192,12 @@ public class JPASearchCoreValueProcessor {
                     value instanceof String s ? Long.parseLong(s) : ((Number) value).longValue();
             case INTEGER ->
                     value instanceof String s ? Long.parseLong(s) : ((Number) value).longValue();
-            case FLOAT -> ((Number) value).longValue();
-            case DOUBLE -> ((Number) value).longValue();
-            case BIGDECIMAL -> ((Number) value).longValue();
+            case FLOAT ->
+                    value instanceof String s ? (long) Float.parseFloat(s) : ((Number) value).longValue();
+            case DOUBLE ->
+                    value instanceof String s ? (long) Double.parseDouble(s) : ((Number) value).longValue();
+            case BIGDECIMAL ->
+                    value instanceof String s ? new BigDecimal(s).longValue() : ((Number) value).longValue();
             default -> -1;
         };
     }

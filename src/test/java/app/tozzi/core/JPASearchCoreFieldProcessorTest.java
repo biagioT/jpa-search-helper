@@ -1,4 +1,4 @@
-package app.tozzi.core;
+ package app.tozzi.core;
 
 import app.tozzi.exception.InvalidFieldException;
 import app.tozzi.model.JPASearchType;
@@ -91,4 +91,59 @@ public class JPASearchCoreFieldProcessorTest {
         assertNull(fd);
     }
 
+    // ----- Item #18: entityFieldMap behaviour when the searchable field uses @Tag --------------------------------
+
+    /**
+     * Documents the precedence of entityFieldMap when the searchable field is declared with tags.
+     * <p>
+     * MyModel has:
+     * <pre>
+     *   @Searchable(tags = {
+     *       @Tag(fieldKey = "wrapperLong.one"),
+     *       @Tag(fieldKey = "wrapperLong.two", entityFieldKey = "wrapperLongYes")
+     *   })
+     *   private Long wrapperLong;
+     * </pre>
+     * <p>
+     * The map key must match the <em>tag fieldKey</em> (e.g. "wrapperLong.two"), not the
+     * underlying model field name ("wrapperLong"). The latter never produces a valid descriptor.
+     */
+    @Test
+    public void processField_entityFieldMap_overridesTagEntityKey_whenKeyMatchesTagFieldKey() {
+        var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
+
+        var fd = JPASearchCoreFieldProcessor.processField(
+                "wrapperLong.two",
+                Map.of("wrapperLong.two", "alias.replaced"),
+                searchableFields, true, false, false);
+
+        assertNotNull(fd);
+        assertEquals("wrapperLong.two", fd.getPath());
+        assertEquals("alias.replaced", fd.getEntityKey(),
+                "entityFieldMap[<tag fieldKey>] takes precedence over the tag's entityFieldKey");
+    }
+
+    @Test
+    public void processField_entityFieldMap_keyedOnRawModelField_isIgnoredForTaggedField() {
+        // The raw field name "wrapperLong" is NOT a usable searchable key (tag-only field), so the
+        // entityFieldMap entry attached to it is irrelevant and the call still throws.
+        var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
+
+        assertThrows(InvalidFieldException.class, () -> JPASearchCoreFieldProcessor.processField(
+                "wrapperLong",
+                Map.of("wrapperLong", "ignored.alias"),
+                searchableFields, true, false, false));
+    }
+
+    @Test
+    public void processField_tagWithoutEntityFieldKey_fallsBackToTagFieldKey() {
+        // wrapperLong.one has no explicit entityFieldKey on the @Tag → the entity key equals the tag fieldKey.
+        var searchableFields = ReflectionUtils.getAllSearchableFields(MyModel.class);
+
+        var fd = JPASearchCoreFieldProcessor.processField(
+                "wrapperLong.one", Collections.emptyMap(), searchableFields, true, false, false);
+
+        assertNotNull(fd);
+        assertEquals("wrapperLong.one", fd.getEntityKey());
+    }
 }

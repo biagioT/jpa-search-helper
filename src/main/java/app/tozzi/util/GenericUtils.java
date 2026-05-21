@@ -12,11 +12,20 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class GenericUtils {
 
     private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE = ThreadLocal.withInitial(HashMap::new);
+
+    // DateTimeFormatter is thread-safe → a global cache is sufficient and avoids re-parsing the pattern
+    // on every call to parseLocalDate / parseLocalDateTime / etc.
+    private static final ConcurrentHashMap<String, DateTimeFormatter> DATE_TIME_FORMATTER_CACHE = new ConcurrentHashMap<>();
+
+    private static DateTimeFormatter getDateTimeFormatter(String pattern) {
+        return DATE_TIME_FORMATTER_CACHE.computeIfAbsent(pattern, DateTimeFormatter::ofPattern);
+    }
 
     public static boolean containsSeparator(String string, String separator, String escapeSeparatorChar) {
         return escapeSeparatorChar != null
@@ -125,7 +134,10 @@ public class GenericUtils {
     }
 
     public static boolean containsOnlyDigits(Object number) {
-        return number instanceof String str && str.matches("\\d+");
+        // Returns true if the value is a String representing a (possibly signed) integer or decimal number.
+        // This matches what JPASearchCoreValueProcessor#formatNumber treats as a "raw" numeric value that can
+        // be left unparsed when noNumberParsing is true.
+        return number instanceof String str && !str.isEmpty() && str.matches("-?\\d+(\\.\\d+)?");
     }
 
     public static boolean parseBoolean(String field, Object value) {
@@ -155,7 +167,7 @@ public class GenericUtils {
         if (value instanceof LocalDate ld) return ld;
         if (value instanceof String str) {
             try {
-                return LocalDate.parse(str, DateTimeFormatter.ofPattern(pattern));
+                return LocalDate.parse(str, getDateTimeFormatter(pattern));
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid local date value [" + value + "]", field, value);
             }
@@ -167,7 +179,7 @@ public class GenericUtils {
         if (value instanceof LocalTime lt) return lt;
         if (value instanceof String str) {
             try {
-                return LocalTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+                return LocalTime.parse(str, getDateTimeFormatter(pattern));
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid local time [" + value + "]", field, value);
             }
@@ -179,7 +191,7 @@ public class GenericUtils {
         if (value instanceof LocalDateTime ldt) return ldt;
         if (value instanceof String str) {
             try {
-                return LocalDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+                return LocalDateTime.parse(str, getDateTimeFormatter(pattern));
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid local date time value [" + value + "]", field, value);
             }
@@ -191,7 +203,7 @@ public class GenericUtils {
         if (value instanceof OffsetTime ot) return ot;
         if (value instanceof String str) {
             try {
-                return OffsetTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+                return OffsetTime.parse(str, getDateTimeFormatter(pattern));
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid offset time value [" + value + "]", field, value);
             }
@@ -203,7 +215,7 @@ public class GenericUtils {
         if (value instanceof OffsetDateTime odt) return odt;
         if (value instanceof String str) {
             try {
-                return OffsetDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+                return OffsetDateTime.parse(str, getDateTimeFormatter(pattern));
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid offset date time value [" + value + "]", field, value);
             }
@@ -215,7 +227,7 @@ public class GenericUtils {
         if (value instanceof ZonedDateTime zdt) return zdt;
         if (value instanceof String str) {
             try {
-                return ZonedDateTime.parse(str, DateTimeFormatter.ofPattern(pattern));
+                return ZonedDateTime.parse(str, getDateTimeFormatter(pattern));
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid zoned date time value [" + value + "]", field, value);
             }
@@ -240,7 +252,7 @@ public class GenericUtils {
         if (value instanceof String str) {
             try {
                 return pattern != null && !pattern.isBlank()
-                        ? Instant.from(DateTimeFormatter.ofPattern(pattern).parse(str))
+                        ? Instant.from(getDateTimeFormatter(pattern).parse(str))
                         : Instant.parse(str);
             } catch (DateTimeException e) {
                 throw new InvalidValueException("Invalid Instant value [" + value + "]", field, value);

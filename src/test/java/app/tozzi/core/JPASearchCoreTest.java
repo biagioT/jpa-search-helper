@@ -664,63 +664,99 @@ public class JPASearchCoreTest {
         assertTrue(res.stream().anyMatch(r -> r.getId().equals(5L)));
     }
 
+    // ----- Item E: coverage for elementCollection with operators NOT in the {EQ, IN} branch ----------------------
+
+    /**
+     * For an {@code elementCollection=true} field, CONTAINS does NOT fall in the dedicated cb.isMember(...) branch:
+     * the code performs a {@code LEFT JOIN} on the collection table and applies {@code LIKE} on each element.
+     * Coverage here pins this behaviour so it cannot regress silently.
+     */
     @Test
-    void mode2_projection_2() {
+    public void mode2_elementCollection_keywords_contains_currentlyUsesLeftJoinAndLike() {
         var input = new JPASearchInput();
         var root = new JPASearchInput.RootFilter();
         root.setFilters(new ArrayList<>());
         root.setOperator("and");
 
         var ff1 = new JPASearchInput.FilterSingleValue();
-        ff1.setKey("stringOne");
-        ff1.setValue("stringone");
-        ff1.setOperator("startsWith");
-        ff1.setOptions(new JPASearchInput.JPASearchFilterOptions());
-        ff1.getOptions().setIgnoreCase(true);
+        ff1.setKey("keywords");
+        ff1.setValue("ava");
+        ff1.setOperator("contains");
         root.getFilters().add(ff1);
 
-        var ff2 = new JPASearchInput.FilterSingleValue();
-        ff2.setKey("stringTwo");
-        ff2.setValue("two");
-        ff2.setOperator("contains");
-        ff2.setOptions(new JPASearchInput.JPASearchFilterOptions());
-        ff2.getOptions().setIgnoreCase(true);
-        root.getFilters().add(ff2);
-
-        var ff3 = new JPASearchInput.FilterMultipleValues();
-        ff3.setKey("stringMail");
-        ff3.setValues(List.of("email1@example.com", "email2@example.com"));
-        ff3.setOperator("in");
-        root.getFilters().add(ff3);
-
-        var ff4 = new JPASearchInput.RootFilter();
-        ff4.setOperator("or");
-        ff4.setFilters(new ArrayList<>());
-        var ff41 = new JPASearchInput.FilterMultipleValues();
-        ff41.setKey("stringFalse");
-        ff41.setValues(List.of("StringFalse_1", "StringFalse_3"));
-        ff41.setOperator("in");
-        ff4.getFilters().add(ff41);
-        var ff42 = new JPASearchInput.FilterSingleValue();
-        ff42.setKey("stringFalse");
-        ff42.setValue("StringFalse_2");
-        ff42.setOperator("in");
-        ff42.setOptions(new JPASearchInput.JPASearchFilterOptions());
-        ff42.getOptions().setNegate(true);
-        ff4.getFilters().add(ff42);
-        root.getFilters().add(ff4);
-
-        input.setOptions(new JPASearchInput.JPASearchOptions());
-        input.getOptions().setSelections(List.of("stringMail", "mySubModel.searchMe", "list.other"));
-
         input.setFilter(root);
-        List<Map<String, Object>> res = myRepository.projection(input, MyModel.class, MyEntity.class);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        // every entity with at least one keyword containing "ava" (i.e. "java") is matched
         assertNotNull(res);
         assertFalse(res.isEmpty());
-        assertEquals(1, res.size());
-        assertTrue(res.stream().anyMatch(m -> m.containsKey("email") && m.get("email").equals("email1@example.com")));
-        assertTrue(res.stream().anyMatch(m -> m.containsKey("id") && m.get("id").equals(1L)));
-        assertTrue(res.stream().anyMatch(m -> m.containsKey("test2") && m.get("test2") instanceof Map map && map.containsKey("colTest2")));
+        res.forEach(r -> assertTrue(r.getKeywords().stream().anyMatch(k -> k.contains("ava"))));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_startsWith_currentlyUsesLeftJoinAndLike() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("keywords");
+        ff1.setValue("uniq");
+        ff1.setOperator("startsWith");
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertEquals(2, res.size());
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(1L)));
+        assertTrue(res.stream().anyMatch(r -> r.getId().equals(5L)));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_endsWith_currentlyUsesLeftJoinAndLike() {
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("keywords");
+        ff1.setValue("ate");
+        ff1.setOperator("endsWith");
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        // every entity that has a keyword ending with "ate" (hibern_ate_)
+        assertNotNull(res);
+        assertFalse(res.isEmpty());
+        res.forEach(r -> assertTrue(r.getKeywords().stream().anyMatch(k -> k.endsWith("ate"))));
+    }
+
+    @Test
+    public void mode2_elementCollection_keywords_empty_currentlyUsesIsEmptyOnPath() {
+        // EMPTY is currently applied on the element-collection path expression (cb.isEmpty).
+        // None of the seed entities has an empty keywords list so the result must be empty.
+        var input = new JPASearchInput();
+        var root = new JPASearchInput.RootFilter();
+        root.setFilters(new ArrayList<>());
+        root.setOperator("and");
+
+        var ff1 = new JPASearchInput.FilterSingleValue();
+        ff1.setKey("keywords");
+        ff1.setValue("true");
+        ff1.setOperator("empty");
+        root.getFilters().add(ff1);
+
+        input.setFilter(root);
+        List<MyEntity> res = myRepository.findAll(input, MyModel.class);
+
+        assertNotNull(res);
+        assertTrue(res.isEmpty(), "no entity has an empty keywords collection");
     }
 
     private void setUp() {

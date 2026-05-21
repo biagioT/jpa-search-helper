@@ -16,6 +16,14 @@ import java.util.stream.Stream;
 @Getter
 public enum JPASearchType {
 
+    /**
+     * Internal sentinel value used as the default for {@link app.tozzi.annotation.Searchable#targetType()}.
+     * <p>
+     * It indicates that the library should infer the actual type from the Java field type (via
+     * {@link #load(Class, JPASearchType)}). It is <strong>not</strong> intended to be used explicitly
+     * by API consumers: setting {@code targetType = JPASearchType.UNTYPED} on an annotation is equivalent
+     * to omitting the attribute.
+     */
     UNTYPED(Collections.emptyList()),
     STRING(List.of(String.class)),
     LONG(List.of(Long.class, long.class)),
@@ -37,7 +45,7 @@ public enum JPASearchType {
     TIME_SQL(List.of(Time.class)),
     ENUM(List.of(Enum.class)),
     TIMESTAMP(List.of(Timestamp.class)),
-    JSONB(Collections.EMPTY_LIST);
+    JSONB(Collections.emptyList());
 
     private final List<Class<?>> defaultClasses;
 

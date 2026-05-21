@@ -436,6 +436,84 @@ public class JPAProjectionProcessorTest {
         assertTrue(selections.stream().anyMatch(s -> s.getAlias().equals("test1.entity6s.colTest6")));
     }
 
+    // ----- Item #15: behaviour of loadSelection() when overrideJoins=true ----------------------------------------
+
+    @Test
+    public void loadSelection_overrideJoinsTrue_nullOverrideJoinTypes_skipsJoinsButStillResolvesPaths() {
+        // When overrideJoins=true and overrideJoinTypes is null, JPAProjectionProcessor#buildJoins is NOT invoked
+        // for any selection (see JPAProjectionProcessor.loadSelectionsFromFields). Selections fall back to
+        // JPASearchUtils.getPath(root, key) which implicitly traverses associations as INNER JOIN.
+        var cb = entityManager.getCriteriaBuilder();
+        var cq = cb.createTupleQuery();
+        var root = cq.from(MyEntity.class);
+
+        var selections = JPAProjectionProcessor.loadSelection(
+                List.of("stringMail", "mySubModel.searchMe"),
+                root,
+                MyEntity.class,
+                ReflectionUtils.getAllProjectableFields(MyModel.class),
+                ReflectionUtils.getIdFields(MyEntity.class),
+                true,
+                true,   // overrideJoins
+                null    // overrideJoinTypes
+        );
+
+        assertNotNull(selections);
+        // 2 explicit + 2 ids (MyEntity.id and test2.id) → 4
+        assertTrue(selections.size() >= 2, "selections should still be produced even without overrides");
+        assertTrue(selections.stream().anyMatch(s -> s.getAlias().equals("email")));
+        assertTrue(selections.stream().anyMatch(s -> s.getAlias().equals("test2.colTest2")));
+
+        // No explicit joins were registered on the root for this branch; the resulting query is still executable
+        // (Hibernate will resolve the implicit joins on its own).
+        cq.multiselect(selections);
+        assertDoesNotThrow(() -> entityManager.createQuery(cq).getResultList());
+    }
+
+    @Test
+    public void loadSelection_overrideJoinsTrue_emptyOverrideJoinTypes_skipsJoins() {
+        var cb = entityManager.getCriteriaBuilder();
+        var cq = cb.createTupleQuery();
+        var root = cq.from(MyEntity.class);
+
+        var selections = JPAProjectionProcessor.loadSelection(
+                List.of("stringMail", "mySubModel.searchMe"),
+                root,
+                MyEntity.class,
+                ReflectionUtils.getAllProjectableFields(MyModel.class),
+                ReflectionUtils.getIdFields(MyEntity.class),
+                true,
+                true,
+                Collections.emptyMap()  // explicit empty map: same effect as null
+        );
+
+        assertNotNull(selections);
+        cq.multiselect(selections);
+        assertDoesNotThrow(() -> entityManager.createQuery(cq).getResultList());
+    }
+
+    @Test
+    public void loadSelection_overrideJoinsTrue_withInnerJoinType_buildsExpectedJoins() {
+        var cb = entityManager.getCriteriaBuilder();
+        var cq = cb.createTupleQuery();
+        var root = cq.from(MyEntity.class);
+
+        var selections = JPAProjectionProcessor.loadSelection(
+                List.of("mySubModel.searchMe"),
+                root,
+                MyEntity.class,
+                ReflectionUtils.getAllProjectableFields(MyModel.class),
+                ReflectionUtils.getIdFields(MyEntity.class),
+                true,
+                true,
+                Map.of("test2", jakarta.persistence.criteria.JoinType.INNER)
+        );
+
+        assertNotNull(selections);
+        assertEquals(1, root.getJoins().size(), "with a populated overrideJoinTypes map exactly one join is built");
+        assertEquals(jakarta.persistence.criteria.JoinType.INNER, root.getJoins().iterator().next().getJoinType());
+    }
+
     private void setUp() {
         var entities = new ArrayList<MyEntity>();
 

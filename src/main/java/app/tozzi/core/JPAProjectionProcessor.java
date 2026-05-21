@@ -233,7 +233,12 @@ public class JPAProjectionProcessor {
         var currentEntityContexts = new HashMap<Class<?>, Map<String, Object>>();
 
         idFields.forEach((currentEntityClass, currentIdMap) -> {
+            // IMPORTANT: sort by id-field NAME (key), not by the value's toString.
+            // Sorting by value produces false-positive cache hits for compound keys whose
+            // values are permutations of each other (e.g. {a=1, b=2} vs {a=2, b=1}),
+            // since the underlying HashMap has no stable iteration order.
             var rawIds = currentIdMap.keySet().stream()
+                    .sorted()
                     .flatMap(k -> {
                         try {
                             var val = tuple.get(k);
@@ -242,7 +247,6 @@ public class JPAProjectionProcessor {
                             return java.util.stream.Stream.empty();
                         }
                     })
-                    .sorted(Comparator.comparing(Object::toString))
                     .toList();
 
             if (!rawIds.isEmpty()) {

@@ -60,7 +60,6 @@ public class JPASearchInput {
     @EqualsAndHashCode(callSuper = true)
     public static class RootFilter extends Filter {
 
-        @NotEmpty
         private List<Filter> filters;
     }
 
