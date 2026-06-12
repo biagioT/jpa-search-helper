@@ -5,9 +5,11 @@
 We currently provide security updates for the following versions of the project. Please always use the latest patch version available for each release line.
 
 | Version | Supported Spring Boot | Support Status |
-| :------ | :-------------------- | :------------- |
-| 3.6.x   | 4.0.x                 | :white_check_mark: Supported |
-| 3.5.x   | 3.5.x                 | :warning: Limited Maintenance |
+|:--------|:----------------------| :------------- |
+| 4.1.0   | 4.1.x                 | :white_check_mark: Supported |
+| 4.0.0   | 4.0.x                 | :warning: Limited Maintenance |
+| 3.6.x   | 4.0.x                 | :x: End of Life |
+| 3.5.x   | 3.5.x                 | :x: End of Life |
 | 3.4.x   | 3.4.x                 | :x: End of Life |
 | 3.3.x   | 3.4.x                 | :x: End of Life |
 | < 3.0.0 | < 3.3.x               | :x: End of Life |
