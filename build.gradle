@@ -68,7 +68,7 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.22.0'
     testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
     testImplementation 'org.testcontainers:postgresql:1.21.4'
-    testImplementation 'org.postgresql:postgresql:42.7.11'
+    testImplementation 'org.postgresql:postgresql:42.7.12'
     testImplementation 'com.code-intelligence:jazzer-junit:0.30.0'
 }
 
